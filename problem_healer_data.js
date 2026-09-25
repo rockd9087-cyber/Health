@@ -1626,5 +1626,866 @@ window.PROBLEM_HEALING_DATABASE = {
   }
 };
 
+// ==========================================================================
+// MANDATORY WARM-UP & RESTORATIVE COOL-DOWN PROTOCOLS FOR ALL 20 CONDITIONS
+// ==========================================================================
+const WARMUP_COOLDOWN_MAP = {
+  back_pain: {
+    warmup: [
+      {
+        id: 'warmup_back_pelvic_tilts',
+        name: 'Supine Pelvic Rocking & Sacral Tilts',
+        sanskrit: 'Supta Kati Chalana',
+        duration: '2.0 min',
+        target: 'Lumbosacral Pre-Activation',
+        cue: 'Lie on mat with knees bent. Inhale gently arch lower back; exhale press lower back flat into mat, engaging lower abs.',
+        benefit: 'Pre-warms spinal disc hydration and resets pelvic tilt before loaded stretches.',
+        whyRequired: 'Mandatory: Stretching cold paraspinal muscles can cause reactive disc herniation.',
+        animKey: 'warmup_pelvic_tilts',
+        isWarmup: true
+      },
+      {
+        id: 'warmup_back_cat_cow',
+        name: 'Gentle Cat-Cow Synovial Warm-Up',
+        sanskrit: 'Marjaryasana-Bitilasana Prep',
+        duration: '2.0 min',
+        target: 'Spinal Synovial Fluid Circulation',
+        cue: 'Move at 50% range of motion with slow, rhythmic diaphragmatic breathing.',
+        benefit: 'Warms all 24 articulating vertebrae and calms reflexive paraspinal muscle splinting.',
+        whyRequired: 'Mandatory: Increases tissue temperature and fascial elasticity before deeper remedial holds.',
+        animKey: 'cat_cow',
+        isWarmup: true
+      }
+    ],
+    cooldown: {
+      id: 'cooldown_back_child',
+      name: 'Supported Restorative Child\'s Pose',
+      sanskrit: 'Balasana Integration',
+      duration: '2.5 min',
+      target: 'Vagus Nerve Reset & Sacral Integration',
+      cue: 'Rest forehead gently on mat. Breathe into your lower back with deep, unhurried 4-second inhales and 6-second exhales.',
+      benefit: 'Shifts nervous system from sympathetic tone into anabolic tissue repair mode.',
+      animKey: 'childs_pose',
+      isCooldown: true
+    }
+  },
+
+  sciatica_nerve: {
+    warmup: [
+      {
+        id: 'warmup_sciatica_flossing',
+        name: 'Sciatic Neural Glide & Nerve Flossing',
+        sanskrit: 'Nadi Sanchalana Prep',
+        duration: '2.0 min',
+        target: 'Sciatic Nerve Mobilization',
+        cue: 'Lie on back, support thigh with hands. Gently extend knee while pointing and flexing ankle in continuous smooth rhythm.',
+        benefit: 'Gently glides nerve roots through the piriformis canal without triggering tension.',
+        whyRequired: 'Mandatory: Never stretch an inflamed sciatic nerve cold; flossing releases fibrous adhesions first.',
+        animKey: 'warmup_nerve_flossing',
+        isWarmup: true
+      },
+      {
+        id: 'warmup_sciatica_pelvic_tilts',
+        name: 'Supine Pelvic Tilts & Sacral Decompression',
+        sanskrit: 'Supta Kati Chalana',
+        duration: '2.0 min',
+        target: 'Sacroiliac Joint Relief',
+        cue: 'Gently rock pelvis back and forth with soft rhythmic breathing to release lower lumbar guarding.',
+        benefit: 'Relieves shear pressure across the L5-S1 junction and calms peripheral nerve hypersensitivity.',
+        whyRequired: 'Mandatory: Prevents reactive piriformis muscle cramping during the subsequent stretch.',
+        animKey: 'warmup_pelvic_tilts',
+        isWarmup: true
+      }
+    ],
+    cooldown: {
+      id: 'cooldown_sciatica_child',
+      name: 'Gentle Wide-Knee Resting Pose',
+      sanskrit: 'Supta Balasana',
+      duration: '2.5 min',
+      target: 'Pelvic Floor Relaxation',
+      cue: 'Let both knees fall comfortably outward, breathing calmly into the lower abdomen.',
+      benefit: 'Discharges residual neurogenic tension and prevents post-exercise flare-up.',
+      animKey: 'childs_pose',
+      isCooldown: true
+    }
+  },
+
+  neck_strain: {
+    warmup: [
+      {
+        id: 'warmup_neck_chin_tucks',
+        name: 'Cervical Retractions & Suboccipital Chin Tucks',
+        sanskrit: 'Griva Sandhi Chalana',
+        duration: '2.0 min',
+        target: 'C1-C7 Spinal Alignment',
+        cue: 'Sit tall. Glide chin gently straight backward like making a subtle double chin, keeping gaze level.',
+        benefit: 'Decompresses C5-C7 nerve roots and releases upper trapezius spasm.',
+        whyRequired: 'Mandatory: Stretching neck rotators while head is in forward-sheared posture damages cervical facet joints.',
+        animKey: 'warmup_joint_mobility',
+        isWarmup: true
+      },
+      {
+        id: 'warmup_neck_shoulder_rolls',
+        name: 'Gentle Scapular Shoulder Rolls & Glides',
+        sanskrit: 'Skandha Sandhi Chalana',
+        duration: '2.0 min',
+        target: 'Scapulothoracic Mobility',
+        cue: 'Roll shoulders up toward ears, back, and smoothly down in large fluid circles.',
+        benefit: 'Pumps fresh oxygenated blood through levator scapulae and trapezius.',
+        whyRequired: 'Mandatory: Releases postural hypertonicity before deeper lateral neck stretches.',
+        animKey: 'wall_angels',
+        isWarmup: true
+      }
+    ],
+    cooldown: {
+      id: 'cooldown_neck_rest',
+      name: 'Seated Restorative Diaphragmatic Breath',
+      sanskrit: 'Pranayama Vagus Calm',
+      duration: '2.0 min',
+      target: 'Cervicocranial Vagus Reset',
+      cue: 'Rest palms on thighs, close eyes, and take 10 slow breaths dropping shoulders down.',
+      benefit: 'Eliminates somatic neck defense tone and prevents tension headache rebound.',
+      animKey: 'pranayama',
+      isCooldown: true
+    }
+  },
+
+  cervical_spondylosis: {
+    warmup: [
+      {
+        id: 'warmup_cervical_isometrics',
+        name: 'Gentle Isometric Cervical Stabilization',
+        sanskrit: 'Griva Sthirata Prep',
+        duration: '2.0 min',
+        target: 'Deep Neck Flexor Activation',
+        cue: 'Press palm into forehead with 20% light effort, resist with neck without head motion.',
+        benefit: 'Stabilizes deep cervical flexors without shearing worn cervical discs.',
+        whyRequired: 'Mandatory: Wakes up stabilizing deep muscles before any neck range-of-motion work.',
+        animKey: 'warmup_joint_mobility',
+        isWarmup: true
+      },
+      {
+        id: 'warmup_cervical_wall_glides',
+        name: 'Gentle Scapular Wall Angel Glides',
+        sanskrit: 'Bhupa Wall Glides',
+        duration: '2.5 min',
+        target: 'Thoracic Extension',
+        cue: 'Rest back against wall, glide arms up and down slowly within comfortable range.',
+        benefit: 'Reverses forward head posture and unloads compressed neck vertebrae.',
+        whyRequired: 'Mandatory: Mobilizes thoracic spine so the neck doesn\'t overcompensate.',
+        animKey: 'wall_angels',
+        isWarmup: true
+      }
+    ],
+    cooldown: {
+      id: 'cooldown_cervical_rest',
+      name: 'Supine Head Rest with Vagus Reset',
+      sanskrit: 'Savasana Cervical Alignment',
+      duration: '2.5 min',
+      target: 'Spinal Nerve Unwinding',
+      cue: 'Lie flat with a small rolled towel under neck curve, letting jaw and eyes soften.',
+      benefit: 'Preserves newly gained cervical disc height and promotes synovial fluid absorption.',
+      animKey: 'childs_pose',
+      isCooldown: true
+    }
+  },
+
+  acid_reflux: {
+    warmup: [
+      {
+        id: 'warmup_gerd_diaphragm',
+        name: 'Diaphragmatic 360-Degree Agni Breath',
+        sanskrit: 'Prana Deepening Breath',
+        duration: '2.5 min',
+        target: 'Lower Esophageal Sphincter Tone',
+        cue: 'Sit upright. Place hands on lower ribs. Inhale expand ribs sideways, exhale gently draw navel inward.',
+        benefit: 'Strengthens the crura of the diaphragm to seal the gastric opening against acid regurgitation.',
+        whyRequired: 'Mandatory: Calms hyperactive sympathetic gastro-spasms before physical postures.',
+        animKey: 'warmup_diaphragmatic_breath',
+        isWarmup: true
+      },
+      {
+        id: 'warmup_gerd_swirls',
+        name: 'Seated Pelvic & Torso Sufi Swirls',
+        sanskrit: 'Nabhi Chakra Chalana',
+        duration: '2.0 min',
+        target: 'Abdominal Peristalsis',
+        cue: 'Make slow, graceful circles with your torso clockwise and counter-clockwise with gentle breath.',
+        benefit: 'Encourages downward gastric emptying (Apana Vata) without compressive pressure.',
+        whyRequired: 'Mandatory: Prevents gastric reflux surge during posture transitions.',
+        animKey: 'cat_cow',
+        isWarmup: true
+      }
+    ],
+    cooldown: {
+      id: 'cooldown_gerd_vajrasana',
+      name: 'Seated Thunderbolt Digestion Rest',
+      sanskrit: 'Vajrasana Digestive Pose',
+      duration: '2.5 min',
+      target: 'Pelvic Blood Flow Diversion',
+      cue: 'Sit on heels with erect spine. Breathe slowly and let stomach settle comfortably.',
+      benefit: 'Diverts blood flow directly to visceral organs, accelerating digestive transit.',
+      animKey: 'pranayama',
+      isCooldown: true
+    }
+  },
+
+  pcos_hormone: {
+    warmup: [
+      {
+        id: 'warmup_pcos_pelvic',
+        name: 'Supine Pelvic Rocking & Sacral Awakening',
+        sanskrit: 'Supta Kati Chalana',
+        duration: '2.5 min',
+        target: 'Pelvic Microcirculation',
+        cue: 'Rock pelvis smoothly on mat to stimulate ovarian and uterine capillary blood flow.',
+        benefit: 'Warms deep pelvic floor tissues and calms systemic cortisol spikes.',
+        whyRequired: 'Mandatory: Relaxes tight pelvic floor ligaments before opening hip postures.',
+        animKey: 'warmup_pelvic_tilts',
+        isWarmup: true
+      },
+      {
+        id: 'warmup_pcos_catcow',
+        name: 'Gentle Cat-Cow with Extended Exhalations',
+        sanskrit: 'Marjaryasana-Bitilasana Hormonal Prep',
+        duration: '2.0 min',
+        target: 'Endocrine Calming',
+        cue: 'Move rhythmically, matching 4s inhale to 6s exhale to lower adrenal stress signals.',
+        benefit: 'Reduces sympathetic tone and dampens adrenal androgen surges.',
+        whyRequired: 'Mandatory: Lowers insulin resistance and muscle tension before strength holds.',
+        animKey: 'cat_cow',
+        isWarmup: true
+      }
+    ],
+    cooldown: {
+      id: 'cooldown_pcos_legs_wall',
+      name: 'Supported Legs-Up-the-Wall',
+      sanskrit: 'Viparita Karani Integration',
+      duration: '3.0 min',
+      target: 'Endocrine Gland Drainage',
+      cue: 'Rest legs vertically up wall or on cushions, breathing calmly into lower pelvis.',
+      benefit: 'Drains metabolic waste from reproductive organs and resets hypothalamic-pituitary axis.',
+      animKey: 'inversion',
+      isCooldown: true
+    }
+  },
+
+  insomnia: {
+    warmup: [
+      {
+        id: 'warmup_insomnia_nadi',
+        name: 'Nadi Shodhana Alternate Nostril Breath Warm-Up',
+        sanskrit: 'Nadi Shodhana Pranayama',
+        duration: '3.0 min',
+        target: 'Pineal & Autonomic Shift',
+        cue: 'Sit comfortably. Close right nostril, inhale left 4s. Close left, exhale right 6s with eyes closed.',
+        benefit: 'Down-regulates high beta brainwaves into calming alpha states.',
+        whyRequired: 'Mandatory: Somatic preparation to transition the brain into natural melatonin secretion.',
+        animKey: 'pranayama',
+        isWarmup: true
+      },
+      {
+        id: 'warmup_insomnia_kneetuck',
+        name: 'Gentle Supine Knee Tucks & Sacral Rolls',
+        sanskrit: 'Supta Pavanamukta Prep',
+        duration: '2.0 min',
+        target: 'Spinal De-escalation',
+        cue: 'Hug knees gently toward chest, sway side to side slowly, exhaling tension into the mat.',
+        benefit: 'Releases daytime spinal tension and calms restless leg syndrome.',
+        whyRequired: 'Mandatory: Signals the autonomic nervous system that physical daytime exertion has ended.',
+        animKey: 'childs_pose',
+        isWarmup: true
+      }
+    ],
+    cooldown: {
+      id: 'cooldown_insomnia_savasana',
+      name: 'Deep Savasana Yoga Nidra Integration',
+      sanskrit: 'Savasana Restorative Sleep Prep',
+      duration: '3.0 min',
+      target: 'Delta Wave Transition',
+      cue: 'Lie completely supported, scan body from toes to crown, releasing every muscle fiber.',
+      benefit: 'Deep cellular relaxation that accelerates nocturnal slow-wave sleep onset.',
+      animKey: 'childs_pose',
+      isCooldown: true
+    }
+  },
+
+  knee_joint: {
+    warmup: [
+      {
+        id: 'warmup_knee_ankle_pumps',
+        name: 'Non-Weight Bearing Ankle Pumps & Knee Synovial Wakes',
+        sanskrit: 'Gulpha Sandhi Chalana',
+        duration: '2.0 min',
+        target: 'Knee Synovial Lubrication',
+        cue: 'Sit on mat or chair. Smoothly point and flex ankles, gently extend knee without locking.',
+        benefit: 'Circulates nutrient-rich synovial fluid across damaged cartilage without compressive force.',
+        whyRequired: 'Mandatory: Cartilage has no blood supply; synovial fluid is only circulated through gentle pre-movement.',
+        animKey: 'warmup_joint_mobility',
+        isWarmup: true
+      },
+      {
+        id: 'warmup_knee_heel_slides',
+        name: 'Supine Gentle Heel Slides & Pelvic Balance',
+        sanskrit: 'Janu Sandhi Chalana',
+        duration: '2.5 min',
+        target: 'Patellar Tracking Warm-Up',
+        cue: 'Lie on back, slide one heel forward and back along the mat with controlled, smooth breath.',
+        benefit: 'Activates the vastus medialis to track the patella cleanly in its femoral groove.',
+        whyRequired: 'Mandatory: Prevents patellofemoral friction and meniscus pinching during loaded exercises.',
+        animKey: 'warmup_pelvic_tilts',
+        isWarmup: true
+      }
+    ],
+    cooldown: {
+      id: 'cooldown_knee_elevated',
+      name: 'Elevated Leg Rest with Gentle Quad Relaxation',
+      sanskrit: 'Viparita Janu Rest',
+      duration: '2.5 min',
+      target: 'Joint Decompression & Lymph Flush',
+      cue: 'Elevate lower legs on bolster or chair, letting knee ligaments completely soften.',
+      benefit: 'Flushes inflammatory fluid out of the joint capsule and relieves aching.',
+      animKey: 'inversion',
+      isCooldown: true
+    }
+  },
+
+  migraine: {
+    warmup: [
+      {
+        id: 'warmup_migraine_chin_tuck',
+        name: 'Suboccipital Release & Gentle Chin Tucks',
+        sanskrit: 'Shirsha Sandhi Chalana',
+        duration: '2.0 min',
+        target: 'Greater Occipital Nerve Decompression',
+        cue: 'Keep gaze level. Gently glide chin backward without tilting head down, softening throat.',
+        benefit: 'Relieves vascular throttling of the vertebral arteries at the skull base.',
+        whyRequired: 'Mandatory: Prevents rebound vasodilation and throbbing during remedial exercise.',
+        animKey: 'warmup_joint_mobility',
+        isWarmup: true
+      },
+      {
+        id: 'warmup_migraine_sheetali',
+        name: 'Slow Shoulder Melts with Cooling Sheetali Breath',
+        sanskrit: 'Sheetali Pranayama Prep',
+        duration: '2.5 min',
+        target: 'Trigeminal Sensory Calming',
+        cue: 'Drop shoulders away from ears, inhale cooling air through curled tongue, exhale warm tension through nose.',
+        benefit: 'Quiets trigeminovascular sensitization and ocular throbbing.',
+        whyRequired: 'Mandatory: Calms sympathetic overdrive that triggers migraine aura.',
+        animKey: 'pranayama',
+        isWarmup: true
+      }
+    ],
+    cooldown: {
+      id: 'cooldown_migraine_child',
+      name: 'Darkened Room Restorative Child\'s Pose',
+      sanskrit: 'Balasana Sensory Decompression',
+      duration: '3.0 min',
+      target: 'Sensory Shielding & Neural Quiet',
+      cue: 'Rest forehead on folded towel, close eyes, breathe with slow 4s inhale and 6s exhale.',
+      benefit: 'Down-regulates sensory processing in the thalamus to abort migraine pain loops.',
+      animKey: 'childs_pose',
+      isCooldown: true
+    }
+  },
+
+  sluggish_metabolism: {
+    warmup: [
+      {
+        id: 'warmup_metabolism_catcow',
+        name: 'Dynamic Cat-Cow with Agni Breath',
+        sanskrit: 'Agni Sara Marjaryasana',
+        duration: '2.5 min',
+        target: 'Thyroid & Visceral Awakening',
+        cue: 'Exaggerate thoracic expansion on inhale, firm abdominal squeeze on exhale to massage visceral organs.',
+        benefit: 'Stimulates thyroid and parathyroid glands through cervical articulation.',
+        whyRequired: 'Mandatory: Ignites sluggish cellular mitochondrial enzymes before strength loading.',
+        animKey: 'cat_cow',
+        isWarmup: true
+      },
+      {
+        id: 'warmup_metabolism_mobility',
+        name: 'Gentle Standing Joint Mobility & Arm Circles',
+        sanskrit: 'Sarva Sandhi Chalana',
+        duration: '2.0 min',
+        target: 'Full Body Lymphatic Awakening',
+        cue: 'Rotate wrists, shoulders, and hips smoothly in large synchronized circles with deep breath.',
+        benefit: 'Accelerates stagnant lymphatic drainage and clears cellular waste.',
+        whyRequired: 'Mandatory: Pre-warms dormant muscular fibers and prevents sudden cramping.',
+        animKey: 'warmup_joint_mobility',
+        isWarmup: true
+      }
+    ],
+    cooldown: {
+      id: 'cooldown_metabolism_rest',
+      name: 'Seated Spinal Rest & Calming Breath',
+      sanskrit: 'Sukhasana Metabolic Integration',
+      duration: '2.0 min',
+      target: 'Homeostatic Balancing',
+      cue: 'Sit tall, palms resting face up on knees, observe warmth circulating through body.',
+      benefit: 'Balances cortisol and preserves metabolic elevation without post-exercise exhaustion.',
+      animKey: 'pranayama',
+      isCooldown: true
+    }
+  },
+
+  fatty_liver: {
+    warmup: [
+      {
+        id: 'warmup_liver_rib_breath',
+        name: 'Diaphragmatic Breath & Lateral Right Rib Wave',
+        sanskrit: 'Yakrit Prana Sanchalana',
+        duration: '2.5 min',
+        target: 'Hepatic Microcirculation',
+        cue: 'Sit tall. Inhale expand right ribcage where the liver resides, exhale gently contract.',
+        benefit: 'Mechanically compresses and decompresses the liver to stimulate bile drainage.',
+        whyRequired: 'Mandatory: Mobilizes visceral venous pooling before remedial spinal twists.',
+        animKey: 'warmup_diaphragmatic_breath',
+        isWarmup: true
+      },
+      {
+        id: 'warmup_liver_torso_rotations',
+        name: 'Gentle Seated Torso Rotations',
+        sanskrit: 'Nabhi Chakra Chalana',
+        duration: '2.0 min',
+        target: 'Visceral Detoxification Flow',
+        cue: 'Make slow, clockwise circles with your ribcage, breathing smoothly and deeply.',
+        benefit: 'Encourages hepatic portal vein blood flow and breaks intra-abdominal stagnation.',
+        whyRequired: 'Mandatory: Prevents visceral cramping during deeper twists.',
+        animKey: 'cat_cow',
+        isWarmup: true
+      }
+    ],
+    cooldown: {
+      id: 'cooldown_liver_child',
+      name: 'Supported Child\'s Pose with Gentle Lateral Bow',
+      sanskrit: 'Balasana Hepatic Rest',
+      duration: '2.5 min',
+      target: 'Visceral Organ Decompression',
+      cue: 'Rest in child\'s pose, walking hands slightly to the left to gently open right hepatic flank.',
+      benefit: 'Maximizes bile duct relaxation and parasympathetic metabolic processing.',
+      animKey: 'childs_pose',
+      isCooldown: true
+    }
+  },
+
+  ibs_bloating: {
+    warmup: [
+      {
+        id: 'warmup_ibs_balloon',
+        name: 'Agni Deep Diaphragmatic Breath & Belly Balloon',
+        sanskrit: 'Udara Sanchalana Breath',
+        duration: '2.5 min',
+        target: 'Enteric Nervous System Reset',
+        cue: 'Place hands over navel. Inhale expand belly like a soft balloon, exhale release slowly.',
+        benefit: 'Stimulates the vagus nerve and down-regulates hyperactive gut sensations.',
+        whyRequired: 'Mandatory: Relaxes spastic intestinal smooth muscle before posture practice.',
+        animKey: 'warmup_diaphragmatic_breath',
+        isWarmup: true
+      },
+      {
+        id: 'warmup_ibs_pelvic',
+        name: 'Gentle Supine Pelvic Rocking & Sacral Circles',
+        sanskrit: 'Supta Kati Chalana',
+        duration: '2.0 min',
+        target: 'Colonic Peristalsis Priming',
+        cue: 'Rock pelvis smoothly to ease gas bubbles through the splenic flexure without strain.',
+        benefit: 'Relieves sharp gas cramp spikes before remedial postures.',
+        whyRequired: 'Mandatory: Mobilizes trapped gas pockets safely without straining colonic loops.',
+        animKey: 'warmup_pelvic_tilts',
+        isWarmup: true
+      }
+    ],
+    cooldown: {
+      id: 'cooldown_ibs_child',
+      name: 'Supported Wide-Knee Child\'s Pose',
+      sanskrit: 'Prasarita Balasana Gut Rest',
+      duration: '2.5 min',
+      target: 'Intestinal Spasm Release',
+      cue: 'Open knees wide, let belly rest softly between thighs, breathe into low back.',
+      benefit: 'Relieves all intra-abdominal pressure and allows smooth gas dissipation.',
+      animKey: 'childs_pose',
+      isCooldown: true
+    }
+  },
+
+  constipation: {
+    warmup: [
+      {
+        id: 'warmup_constipation_swirls',
+        name: 'Warm Water Hydration & Clockwise Torso Swirls',
+        sanskrit: 'Gastrocolic Stimulation Circles',
+        duration: '2.5 min',
+        target: 'Gastrocolic Reflex Triggering',
+        cue: 'Rotate upper body in rhythmic clockwise circles (following direction of ascending to descending colon).',
+        benefit: 'Mechanically stimulates peristaltic waves along the colon wall.',
+        whyRequired: 'Mandatory: Awaken gastrocolic transit before deep squatting exercises.',
+        animKey: 'cat_cow',
+        isWarmup: true
+      },
+      {
+        id: 'warmup_constipation_kneetucks',
+        name: 'Supine Alternating Single Knee Tucks',
+        sanskrit: 'Eka Pada Pavanamuktasana Prep',
+        duration: '2.0 min',
+        target: 'Apana Vata Direction',
+        cue: 'Gently draw right knee to chest, hold for 3 breaths, switch smoothly to left knee.',
+        benefit: 'Directs descending biological energy (Apana Vata) downward toward the rectum.',
+        whyRequired: 'Mandatory: Releases rectal spasms and softens abdominal guarding.',
+        animKey: 'childs_pose',
+        isWarmup: true
+      }
+    ],
+    cooldown: {
+      id: 'cooldown_constipation_malasana_rest',
+      name: 'Supported Pelvic Rest Pose',
+      sanskrit: 'Supta Baddha Konasana',
+      duration: '2.0 min',
+      target: 'Pelvic Floor Relaxation',
+      cue: 'Lie on back with soles of feet together, knees open, breathing calmly into lower pelvis.',
+      benefit: 'Completely unclamps the puborectalis muscle to enable natural elimination.',
+      animKey: 'childs_pose',
+      isCooldown: true
+    }
+  },
+
+  high_bp_stress: {
+    warmup: [
+      {
+        id: 'warmup_bp_chandra',
+        name: 'Chandra Bhedana (Left Nostril Cooling Breath)',
+        sanskrit: 'Chandra Bhedana Pranayama',
+        duration: '3.0 min',
+        target: 'Baroreceptor Reflex Calibration',
+        cue: 'Block right nostril. Inhale slowly through left nostril for 4s, exhale right for 6s.',
+        benefit: 'Stimulates parasympathetic vagal braking, lowering vascular peripheral resistance.',
+        whyRequired: 'Mandatory: Never perform physical postures with elevated systolic spike.',
+        animKey: 'pranayama',
+        isWarmup: true
+      },
+      {
+        id: 'warmup_bp_neck_melts',
+        name: 'Gentle Neck Half-Circles & Shoulder Melts',
+        sanskrit: 'Griva Sandhi Chalana',
+        duration: '2.0 min',
+        target: 'Carotid Sinus Decompression',
+        cue: 'Gently roll ear toward shoulder, breathing out tension. Never drop head back.',
+        benefit: 'Relieves muscular compression on the carotid sinus baroreceptors.',
+        whyRequired: 'Mandatory: Pre-dilates microvasculature to ensure smooth cardiac output.',
+        animKey: 'warmup_joint_mobility',
+        isWarmup: true
+      }
+    ],
+    cooldown: {
+      id: 'cooldown_bp_inversion',
+      name: 'Supported Legs Up the Wall (Viparita Karani)',
+      sanskrit: 'Viparita Karani Cardiac Rest',
+      duration: '3.0 min',
+      target: 'Venous Return & Blood Pressure Drop',
+      cue: 'Rest legs up wall, arms open at sides, breathe calmly and evenly.',
+      benefit: 'Reduces cardiac workload and induces profound arterial vasodilation.',
+      animKey: 'inversion',
+      isCooldown: true
+    }
+  },
+
+  anxiety_stress: {
+    warmup: [
+      {
+        id: 'warmup_anxiety_sigh',
+        name: 'Physiological Sigh & 5-Count Diaphragmatic Breath',
+        sanskrit: 'Dirgha Shwasa Vagus Priming',
+        duration: '3.0 min',
+        target: 'Amygdala Down-Regulation',
+        cue: 'Two quick inhales through nose, followed by one long, slow sigh out through mouth.',
+        benefit: 'Immediately resets neural panic tone and dumps excess alveolar carbon dioxide.',
+        whyRequired: 'Mandatory: Somatic uncoupling of physical fight-or-flight before movement.',
+        animKey: 'warmup_diaphragmatic_breath',
+        isWarmup: true
+      },
+      {
+        id: 'warmup_anxiety_catcow',
+        name: 'Gentle Cat-Cow with Audible Sigh Exhale',
+        sanskrit: 'Marjaryasana-Bitilasana Sigh',
+        duration: '2.0 min',
+        target: 'Vagal Nerve Awakening',
+        cue: 'Arch and round spine slowly, exhaling with a gentle audible hum.',
+        benefit: 'Vocal cord vibration stimulates auricular branches of the vagus nerve.',
+        whyRequired: 'Mandatory: Melts somatic defensive muscular armoring in chest and throat.',
+        animKey: 'cat_cow',
+        isWarmup: true
+      }
+    ],
+    cooldown: {
+      id: 'cooldown_anxiety_child',
+      name: 'Supported Restorative Child\'s Pose with Weighted Hands',
+      sanskrit: 'Salamba Balasana Neuro-Calm',
+      duration: '3.0 min',
+      target: 'Nervous System Grounding',
+      cue: 'Rest head on mat, feel contact points with floor, breathe smoothly into back body.',
+      benefit: 'Provides proprioceptive grounding and eliminates floating panic sensations.',
+      animKey: 'childs_pose',
+      isCooldown: true
+    }
+  },
+
+  plantar_heel: {
+    warmup: [
+      {
+        id: 'warmup_plantar_abcs',
+        name: 'Non-Weight Bearing Ankle ABCs & Joint Circles',
+        sanskrit: 'Pada Sandhi Chalana',
+        duration: '2.0 min',
+        target: 'Plantar Fascia Synovial Waking',
+        cue: 'Sit with leg elevated. Trace circles and point/flex ankle smoothly in the air.',
+        benefit: 'Pumps blood into the hypovascular calcaneal insertion of the plantar fascia.',
+        whyRequired: 'Mandatory: Walking or stretching on a cold, contracted plantar fascia causes micro-tears.',
+        animKey: 'warmup_joint_mobility',
+        isWarmup: true
+      },
+      {
+        id: 'warmup_plantar_towel',
+        name: 'Gentle Calf & Achilles Towel Mobilization',
+        sanskrit: 'Gulpha Prana Sanchalana',
+        duration: '2.0 min',
+        target: 'Gastrocnemius-Soleus Complex',
+        cue: 'Place soft strap or towel under ball of foot, gently pull without straining.',
+        benefit: 'Relieves morning contracture of the Achilles tendon.',
+        whyRequired: 'Mandatory: Unloads tensile pull on the heel bone before standing.',
+        animKey: 'warmup_pelvic_tilts',
+        isWarmup: true
+      }
+    ],
+    cooldown: {
+      id: 'cooldown_plantar_elevation',
+      name: 'Elevated Foot Rest with Gentle Toe Spreads',
+      sanskrit: 'Pada Vishrama Inversion',
+      duration: '2.0 min',
+      target: 'Calcaneal Decompression',
+      cue: 'Rest feet elevated on cushions, gently spread toes wide and relax.',
+      benefit: 'Drains localized inflammatory edema from the heel fat pad.',
+      animKey: 'inversion',
+      isCooldown: true
+    }
+  },
+
+  frozen_shoulder: {
+    warmup: [
+      {
+        id: 'warmup_shoulder_pendulum',
+        name: 'Codman\'s Pendulum Arm Swings',
+        sanskrit: 'Bhuja Sandhi Chalana',
+        duration: '2.5 min',
+        target: 'Glenohumeral Capsule Decompression',
+        cue: 'Lean forward resting good arm on table. Let affected arm dangle freely in gentle gravity circles.',
+        benefit: 'Separates humeral head from inflamed glenoid cavity without muscular activation.',
+        whyRequired: 'Mandatory: Active contraction while capsule is contracted causes severe sharp spasms.',
+        animKey: 'warmup_joint_mobility',
+        isWarmup: true
+      },
+      {
+        id: 'warmup_shoulder_scapular',
+        name: 'Scapular Retractions & Ribcage Breathing',
+        sanskrit: 'Skandha Sanchalana',
+        duration: '2.0 min',
+        target: 'Scapulothoracic Gliding',
+        cue: 'Squeeze shoulder blades gently together for 3 seconds, release with a deep breath.',
+        benefit: 'Restores the 2:1 scapulohumeral rhythm required for safe arm lifting.',
+        whyRequired: 'Mandatory: Prevents impingement of the supraspinatus tendon.',
+        animKey: 'wall_angels',
+        isWarmup: true
+      }
+    ],
+    cooldown: {
+      id: 'cooldown_shoulder_child',
+      name: 'Supported Child\'s Pose with Forearm Bolster',
+      sanskrit: 'Salamba Balasana Bhuja Rest',
+      duration: '2.5 min',
+      target: 'Rotator Cuff Softening',
+      cue: 'Rest forearms on a pillow in child\'s pose, letting shoulders broaden without tension.',
+      benefit: 'Maintains joint space and prevents post-exercise synovial inflammation.',
+      animKey: 'childs_pose',
+      isCooldown: true
+    }
+  },
+
+  uric_acid_gout: {
+    warmup: [
+      {
+        id: 'warmup_gout_joint_pumps',
+        name: 'Non-Weight Bearing Gentle Joint Fluid Pumps',
+        sanskrit: 'Asthi Sandhi Shodhana',
+        duration: '2.5 min',
+        target: 'Synovial Crystal Flushing',
+        cue: 'Lie comfortably, gently wiggle toes, rotate ankles and knees without friction.',
+        benefit: 'Circulates warm synovial fluid around sharp monosodium urate micro-crystals.',
+        whyRequired: 'Mandatory: Prevents crystallization friction from tearing delicate joint synovium.',
+        animKey: 'warmup_joint_mobility',
+        isWarmup: true
+      },
+      {
+        id: 'warmup_gout_spine_breath',
+        name: 'Diaphragmatic Breath & Gentle Spine Waves',
+        sanskrit: 'Vrikka Prana Sanchalana',
+        duration: '2.0 min',
+        target: 'Renal Blood Flow Optimization',
+        cue: 'Synchronize gentle spine waves with deep abdominal breathing.',
+        benefit: 'Improves renal perfusion to accelerate uric acid filtration in urine.',
+        whyRequired: 'Mandatory: Boosts systemic clearance without elevating joint pressure.',
+        animKey: 'cat_cow',
+        isWarmup: true
+      }
+    ],
+    cooldown: {
+      id: 'cooldown_gout_elevation',
+      name: 'Elevated Joint Restorative Pose',
+      sanskrit: 'Sandhi Vishrama Inversion',
+      duration: '2.5 min',
+      target: 'Urate Crystal Dispersion',
+      cue: 'Elevate affected limb on pillows, breathe calmly and hydrate with sendha namak water.',
+      benefit: 'Reduces intra-articular pressure and promotes lymphatic crystal removal.',
+      animKey: 'inversion',
+      isCooldown: true
+    }
+  },
+
+  eczema_skin_rash: {
+    warmup: [
+      {
+        id: 'warmup_eczema_sheetali',
+        name: 'Sheetali Cooling Pranayama (Cooling Prana Breath)',
+        sanskrit: 'Sheetali Pranayama Pitta Pacifier',
+        duration: '3.0 min',
+        target: 'Pitta Heat Dissipation',
+        cue: 'Curl tongue into a tube or breathe through teeth. Inhale cool air, exhale warm through nose.',
+        benefit: 'Directly lowers systemic core body heat and soothes capillary vasodilation.',
+        whyRequired: 'Mandatory: Any physical activity without cooling breath causes sweat that stings raw lesions.',
+        animKey: 'pranayama',
+        isWarmup: true
+      },
+      {
+        id: 'warmup_eczema_rom',
+        name: 'Slow Non-Friction Joint Range of Motion',
+        sanskrit: 'Tvacha Snigdha Chalana',
+        duration: '2.0 min',
+        target: 'Circulatory Lymph Flow',
+        cue: 'Slowly glide joints without touching or rubbing inflamed skin areas.',
+        benefit: 'Encourages cutaneous lymphatic drainage without friction irritation.',
+        whyRequired: 'Mandatory: Prevents histamine release from skin mast cells.',
+        animKey: 'warmup_joint_mobility',
+        isWarmup: true
+      }
+    ],
+    cooldown: {
+      id: 'cooldown_eczema_savasana',
+      name: 'Restorative Savasana in Cool Environment',
+      sanskrit: 'Sheetala Savasana',
+      duration: '3.0 min',
+      target: 'Dermal Capillary Calming',
+      cue: 'Lie quietly with loose clothing, focus on coolness spreading across skin.',
+      benefit: 'Quells peripheral itching sensations and restores epidermal blood flow equilibrium.',
+      animKey: 'childs_pose',
+      isCooldown: true
+    }
+  },
+
+  low_immunity: {
+    warmup: [
+      {
+        id: 'warmup_immunity_thymus',
+        name: 'Thymus Tapping & Diaphragmatic Breath',
+        sanskrit: 'Ojas Vardhana Prana Priming',
+        duration: '2.5 min',
+        target: 'Thymus & Thoracic Duct Priming',
+        cue: 'Gently tap sternum with fingertips while taking 10 deep, expansive nasal breaths.',
+        benefit: 'Stimulates T-cell maturation in thymus and pumps the main thoracic lymphatic trunk.',
+        whyRequired: 'Mandatory: Jumpstarts lymph circulation which has no muscular pump of its own.',
+        animKey: 'warmup_diaphragmatic_breath',
+        isWarmup: true
+      },
+      {
+        id: 'warmup_immunity_catcow',
+        name: 'Gentle Cat-Cow Spinal Lymph Wave',
+        sanskrit: 'Marjaryasana Lymphatic Pump',
+        duration: '2.0 min',
+        target: 'Peyer’s Patches & Gut Lymph Awakening',
+        cue: 'Move smoothly between cat and cow to rhythmically compress and decompress the abdomen.',
+        benefit: 'Circulates 70% of the body’s immune cells situated along the gut wall.',
+        whyRequired: 'Mandatory: Maximizes immunoglobin A delivery across respiratory mucous membranes.',
+        animKey: 'cat_cow',
+        isWarmup: true
+      }
+    ],
+    cooldown: {
+      id: 'cooldown_immunity_child',
+      name: 'Restorative Child\'s Pose with Gentle Prana Rest',
+      sanskrit: 'Salamba Balasana Ojas Integration',
+      duration: '2.5 min',
+      target: 'Immune Cytokine Optimization',
+      cue: 'Rest forehead on mat, surrender all physical effort, breathe slowly into chest and back.',
+      benefit: 'Allows endocrine system to allocate metabolic energy directly to immune synthesis.',
+      animKey: 'childs_pose',
+      isCooldown: true
+    }
+  }
+};
+
+// Enrich all conditions in window.PROBLEM_HEALING_DATABASE with warmup and cooldown protocols
+(function enrichProtocols() {
+  const db = (typeof window !== 'undefined' && window.PROBLEM_HEALING_DATABASE) ? window.PROBLEM_HEALING_DATABASE : null;
+  if (!db) return;
+
+  Object.keys(db).forEach(key => {
+    const item = db[key];
+    const protocols = WARMUP_COOLDOWN_MAP[key] || {
+      warmup: [
+        {
+          id: `warmup_${key}_mobility`,
+          name: 'Joint Synovial Pre-Warm-Up',
+          sanskrit: 'Sandhi Chalana Prep',
+          duration: '2.0 min',
+          target: 'Synovial Fluid Circulation',
+          cue: 'Smooth joint circles and gentle movements to circulate protective fluids.',
+          benefit: 'Warms fascia and cartilage before therapeutic loading.',
+          whyRequired: 'Mandatory: Prevents tissue strain from sudden cold movement.',
+          animKey: 'warmup_joint_mobility',
+          isWarmup: true
+        },
+        {
+          id: `warmup_${key}_breath`,
+          name: 'Diaphragmatic Breath & Gentle Spine Waves',
+          sanskrit: 'Prana Sanchalana',
+          duration: '2.0 min',
+          target: 'Neuromuscular Priming',
+          cue: 'Synchronize gentle spinal articulation with deep, unhurried nasal breathing.',
+          benefit: 'Prepares the nervous system and relaxes protective muscular guarding.',
+          whyRequired: 'Mandatory: Increases tissue elasticity and blood oxygenation.',
+          animKey: 'cat_cow',
+          isWarmup: true
+        }
+      ],
+      cooldown: {
+        id: `cooldown_${key}_child`,
+        name: 'Restorative Somatic Integration',
+        sanskrit: 'Balasana Vagus Reset',
+        duration: '2.5 min',
+        target: 'Parasympathetic Healing Activation',
+        cue: 'Rest comfortably on mat, breathing deeply into lower back.',
+        benefit: 'Shifts body into anabolic recovery and tissue repair mode.',
+        animKey: 'childs_pose',
+        isCooldown: true
+      }
+    };
+
+    item.warmupExercises = protocols.warmup;
+    item.cooldownExercise = protocols.cooldown;
+  });
+})();
+
+if (typeof window !== 'undefined') {
+  window.WARMUP_COOLDOWN_MAP = WARMUP_COOLDOWN_MAP;
+}
+
 
 
