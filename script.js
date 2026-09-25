@@ -48,11 +48,13 @@ const state = {
   userProfile: (() => {
     try {
       const saved = localStorage.getItem('prana_profile');
-      return saved ? JSON.parse(saved) : { age: '', height: '', weight: '', activity: 'moderate', goal: 'energy' };
+      return saved ? JSON.parse(saved) : { age: '', height: '', weight: '', activity: 'moderate', goal: 'energy', diet: 'veg', fastingType: 'intermittent' };
     } catch (e) {
-      return { age: '', height: '', weight: '', activity: 'moderate', goal: 'energy' };
+      return { age: '', height: '', weight: '', activity: 'moderate', goal: 'energy', diet: 'veg', fastingType: 'intermittent' };
     }
   })(),
+  userDiet: localStorage.getItem('prana_diet') || 'veg',
+  userFastingType: localStorage.getItem('prana_fasting_type') || 'intermittent',
   vitals: {
     hr: 74,
     steps: 7340,
@@ -63,6 +65,11 @@ const state = {
   activeModalRoutine: null,
   activeModalPoseIndex: 0,
   activeProblemPreset: 'back_pain',
+  problemDuration: 'chronic',
+  problemSeverity: 'moderate',
+  problemTriggers: ['sitting', 'stress'],
+  problemDietContext: localStorage.getItem('prana_diet') || 'veg',
+  problemFastingType: localStorage.getItem('prana_fasting_type') || 'intermittent',
   lastProblemAnalysis: null,
   problemHealingLoggedToday: false
 };
@@ -224,6 +231,41 @@ class PureAudioSynth {
     state.isAudioSynthPlaying = true;
     state.activeSynthType = 'rain';
     updateSynthUI();
+  }
+
+  playSingingBowlTone(baseFreq = 260, duration = 1.5) {
+    this.init();
+    if (!this.ctx) return;
+    try {
+      const now = this.ctx.currentTime;
+      // Singing bowl acoustic profile: fundamental + overtone (~2.76x) + shimmer (~5.4x)
+      const partials = [
+        { mult: 1.0, gain: 0.16, decay: duration * 1.2 },
+        { mult: 2.76, gain: 0.08, decay: duration * 0.9 },
+        { mult: 5.40, gain: 0.03, decay: duration * 0.6 }
+      ];
+
+      partials.forEach(p => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(baseFreq * p.mult, now);
+        osc.frequency.linearRampToValueAtTime((baseFreq * p.mult) * 0.998, now + p.decay);
+
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.linearRampToValueAtTime(p.gain, now + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + p.decay);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + p.decay + 0.1);
+      });
+    } catch (e) {
+      console.warn('Audio tone could not play:', e);
+    }
   }
 }
 
@@ -698,6 +740,13 @@ function populateProfileForms() {
   if (inGoal) inGoal.value = p.goal || 'energy';
   if (ftPrev) ftPrev.innerText = p.height ? cmToFtIn(parseFloat(p.height)) : '-- ft -- in';
 
+  const inDiet = document.getElementById('profile-diet');
+  const inFast = document.getElementById('profile-fasting-type');
+  const inFastGrp = document.getElementById('profile-fasting-group');
+  if (inDiet) inDiet.value = p.diet || state.userDiet || 'veg';
+  if (inFast) inFast.value = p.fastingType || state.userFastingType || 'intermittent';
+  if (inFastGrp) inFastGrp.style.display = (inDiet && inDiet.value === 'fasting') ? 'block' : 'none';
+
   // Modal inputs
   const mAge = document.getElementById('modal-age');
   const mH = document.getElementById('modal-height');
@@ -713,8 +762,183 @@ function populateProfileForms() {
   if (mGoal) mGoal.value = p.goal || 'energy';
   if (mFtPrev) mFtPrev.innerText = p.height ? cmToFtIn(parseFloat(p.height)) : '-- ft -- in';
 
+  const mDiet = document.getElementById('modal-diet');
+  const mFast = document.getElementById('modal-fasting-type');
+  const mFastGrp = document.getElementById('modal-fasting-group');
+  if (mDiet) mDiet.value = p.diet || state.userDiet || 'veg';
+  if (mFast) mFast.value = p.fastingType || state.userFastingType || 'intermittent';
+  if (mFastGrp) mFastGrp.style.display = (mDiet && mDiet.value === 'fasting') ? 'block' : 'none';
+
   renderLiveMetricTiles('profile-live-metrics', p.weight, p.height, p.age, p.activity, p.goal);
   renderLiveMetricTiles('modal-live-metrics', p.weight, p.height, p.age, p.activity, p.goal);
+  syncHealerDietUI();
+}
+
+function getFastingLabel(type) {
+  switch (type) {
+    case 'vrat_ekadashi': return 'Sacred Vrat / Ekadashi (Phalahari)';
+    case 'navratri_phalahar': return 'Fruit Fast (Alkaline Phalahar)';
+    case 'water_detox': return 'Liquid & Water Detox';
+    case 'intermittent':
+    default:
+      return '16:8 Intermittent Fasting';
+  }
+}
+
+function setDiet(dietType, fastingType = null) {
+  state.userDiet = dietType || 'veg';
+  if (fastingType) {
+    state.userFastingType = fastingType;
+    localStorage.setItem('prana_fasting_type', fastingType);
+  }
+  localStorage.setItem('prana_diet', state.userDiet);
+  state.userProfile.diet = state.userDiet;
+  state.userProfile.fastingType = state.userFastingType;
+  try {
+    localStorage.setItem('prana_profile', JSON.stringify(state.userProfile));
+  } catch (e) {}
+
+  // Sync inputs
+  const inDiet = document.getElementById('profile-diet');
+  const inFast = document.getElementById('profile-fasting-type');
+  const inFastGrp = document.getElementById('profile-fasting-group');
+  if (inDiet) inDiet.value = state.userDiet;
+  if (inFast) inFast.value = state.userFastingType;
+  if (inFastGrp) inFastGrp.style.display = state.userDiet === 'fasting' ? 'block' : 'none';
+
+  const mDiet = document.getElementById('modal-diet');
+  const mFast = document.getElementById('modal-fasting-type');
+  const mFastGrp = document.getElementById('modal-fasting-group');
+  if (mDiet) mDiet.value = state.userDiet;
+  if (mFast) mFast.value = state.userFastingType;
+  if (mFastGrp) mFastGrp.style.display = state.userDiet === 'fasting' ? 'block' : 'none';
+
+  syncHealerDietUI();
+  renderDailyFoodPlan();
+  renderLocationNutrition();
+
+  if (state.lastProblemAnalysis) {
+    renderProblemHealingProtocol(state.lastProblemAnalysis);
+  }
+
+  const dietLabels = {
+    veg: 'Vegetarian (Plant-rich, Dals & Dairy)',
+    nonveg: 'Non-Vegetarian (Lean Poultry, Fish & Eggs)',
+    vegan: '100% Plant-Based Vegan (Dairy-Free)',
+    fasting: `Fasting / Vrat Mode (${getFastingLabel(state.userFastingType)})`
+  };
+  showToast(`🥗 Dietary protocol set to ${dietLabels[state.userDiet] || state.userDiet}. Plans recalibrated!`);
+}
+
+function syncHealerDietUI() {
+  const currentDiet = state.problemDietContext || state.userDiet || 'veg';
+  const currentFasting = state.problemFastingType || state.userFastingType || 'intermittent';
+
+  const badge = document.getElementById('healer-diet-badge');
+  if (badge) {
+    const dietLabels = {
+      veg: 'Active: Vegetarian',
+      nonveg: 'Active: Non-Vegetarian',
+      vegan: 'Active: 100% Plant-Based Vegan',
+      fasting: `Active: Fasting (${getFastingLabel(currentFasting)})`
+    };
+    badge.innerText = dietLabels[currentDiet] || `Active: ${currentDiet}`;
+  }
+
+  const chips = document.querySelectorAll('#healer-diet-chips .diet-tab-btn');
+  chips.forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.diet === currentDiet);
+  });
+
+  const fastContainer = document.getElementById('healer-fasting-subtypes');
+  if (fastContainer) {
+    fastContainer.style.display = currentDiet === 'fasting' ? 'flex' : 'none';
+  }
+
+  const fastBtns = document.querySelectorAll('#healer-fasting-subtypes .fasting-subtype-btn');
+  fastBtns.forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.fasting === currentFasting);
+  });
+}
+
+function setHealerDiet(diet) {
+  state.problemDietContext = diet;
+  syncHealerDietUI();
+
+  if (state.lastProblemAnalysis) {
+    state.lastProblemAnalysis.activeDiet = diet;
+    renderProblemHealingProtocol(state.lastProblemAnalysis);
+  }
+
+  const dietLabels = {
+    veg: 'Vegetarian healing foods',
+    nonveg: 'Non-Vegetarian lean broths & fish proteins',
+    vegan: '100% Plant-based anti-inflammatory foods',
+    fasting: `Fasting-compatible remedies (${getFastingLabel(state.problemFastingType || state.userFastingType)})`
+  };
+  showToast(`🥗 Healer prescription updated for: ${dietLabels[diet] || diet}`);
+}
+
+function setHealerFastingType(fastingType) {
+  state.problemFastingType = fastingType;
+  syncHealerDietUI();
+
+  if (state.lastProblemAnalysis) {
+    state.lastProblemAnalysis.activeFastingType = fastingType;
+    renderProblemHealingProtocol(state.lastProblemAnalysis);
+  }
+  showToast(`🪔 Fasting protocol set to: ${getFastingLabel(fastingType)}`);
+}
+
+function setProblemDuration(duration) {
+  state.problemDuration = duration;
+  document.querySelectorAll('#problem-duration-chips .context-chip-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.duration === duration);
+  });
+  if (state.lastProblemAnalysis) {
+    state.lastProblemAnalysis.duration = duration;
+    renderProblemHealingProtocol(state.lastProblemAnalysis);
+  }
+}
+
+function setProblemSeverity(severity) {
+  state.problemSeverity = severity;
+  document.querySelectorAll('#problem-severity-chips .context-chip-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.severity === severity);
+  });
+  if (state.lastProblemAnalysis) {
+    state.lastProblemAnalysis.severity = severity;
+    renderProblemHealingProtocol(state.lastProblemAnalysis);
+  }
+}
+
+function toggleProblemTrigger(triggerKey) {
+  if (!state.problemTriggers) state.problemTriggers = [];
+  const idx = state.problemTriggers.indexOf(triggerKey);
+  if (idx !== -1) {
+    state.problemTriggers.splice(idx, 1);
+  } else {
+    state.problemTriggers.push(triggerKey);
+  }
+  document.querySelectorAll('#problem-trigger-chips .context-chip-btn').forEach(btn => {
+    btn.classList.toggle('active', state.problemTriggers.includes(btn.dataset.trigger));
+  });
+  if (state.lastProblemAnalysis) {
+    state.lastProblemAnalysis.activeTriggers = [...state.problemTriggers];
+    renderProblemHealingProtocol(state.lastProblemAnalysis);
+  }
+}
+
+function onProfileDietChanged(source) {
+  const select = source === 'inline' ? document.getElementById('profile-diet') : document.getElementById('modal-diet');
+  const diet = select ? select.value : 'veg';
+  setDiet(diet);
+}
+
+function onProfileFastingTypeChanged(source) {
+  const select = source === 'inline' ? document.getElementById('profile-fasting-type') : document.getElementById('modal-fasting-type');
+  const fastingType = select ? select.value : 'intermittent';
+  setDiet('fasting', fastingType);
 }
 
 function onProfileInputChanged(source) {
@@ -847,7 +1071,7 @@ function renderLiveMetricTiles(containerId, weight, height, age, activity, goal)
 }
 
 function saveProfileFromUI(source) {
-  let age, height, weight, activity, goal;
+  let age, height, weight, activity, goal, diet, fastingType;
 
   if (source === 'inline') {
     age = document.getElementById('profile-age')?.value.trim() || '';
@@ -855,17 +1079,26 @@ function saveProfileFromUI(source) {
     weight = document.getElementById('profile-weight')?.value.trim() || '';
     activity = document.getElementById('profile-activity')?.value || 'moderate';
     goal = document.getElementById('profile-goal')?.value || 'energy';
+    diet = document.getElementById('profile-diet')?.value || 'veg';
+    fastingType = document.getElementById('profile-fasting-type')?.value || 'intermittent';
   } else {
     age = document.getElementById('modal-age')?.value.trim() || '';
     height = document.getElementById('modal-height')?.value.trim() || '';
     weight = document.getElementById('modal-weight')?.value.trim() || '';
     activity = document.getElementById('modal-activity')?.value || 'moderate';
     goal = document.getElementById('modal-goal')?.value || 'energy';
+    diet = document.getElementById('modal-diet')?.value || 'veg';
+    fastingType = document.getElementById('modal-fasting-type')?.value || 'intermittent';
   }
 
   const wasEmpty = !state.userProfile.age && !state.userProfile.height && !state.userProfile.weight;
 
-  state.userProfile = { age, height, weight, activity, goal };
+  state.userDiet = diet;
+  state.userFastingType = fastingType;
+  localStorage.setItem('prana_diet', diet);
+  localStorage.setItem('prana_fasting_type', fastingType);
+
+  state.userProfile = { age, height, weight, activity, goal, diet, fastingType };
   localStorage.setItem('prana_profile', JSON.stringify(state.userProfile));
 
   if (state.currentUser) {
@@ -2619,6 +2852,401 @@ function speakEntireYogaRoutine() {
 }
 
 // --- SECTION 3: DAILY FOOD ITEMS EATING PLAN SYNCHRONIZED WITH YOGA ---
+function getDailyMealsForDiet(diet, fastingType, regionKey) {
+  const isSouth = regionKey === 'south';
+  const isWest = regionKey === 'west';
+  const isEast = regionKey === 'east';
+
+  if (diet === 'fasting') {
+    if (fastingType === 'vrat_ekadashi') {
+      return [
+        {
+          timing: '🌅 Morning Sacred Fuel (7:00 – 8:00 AM)',
+          isYogaSync: true,
+          syncLabel: 'Pre-Yoga Vrat Fuel',
+          title: 'Soaked Badam, Munakka & Saffron Water',
+          items: '• 300ml warm water steeped with Kashmiri saffron strands & green cardamom<br/>• 5 overnight soaked & peeled almonds (Badam) + 3 soaked Munakka',
+          benefit: '🪔 Vrat-compliant natural glucose that sustains neural vitality without taxing stomach energy'
+        },
+        {
+          timing: '🧘 Within 45 Mins Post-Yoga',
+          isYogaSync: true,
+          syncLabel: 'Recovery Window',
+          title: 'Fresh Tender Coconut Water with Malai',
+          items: '• 1 glass fresh green tender coconut water with tender coconut flesh (Malai)<br/>• Rich in natural potassium, magnesium & isotonic electrolytes compliant with fasting rules',
+          benefit: '⚡ Immediate cellular electrolyte rehydration without breaking sacred fast vows'
+        },
+        {
+          timing: '🥣 Phalahar Mid-Morning (10:30 – 11:30 AM)',
+          isYogaSync: false,
+          syncLabel: 'Phalahar Meal',
+          title: 'Boiled Sweet Potato (Shakarkand) Chaat',
+          items: '• 1 bowl boiled sweet potato cubes tossed with roasted peanuts, Sendha Namak (Himalayan rock salt), fresh lemon juice, cumin & chopped green chillies',
+          benefit: '🍠 High in complex resistant starches & vitamin A; sustains stable blood sugar'
+        },
+        {
+          timing: '🍲 Sacred Vrat Main Meal (1:30 – 2:30 PM)',
+          isYogaSync: false,
+          syncLabel: 'Main Vrat Thali',
+          title: 'Crispy Sabudana Khichdi or Rajgira Paratha with Lauki Curry',
+          items: '• Fluffy non-sticky Sabudana Khichdi (tapioca pearls with crushed roasted peanuts, cumin & curry leaves) OR 2 soft Rajgira (Amaranth) parathas<br/>• Mild Bottle Gourd (Lauki) sabzi cooked in pure A2 cow ghee<br/>• 1 bowl fresh homemade probiotic curd seasoned with roasted cumin powder & rock salt',
+          benefit: '🥥 Amaranth and tapioca provide complete satiety, calcium, and digestive lightness'
+        },
+        {
+          timing: '☕ Evening Fasting Crunch (5:00 – 6:00 PM)',
+          isYogaSync: false,
+          syncLabel: 'Evening Fuel',
+          title: 'Roasted Makhana (Foxnuts) in A2 Ghee & Mint Tea',
+          items: '• 1 bowl crunchy Makhana lightly roasted in 1/2 tsp cow ghee with Sendha Namak & black pepper<br/>• Fresh herbal mint & tulsi infusion',
+          benefit: '🛡️ Powerful renal & anti-fatigue adaptogens rich in bioavailable plant protein and zero sodium bloat'
+        },
+        {
+          timing: '🌙 Evening Light Vrat Dinner (7:30 – 8:30 PM)',
+          isYogaSync: false,
+          syncLabel: 'Evening Phalahar',
+          title: 'Warm Sama Ke Chawal (Barnyard Millet) Khichdi & Saffron Milk',
+          items: '• Warm Sama rice khichdi with grated ginger, cumin and diced pumpkin<br/>• Followed 45 mins later by 1 small cup warm milk with saffron, cardamom and nutmeg',
+          benefit: '💤 Low-glycemic ancient millet promotes deep sleep and calm spiritual groundedness'
+        }
+      ];
+    } else if (fastingType === 'navratri_phalahar') {
+      return [
+        {
+          timing: '🌅 Morning Phalahar Awakening (7:30 – 8:30 AM)',
+          isYogaSync: true,
+          syncLabel: 'Pre-Practice Phalahar',
+          title: 'Alkaline Lemon-Mint Warm Infusion & Soaked Figs',
+          items: '• 350ml warm water with fresh lemon juice & crushed mint leaves<br/>• 2 soaked dried figs (Anjeer) + 4 soaked almonds',
+          benefit: '🍎 Flushes cellular acidity and delivers rapid mineral absorption'
+        },
+        {
+          timing: '🧘 Within 45 Mins Post-Yoga',
+          isYogaSync: true,
+          syncLabel: 'Electrolyte Replenish',
+          title: 'Fresh Tender Coconut Water & Pomegranate',
+          items: '• 1 tall glass fresh tender coconut water<br/>• 1 small cup fresh ruby pomegranate arils with a pinch of rock salt',
+          benefit: '⚡ Polyphenol-rich antioxidants that quench exercise-induced oxidative stress'
+        },
+        {
+          timing: '🥣 Midday Alkaline Fruit Feast (12:30 – 1:30 PM)',
+          isYogaSync: false,
+          syncLabel: 'Main Fruit Meal',
+          title: 'Enzyme-Rich Papaya & Crisp Apple Salad Bowl',
+          items: '• 1 generous bowl ripe fresh papaya cubes (rich in papain digestive enzymes)<br/>• 1 crisp sliced Himachal apple dusted with Ceylon cinnamon powder<br/>• 1 tbsp roasted watermelon & chia seeds for essential fatty acids',
+          benefit: '🌿 Supreme enzymatic digestion that cleanses the intestinal villi and colon'
+        },
+        {
+          timing: '☕ Evening Refresh (4:30 – 5:30 PM)',
+          isYogaSync: false,
+          syncLabel: 'Hydration',
+          title: 'Spiced Kokum / Sol Water & Roasted Seeds',
+          items: '• Refreshing kokum or mint water with rock salt<br/>• Handful of roasted pumpkin & cucumber seeds',
+          benefit: '🛡️ Prevents electrolyte dips and sustains healthy hydration'
+        },
+        {
+          timing: '🌙 Light Evening Phalahar (7:00 – 8:00 PM)',
+          isYogaSync: false,
+          syncLabel: 'Restorative Fruit',
+          title: 'Warm Stewed Apples with Cinnamon & Nutmeg',
+          items: '• Lightly stewed apple or pear with cinnamon, cloves & cardamom<br/>• Warm almond or cow milk with turmeric (optional)',
+          benefit: '💤 Gentle on nocturnal stomach motility while supplying comforting bedtime warmth'
+        }
+      ];
+    } else if (fastingType === 'water_detox') {
+      return [
+        {
+          timing: '🌅 Morning Cleansing Elixir (7:00 – 8:00 AM)',
+          isYogaSync: true,
+          syncLabel: 'Detox Elixir',
+          title: 'Fresh Ash Gourd Juice or Warm Lemon Salt Water',
+          items: '• 300ml fresh ash gourd (safed petha) juice with a pinch of black pepper, OR warm water with fresh lemon & Himalayan pink salt',
+          benefit: '💧 Tremendous pranic charge that alkalizes the bloodstream and cleanses lymph'
+        },
+        {
+          timing: '🧘 Mid-Morning Hydration (10:30 – 11:30 AM)',
+          isYogaSync: true,
+          syncLabel: 'Electrolyte Shield',
+          title: 'Tender Coconut Water & CCF Tea',
+          items: '• 1 glass fresh coconut water<br/>• 1 mug warm Cumin-Coriander-Fennel (CCF) digestive tea',
+          benefit: '⚡ Natural intracellular electrolytes preventing ketosis headaches or weakness'
+        },
+        {
+          timing: '🍲 Midday Herb Infusion (1:00 – 2:00 PM)',
+          isYogaSync: false,
+          syncLabel: 'Midday Cellular Cleanse',
+          title: 'Warm Ginger-Tulsi-Lemongrass Broth',
+          items: '• Simmered herbal broth made with fresh ginger, tulsi leaves, lemongrass & pinch of turmeric<br/>• 500ml structured mineral water',
+          benefit: '🔥 Maintains metabolic fire (Agni) while the body is in active autophagy'
+        },
+        {
+          timing: '☕ Afternoon Mineral Replenishment (4:30 – 5:30 PM)',
+          isYogaSync: false,
+          syncLabel: 'Hydration',
+          title: 'Cucumber-Mint Detox Infusion',
+          items: '• Chilled or room-temp water infused with fresh cucumber slices, mint sprigs & lemon peel with pink salt',
+          benefit: '🛡️ Recharges cellular membrane potential'
+        },
+        {
+          timing: '🌙 Evening Calming Infusion (7:30 – 8:30 PM)',
+          isYogaSync: false,
+          syncLabel: 'Night Rest',
+          title: 'Chamomile, Nutmeg & Fennel Restorative Tea',
+          items: '• Steeped chamomile flower and crushed fennel tea with a hint of freshly ground nutmeg',
+          benefit: '💤 Induces profound neurological calmness and restorative deep sleep'
+        }
+      ];
+    } else {
+      // 16:8 Intermittent Fasting
+      return [
+        {
+          timing: '🌅 8:00 AM – 11:30 AM (Autophagy Fasting Window)',
+          isYogaSync: true,
+          syncLabel: 'Fast Phase (0 kcal)',
+          title: 'Electrolyte Hydration & Organic Black Coffee / Green Tea',
+          items: '• 500ml warm water with 1/4 tsp Himalayan pink salt<br/>• Black coffee or brewed green tea with no sugar or dairy (0 kcal)',
+          benefit: '⏳ Drives deep cellular autophagy, mitochondrial cleanup & fat oxidation'
+        },
+        {
+          timing: '🧘 11:30 AM (Pre-Break Yoga Transition)',
+          isYogaSync: true,
+          syncLabel: 'Hydration Transition',
+          title: 'Hydrating Cucumber-Lemon Electrolyte Water',
+          items: '• 300ml water infused with cucumber slices, lime & rock salt<br/>• Prepares digestive enzymes for window opening',
+          benefit: '⚡ Smooth transition from fasting to feeding without digestive shock'
+        },
+        {
+          timing: '🥣 12:00 PM (Break-Fast Window Opening Meal)',
+          isYogaSync: false,
+          syncLabel: 'Break-Fast Bowl',
+          title: 'High-Protein Sprouted Moong & Soaked Chia Bowl',
+          items: '• 1 bowl steamed sprouted moong with chopped cucumber, tomato, lime, avocado or paneer/tofu<br/>• 4 soaked walnuts + 1 tbsp roasted pumpkin seeds',
+          benefit: '🥗 Gently activates digestive enzymes with low glycemic impact and zero insulin spikes'
+        },
+        {
+          timing: '🍲 3:30 PM (Mid-Window Sustained Fuel)',
+          isYogaSync: false,
+          syncLabel: 'Power Fuel',
+          title: 'Whole Grain Millet Thali with Tadka Dal & Greens',
+          items: '• 2 Jowar or Bajra rotis with rich yellow Dal Tadka, seasonal sauteed greens & probiotic curd<br/>• Fresh tender coconut water',
+          benefit: '🌾 High-fiber complex fuel providing sustained physical endurance'
+        },
+        {
+          timing: '🌙 7:30 PM (Final Feeding Window Nutrient-Dense Dinner)',
+          isYogaSync: false,
+          syncLabel: 'Final Meal Before Fast',
+          title: 'Warm Vegetable Lentil Stew / Paneer or Tofu Bhurji',
+          items: '• Wholesome vegetable stew with quinoa or light phulka, followed by warm turmeric golden milk<br/>• Eating window promptly closes at 8:00 PM for 16-hour night fast',
+          benefit: '🌙 Ample slow-digesting protein and healthy fats to support overnight recovery'
+        }
+      ];
+    }
+  } else if (diet === 'nonveg') {
+    let lunchNonVeg = 'Spiced Grilled Chicken Breast (or Tandoori Tikka) with Jowar Roti, Dal Tadka, Cucumber Salad & Spiced Buttermilk';
+    let dinnerNonVeg = 'Clear Chicken Bone Broth Soup with tender chicken strips, sauteed bottle gourd & steamed brown rice';
+
+    if (isSouth) {
+      lunchNonVeg = 'Coastal Fish Curry (Surmai / Pomfret in coconut turmeric curry) with Steamed Brown Rice, Drumstick Sambar & Beans Poriyal';
+      dinnerNonVeg = 'Light Kerala Chicken Stew with Steamed Idiyappam (string hoppers), followed by warm turmeric spiced milk';
+    } else if (isWest) {
+      lunchNonVeg = 'Konkani Spiced Fish Curry with Jowar Bhakri, fresh Sol Kadhi & Cucumber onion kachumber';
+      dinnerNonVeg = 'Light Spiced Chicken Sukka with warm moong khichdi and fresh salad';
+    } else if (isEast) {
+      lunchNonVeg = 'Traditional Machher Jhol (fresh Rohu/Katla in light ginger-cumin-turmeric broth) with Steamed Rice & Pointed Gourd';
+      dinnerNonVeg = 'Steamed Fish Tikka with light vegetable clear stew and phulka';
+    }
+
+    return [
+      {
+        timing: '🌅 30–45 Mins Before Practice',
+        isYogaSync: true,
+        syncLabel: 'Pre-Yoga Fuel',
+        title: 'Warm Lemon-Honey Water & Soaked Walnuts',
+        items: '• 300ml warm water with a squeeze of fresh lemon & raw honey<br/>• 3 soaked walnut halves + 2 black raisins (Munakka)',
+        benefit: '🌿 Gentle glycogen release and omega-3 neuro-protection with zero digestive heaviness'
+      },
+      {
+        timing: '🧘 Within 45 Mins Post-Yoga',
+        isYogaSync: true,
+        syncLabel: 'Recovery Window',
+        title: 'Tender Coconut Water & 2 Boiled Egg Whites',
+        items: '• 1 glass fresh tender coconut water (natural potassium & electrolytes)<br/>• 2 soft-boiled organic egg whites seasoned with pink rock salt & black pepper (or light steamed fish fillet)',
+        benefit: '⚡ 14g rapid bioavailable albumin protein & electrolytes to immediately initiate muscle recovery'
+      },
+      {
+        timing: '🥣 Morning Vitality (8:30 – 9:30 AM)',
+        isYogaSync: false,
+        syncLabel: 'High-Protein Breakfast',
+        title: 'Spiced Masala Scrambled Eggs with Multigrain Toast',
+        items: '• 2 whole eggs scrambled with diced tomatoes, onions, spinach, green chillies & turmeric<br/>• 1 slice toasted multigrain or sourdough bread with fresh coriander mint chutney',
+        benefit: '🍳 Choline and lutein for sharp mental acuity, sustained satiety, and steady energy'
+      },
+      {
+        timing: '🍲 Peak Agni Window (12:30 – 1:30 PM)',
+        isYogaSync: false,
+        syncLabel: 'Main Lunch',
+        title: 'Regional Lean High-Protein Coastal / Poultry Thali',
+        items: `• ${lunchNonVeg}<br/>• Fresh seasonal salad with lemon and cold-pressed oil`,
+        benefit: '🔥 Complete bioavailable amino acid profile alongside healthy marine EPA/DHA fatty acids'
+      },
+      {
+        timing: '☕ Adrenal Support (4:30 – 5:30 PM)',
+        isYogaSync: false,
+        syncLabel: 'Tea & Snack',
+        title: 'Boiled Chana Chaat & Green Tea',
+        items: '• 1/2 cup boiled black chickpeas tossed with roasted cumin, lime, cucumber & pumpkin seeds<br/>• Freshly brewed cinnamon tulsi green tea',
+        benefit: '🛡️ Fiber-rich snack preventing late afternoon cortisol spikes and blood sugar crashes'
+      },
+      {
+        timing: '🌙 Grounding Night (7:00 – 8:00 PM)',
+        isYogaSync: false,
+        syncLabel: 'Restorative Dinner',
+        title: 'Restorative Chicken Bone Broth & Light Dinner',
+        items: `• ${dinnerNonVeg}<br/>• 1 cup warm spiced turmeric golden milk (or chamomile tea) before bed`,
+        benefit: '💤 Rich in bioavailable collagen and glycine that repairs joints and ligaments during deep sleep'
+      }
+    ];
+  } else if (diet === 'vegan') {
+    let lunchVegan = 'Whole Millet Roti (Jowar/Bajra), Double-Tadka Yellow Dal, Organic Tofu / Tempeh Saute, Seasonal Greens & Sol Kadhi';
+    let dinnerVegan = 'Warm Red Lentil (Masoor) & Pumpkin Soup with steamed brown rice, accompanied by stir-fried sesame greens';
+
+    if (isSouth) {
+      lunchVegan = 'Steamed Red Rice, Rich Moringa Drumstick Sambar, Beans Poriyal & Coconut Milk Rasam';
+      dinnerVegan = 'Steamed Idiyappam with coconut vegetable stew, followed by warm golden almond turmeric milk';
+    } else if (isWest) {
+      lunchVegan = 'Jowar Bhakri with Sprouted Usal, Thecha, Pithla & fresh Sol Kadhi';
+      dinnerVegan = 'Moong khichdi cooked in cold-pressed sesame oil with roasted cumin and steamed greens';
+    } else if (isEast) {
+      lunchVegan = 'Steamed brown rice, Chana Dal with green bottle gourd, Pointed Gourd (Parwal) fry & roasted Bengal gram';
+      dinnerVegan = 'Light vegetable and lentil patty stew with steamed rice';
+    }
+
+    return [
+      {
+        timing: '🌅 30–45 Mins Before Practice',
+        isYogaSync: true,
+        syncLabel: 'Pre-Yoga Fuel',
+        title: 'Warm Ginger-Mint Infusion & Soaked Nuts',
+        items: '• 300ml warm water steeped with fresh ginger, mint & lime<br/>• 5 soaked and peeled almonds + 2 dried figs (Anjeer)',
+        benefit: '🌱 100% plant-derived iron, magnesium, and hydration for smooth muscle contraction'
+      },
+      {
+        timing: '🧘 Within 45 Mins Post-Yoga',
+        isYogaSync: true,
+        syncLabel: 'Recovery Window',
+        title: 'Fresh Coconut Water & Sprouted Hemp Chaat',
+        items: '• 1 tall glass fresh tender coconut water<br/>• 1 bowl steamed sprouted green moong & black chickpeas tossed with 1 tbsp raw hemp hearts, cucumber, tomato & lime',
+        benefit: '⚡ Complete 9 essential amino acids and anti-inflammatory plant omega-3s with zero dairy allergens'
+      },
+      {
+        timing: '🥣 Morning Vitality (8:30 – 9:30 AM)',
+        isYogaSync: false,
+        syncLabel: 'Plant Vitality Breakfast',
+        title: 'Savory Tofu Scramble / Sprouted Moong Chilla',
+        items: '• Organic Tofu Scramble with bell peppers, spinach, turmeric & nutritional yeast on sourdough OR Sprouted Moong Chilla<br/>• Fresh mint-coriander coconut chutney',
+        benefit: '🌾 Plant isoflavones and bioavailable non-heme iron to support endocrine vitality'
+      },
+      {
+        timing: '🍲 Peak Agni Window (12:30 – 1:30 PM)',
+        isYogaSync: false,
+        syncLabel: 'Main Lunch',
+        title: 'Ayurvedic 100% Plant-Based Thali',
+        items: `• ${lunchVegan}<br/>• Fresh cucumber, carrot & grated beet salad seasoned with cold-pressed sesame oil`,
+        benefit: '🔥 Diverse prebiotic fibers and polyphenols that fortify the gut microbiome barrier'
+      },
+      {
+        timing: '☕ Adrenal Support (4:30 – 5:30 PM)',
+        isYogaSync: false,
+        syncLabel: 'Tea & Snack',
+        title: 'Roasted Makhana & Chia Pudding Bowl',
+        items: '• Roasted Makhana (foxnuts) tossed in cold-pressed coconut oil with pink salt & turmeric<br/>• Overnight chia seed pudding in almond milk with pinch of cinnamon',
+        benefit: '🛡️ Healthy alpha-linolenic fats that stabilize mood and eradicate sweet cravings'
+      },
+      {
+        timing: '🌙 Grounding Night (7:00 – 8:00 PM)',
+        isYogaSync: false,
+        syncLabel: 'Light Dinner',
+        title: 'Restorative Plant Stew & Golden Almond Milk',
+        items: `• ${dinnerVegan}<br/>• 1 cup warm almond or oat milk simmered with raw turmeric, ginger, black pepper & pinch of nutmeg before sleep`,
+        benefit: '💤 Stimulates natural melatonin and relaxes somatic muscle tone without dairy mucus buildup'
+      }
+    ];
+  } else {
+    // Default: Vegetarian (Veg)
+    let breakfastVeg = 'Sprouted Moong & Vegetable Chilla with fresh mint coriander chutney & roasted pumpkin seeds';
+    let lunchVeg = 'Whole Millet Roti (Jowar/Bajra), Tadka Dal, Seasonal Sauteed Greens (Methi/Palak) & Roasted Jeera Buttermilk';
+    let eveningVeg = 'Herbal Tulsi Cardamom Infusion with Roasted Makhana (Foxnuts) & Pumpkin Seeds';
+    let dinnerVeg = 'Warm Bottle Gourd (Lauki) & Yellow Moong Soup with Steamed Brown Rice or Quinoa, followed by Haldi Doodh';
+
+    if (isSouth) {
+      breakfastVeg = 'Steamed Ragi Idlis or Multi-Millet Dosa with Curry Leaf Coconut Chutney & Vegetable Sambar';
+      lunchVeg = 'Red Rice or Brown Rice, Moringa Drumstick Sambar, Poriyal (sauteed beans & cabbage) & Probiotic Curd';
+      eveningVeg = 'Sundal (tempered white chickpeas with mustard seeds & grated coconut) + Spiced Sukku Chai';
+      dinnerVeg = 'Light Steamed Idiyappam with vegetable stew, followed by warm turmeric pepper golden milk';
+    } else if (isWest) {
+      breakfastVeg = 'Sprouted Methi Poha with roasted peanuts, lemon, fresh coriander & grated coconut';
+      lunchVeg = 'Jowar Bhakri with Pithla (spiced gram flour curry), Thecha, and fresh Sol Kadhi';
+      eveningVeg = 'Roasted Kurmura (puffed rice) bhel with roasted flaxseeds + Lemon ginger tea';
+      dinnerVeg = 'Moong dal khichdi with roasted cumin ghee, followed by warm spiced golden milk';
+    } else if (isEast) {
+      breakfastVeg = 'Sattu Drink with roasted cumin & pink salt, accompanied by steamed rice pithas';
+      lunchVeg = 'Steamed rice, Chana Dal with green bottle gourd, and pointed gourd (parwal) bhaja';
+      eveningVeg = 'Puffed rice (muri) with roasted Bengal gram and green tea';
+      dinnerVeg = 'Light vegetable stew with lentil patties, followed by warm turmeric milk with nutmeg';
+    }
+
+    return [
+      {
+        timing: '🌅 30–45 Mins Before Practice',
+        isYogaSync: true,
+        syncLabel: 'Pre-Yoga Fuel',
+        title: 'Warm Ginger-Tulsi Infusion & Soaked Nuts',
+        items: '• 300ml warm water steeped with fresh ginger & crushed tulsi leaves<br/>• 4 overnight soaked almonds (peeled) + 2 soaked black raisins (Munakka)',
+        benefit: '🌿 Light on digestion; optimizes circulation without causing stomach cramps'
+      },
+      {
+        timing: '🧘 Within 45 Mins Post-Yoga',
+        isYogaSync: true,
+        syncLabel: 'Recovery Window',
+        title: 'Fresh Tender Coconut Water & Sprouted Chaat',
+        items: '• 1 glass fresh coconut water or spiced sattu buttermilk cooler (natural potassium & electrolytes)<br/>• 1 cup steamed sprouted moong with chopped cucumber, tomato, lime & rock salt',
+        benefit: '⚡ Rapid glycogen refuel, lean plant protein & cellular rehydration'
+      },
+      {
+        timing: '🥣 Morning Vitality (8:30 – 9:30 AM)',
+        isYogaSync: false,
+        syncLabel: 'Breakfast',
+        title: 'Regional High-Fiber Vitality Plate',
+        items: `• ${breakfastVeg}<br/>• Handful of roasted sunflower & chia seeds`,
+        benefit: '🌾 Complex low-GI carbohydrates preventing mid-morning fatigue'
+      },
+      {
+        timing: '🍲 Peak Agni Window (12:30 – 1:30 PM)',
+        isYogaSync: false,
+        syncLabel: 'Main Lunch',
+        title: 'Wholesome Ayurvedic Balanced Thali',
+        items: `• ${lunchVeg}<br/>• Fresh cucumber & carrot salad seasoned with cold-pressed mustard or sesame oil`,
+        benefit: '🔥 Maximizes digestive fire (Agni) when systemic enzymes are at daily peak'
+      },
+      {
+        timing: '☕ Adrenal Support (4:30 – 5:30 PM)',
+        isYogaSync: false,
+        syncLabel: 'Tea & Snack',
+        title: 'Adrenal Balancer & Light Crunch',
+        items: `• ${eveningVeg}<br/>• Green tea or cinnamon-clove herbal brew`,
+        benefit: '🛡️ Curbs evening cortisol spikes and prevents high-sugar cravings'
+      },
+      {
+        timing: '🌙 Grounding Night (7:00 – 8:00 PM)',
+        isYogaSync: false,
+        syncLabel: 'Early Dinner',
+        title: 'Light Digestible Soup & Golden Milk',
+        items: `• ${dinnerVeg}<br/>• 1 cup warm A2 milk with organic turmeric, black pepper & pinch of nutmeg before sleep`,
+        benefit: '💤 Stimulates GABA and natural melatonin release for restorative deep sleep'
+      }
+    ];
+  }
+}
+
 function renderDailyFoodPlan() {
   const container = document.getElementById('daily-food-plan-container');
   if (!container) return;
@@ -2629,29 +3257,27 @@ function renderDailyFoodPlan() {
   const numW = parseFloat(weight);
 
   const hydrationLiters = numW ? (numW * 0.035).toFixed(1) : '2.8';
+  const currentDiet = state.userDiet || 'veg';
+  const currentFastingType = state.userFastingType || 'intermittent';
 
-  // Regional customized meals
-  let breakfastItem = 'Sprouted Moong & Vegetable Chilla with fresh mint coriander chutney';
-  let lunchItem = 'Whole Millet Roti (Jowar/Bajra), Tadka Dal, Seasonal Sauteed Greens (Methi/Palak) & Roasted Jeera Buttermilk';
-  let eveningItem = 'Herbal Tulsi Cardamom Infusion with Roasted Makhana (Foxnuts) & Pumpkin Seeds';
-  let dinnerItem = 'Warm Bottle Gourd (Lauki) & Yellow Moong Soup with Steamed Brown Rice or Quinoa, followed by Haldi Doodh';
+  const dietLabels = {
+    veg: 'Vegetarian (Plant & Dairy)',
+    nonveg: 'Non-Vegetarian (Lean Protein & Fish)',
+    vegan: '100% Plant-Based Vegan',
+    fasting: `Fasting / Vrat Mode (${getFastingLabel(currentFastingType)})`
+  };
 
-  if (state.userRegion === 'south') {
-    breakfastItem = 'Steamed Ragi Idlis or Multi-Millet Dosa with Curry Leaf Coconut Chutney & Vegetable Sambar';
-    lunchItem = 'Red Rice or Brown Rice, Moringa Drumstick Sambar, Poriyal (sauteed beans & cabbage) & Probiotic Curd';
-    eveningItem = 'Sundal (tempered white chickpeas with mustard seeds & grated coconut) + Spiced Sukku Chai';
-    dinnerItem = 'Light Steamed Idiyappam with vegetable stew, followed by warm turmeric pepper golden milk';
-  } else if (state.userRegion === 'west') {
-    breakfastItem = 'Sprouted Methi Poha with roasted peanuts, lemon & fresh coriander';
-    lunchItem = 'Jowar Bhakri with Pithla (spiced gram flour curry), Thecha, and fresh Sol Kadhi';
-    eveningItem = 'Roasted Kurmura (puffed rice) bhel with roasted flaxseeds + Lemon ginger tea';
-    dinnerItem = 'Moong dal khichdi with roasted cumin ghee, followed by warm spiced golden milk';
-  } else if (state.userRegion === 'east') {
-    breakfastItem = 'Sattu Drink with roasted cumin & pink salt, accompanied by steamed rice pithas';
-    lunchItem = 'Steamed rice, Machher Jhol / Chana Dal with green bottle gourd, and pointed gourd (parwal) bhaja';
-    eveningItem = 'Puffed rice (muri) with roasted Bengal gram and green tea';
-    dinnerItem = 'Light vegetable stew with lentil patties, followed by warm turmeric milk with nutmeg';
-  }
+  const meals = getDailyMealsForDiet(currentDiet, currentFastingType, state.userRegion);
+
+  const fastingSubtypesHtml = currentDiet === 'fasting' ? `
+    <div class="fasting-subtypes-strip" style="margin-top: 10px;">
+      <span style="font-size: 11px; font-weight: 700; color: #92400e;">🪔 Select Fasting Protocol:</span>
+      <button type="button" class="fasting-subtype-btn ${currentFastingType === 'intermittent' ? 'active' : ''}" onclick="setDiet('fasting', 'intermittent')">⏳ 16:8 Intermittent Fasting</button>
+      <button type="button" class="fasting-subtype-btn ${currentFastingType === 'vrat_ekadashi' ? 'active' : ''}" onclick="setDiet('fasting', 'vrat_ekadashi')">🪔 Sacred Vrat / Ekadashi (Phalahari)</button>
+      <button type="button" class="fasting-subtype-btn ${currentFastingType === 'navratri_phalahar' ? 'active' : ''}" onclick="setDiet('fasting', 'navratri_phalahar')">🍎 Fruit Fast (Phalahar)</button>
+      <button type="button" class="fasting-subtype-btn ${currentFastingType === 'water_detox' ? 'active' : ''}" onclick="setDiet('fasting', 'water_detox')">💧 Liquid & Water Detox</button>
+    </div>
+  ` : '';
 
   const logBannerHtml = state.foodPlanLoggedToday ? `
     <div style="background: #ecfdf5; border: 1px solid #86efac; border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
@@ -2662,6 +3288,18 @@ function renderDailyFoodPlan() {
       <span style="font-size: 11px; color: #047857; font-weight: 700;">Synced with Yoga Recovery Window</span>
     </div>
   ` : '';
+
+  const mealCardsHtml = meals.map(m => `
+    <div class="food-meal-card ${m.isYogaSync ? 'yoga-sync' : ''}">
+      <div class="meal-timing-label">
+        <span>${m.timing}</span>
+        <span style="color: ${m.isYogaSync ? '#059669' : '#64748b'};">${m.syncLabel}</span>
+      </div>
+      <div class="meal-title">${m.title}</div>
+      <div class="meal-items-list">${m.items}</div>
+      <span class="meal-benefit-pill">${m.benefit}</span>
+    </div>
+  `).join('');
 
   const html = `
     <div class="daily-food-section" id="daily-food-plan-section">
@@ -2680,98 +3318,33 @@ function renderDailyFoodPlan() {
           </p>
         </div>
 
-        <button class="btn-secondary" onclick="logMealPlan()" style="padding: 6px 12px; font-size: 12px;">
+        <button class="btn-secondary" onclick="logFoodItemsPlan()" style="padding: 6px 12px; font-size: 12px;">
           <span>🥗 Log Food Items (+25 Pts)</span>
         </button>
+      </div>
+
+      <!-- 1-TAP DIETARY LIFESTYLE & FASTING SWITCHER -->
+      <div class="diet-selector-container">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
+          <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #475569; letter-spacing: 0.5px;">
+            🥗 Select Dietary Mode:
+          </span>
+          <span style="font-size: 12px; font-weight: 700; color: #047857;">Active: ${dietLabels[currentDiet]}</span>
+        </div>
+        <div class="diet-tabs-strip">
+          <button type="button" class="diet-tab-btn ${currentDiet === 'veg' ? 'active' : ''}" data-diet="veg" onclick="setDiet('veg')">🥗 Vegetarian</button>
+          <button type="button" class="diet-tab-btn ${currentDiet === 'nonveg' ? 'active' : ''}" data-diet="nonveg" onclick="setDiet('nonveg')">🍗 Non-Vegetarian</button>
+          <button type="button" class="diet-tab-btn ${currentDiet === 'vegan' ? 'active' : ''}" data-diet="vegan" onclick="setDiet('vegan')">🌱 100% Plant-Based Vegan</button>
+          <button type="button" class="diet-tab-btn ${currentDiet === 'fasting' ? 'active' : ''}" data-diet="fasting" onclick="setDiet('fasting')">🪔 Fasting / Vrat Mode</button>
+        </div>
+        ${fastingSubtypesHtml}
       </div>
 
       ${logBannerHtml}
 
       <!-- TIMELINE OF MEALS & YOGA SYNCHRONIZATION -->
       <div class="food-meal-timeline">
-        <!-- PRE-YOGA -->
-        <div class="food-meal-card yoga-sync">
-          <div class="meal-timing-label">
-            <span>🌅 30–45 Mins Before Practice</span>
-            <span style="color: #059669;">Pre-Yoga Fuel</span>
-          </div>
-          <div class="meal-title">Warm Ginger-Tulsi Infusion & Soaked Nuts</div>
-          <div class="meal-items-list">
-            • 300ml warm water steeped with fresh ginger & crushed tulsi leaves<br/>
-            • 4 overnight soaked almonds (peeled) + 2 soaked black raisins (Munakka)
-          </div>
-          <span class="meal-benefit-pill">🌿 Light on digestion; optimizes circulation without causing stomach cramps</span>
-        </div>
-
-        <!-- POST-YOGA -->
-        <div class="food-meal-card yoga-sync">
-          <div class="meal-timing-label">
-            <span>🧘 Within 45 Mins Post-Yoga</span>
-            <span style="color: #059669;">Recovery Window</span>
-          </div>
-          <div class="meal-title">Fresh Tender Coconut Water & Sprouted Chaat</div>
-          <div class="meal-items-list">
-            • 1 glass fresh coconut water or spiced sattu buttermilk cooler (natural potassium & electrolytes)<br/>
-            • 1 cup steamed sprouted moong with chopped cucumber, tomato, lime & rock salt
-          </div>
-          <span class="meal-benefit-pill">⚡ Rapid glycogen refuel, lean plant protein & cellular rehydration</span>
-        </div>
-
-        <!-- BREAKFAST -->
-        <div class="food-meal-card">
-          <div class="meal-timing-label">
-            <span>🥣 Morning Vitality (8:30 – 9:30 AM)</span>
-            <span style="color: #64748b;">Breakfast</span>
-          </div>
-          <div class="meal-title">Regional High-Fiber Vitality Plate</div>
-          <div class="meal-items-list">
-            • ${breakfastItem}<br/>
-            • Handful of roasted sunflower & chia seeds
-          </div>
-          <span class="meal-benefit-pill">🌾 Complex low-GI carbohydrates preventing mid-morning fatigue</span>
-        </div>
-
-        <!-- LUNCH -->
-        <div class="food-meal-card">
-          <div class="meal-timing-label">
-            <span>🍲 Peak Agni Window (12:30 – 1:30 PM)</span>
-            <span style="color: #64748b;">Main Lunch</span>
-          </div>
-          <div class="meal-title">Wholesome Ayurvedic Balanced Thali</div>
-          <div class="meal-items-list">
-            • ${lunchItem}<br/>
-            • Fresh cucumber & carrot salad seasoned with cold-pressed mustard or sesame oil
-          </div>
-          <span class="meal-benefit-pill">🔥 Maximizes digestive fire (Agni) when systemic enzymes are at daily peak</span>
-        </div>
-
-        <!-- EVENING ENERGIZER -->
-        <div class="food-meal-card">
-          <div class="meal-timing-label">
-            <span>☕ Adrenal Support (4:30 – 5:30 PM)</span>
-            <span style="color: #64748b;">Tea & Snack</span>
-          </div>
-          <div class="meal-title">Adrenal Balancer & Light Crunch</div>
-          <div class="meal-items-list">
-            • ${eveningItem}<br/>
-            • Green tea or cinnamon-clove herbal brew
-          </div>
-          <span class="meal-benefit-pill">🛡️ Curbs evening cortisol spikes and prevents high-sugar cravings</span>
-        </div>
-
-        <!-- DINNER -->
-        <div class="food-meal-card">
-          <div class="meal-timing-label">
-            <span>🌙 Grounding Night (7:00 – 8:00 PM)</span>
-            <span style="color: #64748b;">Early Dinner</span>
-          </div>
-          <div class="meal-title">Light Digestible Soup & Golden Milk</div>
-          <div class="meal-items-list">
-            • ${dinnerItem}<br/>
-            • 1 cup warm A2 milk or almond milk with organic turmeric, black pepper & pinch of nutmeg before sleep
-          </div>
-          <span class="meal-benefit-pill">💤 Stimulates GABA and natural melatonin release for restorative deep sleep</span>
-        </div>
+        ${mealCardsHtml}
       </div>
 
       <!-- BOTTOM ACTION -->
@@ -2780,7 +3353,7 @@ function renderDailyFoodPlan() {
           <span>✓ Log Food Items Eating Plan (+25 Green Points)</span>
         </button>
         <span style="font-size: 12px; color: var(--text-muted);">
-          Food choices are calibrated to your region (${regionName}) and active climate hydration target.
+          Food choices are calibrated to your diet (${dietLabels[currentDiet]}), region (${regionName}) and active climate hydration target.
         </span>
       </div>
     </div>
@@ -3737,7 +4310,7 @@ function openExerciseAnimationByKeywords(text = '') {
 // 🩺 COMPREHENSIVE SYMPTOM & PROBLEM HEALER DATABASE & ANALYSIS ENGINE
 // ==========================================================================
 
-const PROBLEM_HEALING_DATABASE = {
+const PROBLEM_HEALING_DATABASE = (typeof window !== 'undefined' && window.PROBLEM_HEALING_DATABASE) ? window.PROBLEM_HEALING_DATABASE : {
   back_pain: {
     key: 'back_pain',
     badge: 'Lumbar Spine & Psoas',
@@ -4317,62 +4890,84 @@ const PROBLEM_HEALING_DATABASE = {
   }
 };
 
-// NLP & Semantic Problem Analyzer
+// NLP & Semantic Multi-Diet Clinical Problem Analyzer
 function analyzeHealthProblem(queryText = '') {
+  const DB = (typeof window !== 'undefined' && window.PROBLEM_HEALING_DATABASE) ? window.PROBLEM_HEALING_DATABASE : PROBLEM_HEALING_DATABASE;
   const query = (queryText || '').toLowerCase().trim();
 
+  let targetCondition = null;
+
   // Direct match to preset keys
-  if (PROBLEM_HEALING_DATABASE[query]) {
-    return PROBLEM_HEALING_DATABASE[query];
-  }
+  if (DB[query]) {
+    targetCondition = DB[query];
+  } else {
+    // Multi-factor keyword scoring across all 20 conditions
+    const scores = {};
+    for (const key in DB) scores[key] = 0;
 
-  // Keyword extraction and weighting
-  const scores = {};
-  for (const key in PROBLEM_HEALING_DATABASE) {
-    scores[key] = 0;
-  }
+    // Sciatica
+    if (query.match(/sciatica|radiating|shoot|piriformis|buttock down|posterior thigh|hamstring numb|electric shock leg|nerve shoot|l5-s1/)) scores.sciatica_nerve = (scores.sciatica_nerve || 0) + 14;
+    // Cervical spondylosis
+    if (query.match(/cervical spondylosis|spondylosis|neck disc|c5|c6|c7|arm numb|finger numb|tingling hand|arm pain from neck|vertigo.*neck|dizziness.*neck/)) scores.cervical_spondylosis = (scores.cervical_spondylosis || 0) + 14;
+    // Lower back pain
+    if (query.match(/back|lumbar|spine|lower back|l4|l5|s1|disc compression|psoas|sitting slouch|sacral|waist/)) scores.back_pain = (scores.back_pain || 0) + 10;
+    // Neck strain
+    if (query.match(/neck|trapezius|tech neck|screen craning|laptop neck|stiff neck|shoulder blade|upper back strain/)) scores.neck_strain = (scores.neck_strain || 0) + 10;
+    // Acid reflux
+    if (query.match(/acid|reflux|gerd|heartburn|burning chest|sour burp|stomach burn|belching|regurgitation|gastritis|sour mouth/)) scores.acid_reflux = (scores.acid_reflux || 0) + 12;
+    // PCOS / Hormone
+    if (query.match(/pcos|pcod|irregular period|cysts|androgen|facial hair|hirsutism|cystic acne|missed cycle|hormonal|ovary|fertility/)) scores.pcos_hormone = (scores.pcos_hormone || 0) + 12;
+    // Insomnia
+    if (query.match(/sleep|insomnia|can't sleep|cannot sleep|wake up|awake|tossing|restless night|midnight wake|racing mind|sleep quality/)) scores.insomnia = (scores.insomnia || 0) + 12;
+    // Knee joint
+    if (query.match(/knee|patella|cartilage|creaking|crepitus|stiff knee|squatting hurts|stairs hurt|meniscus|synovial|joint ache/)) scores.knee_joint = (scores.knee_joint || 0) + 12;
+    // Migraine
+    if (query.match(/migraine|headache|throbbing temple|one sided head|light sensitive|aura|visual flash|nausea headache|pounding head/)) scores.migraine = (scores.migraine || 0) + 12;
+    // Sluggish metabolism
+    if (query.match(/metabolism|stubborn weight|weight plateau|visceral fat|sluggish|heavy after food|low thyroid|slow burn|belly fat/)) scores.sluggish_metabolism = (scores.sluggish_metabolism || 0) + 10;
+    // Fatty liver
+    if (query.match(/fatty liver|liver|nafld|sgpt|sgot|hepatic|right upper abdomen|liver detox|sluggish bile/)) scores.fatty_liver = (scores.fatty_liver || 0) + 14;
+    // IBS / Bloating
+    if (query.match(/ibs|irritable bowel|bloating|distended|abdominal cramp|visceral spasms|alternating stool|spasmodic bowel|stomach gas/)) scores.ibs_bloating = (scores.ibs_bloating || 0) + 12;
+    // Constipation
+    if (query.match(/constipation|hard stool|dry stool|straining|incomplete evacuation|sluggish colon|bowel movement|toilet struggle/)) scores.constipation = (scores.constipation || 0) + 12;
+    // High BP / Stress
+    if (query.match(/blood pressure|bp|hypertension|systolic|diastolic|pulse|racing heart|heart rate|stress bp/)) scores.high_bp_stress = (scores.high_bp_stress || 0) + 12;
+    // Anxiety / Vata Burnout
+    if (query.match(/anxiety|panic|nervous|dread|overwhelmed|breathless|tremor|internal shaking|restless nervous|vata burnout/)) scores.anxiety_stress = (scores.anxiety_stress || 0) + 12;
+    // Plantar Fasciitis
+    if (query.match(/heel|foot sole|plantar|fasciitis|morning first step|stepping on needle|stepping on pin|achilles|heel spur/)) scores.plantar_heel = (scores.plantar_heel || 0) + 14;
+    // Frozen Shoulder
+    if (query.match(/frozen shoulder|adhesive capsulitis|cannot lift arm|reach back|bra strap|shoulder rotation|deltoid stiffness/)) scores.frozen_shoulder = (scores.frozen_shoulder || 0) + 14;
+    // Uric Acid / Gout
+    if (query.match(/uric acid|gout|big toe|swollen toe|joint crystal|hyperuricemia|purine|hot red toe/)) scores.uric_acid_gout = (scores.uric_acid_gout || 0) + 14;
+    // Eczema / Skin Rash
+    if (query.match(/eczema|psoriasis|skin rash|itchy skin|hives|urticaria|red patches|inflamed skin|pitta heat rash|dermatitis/)) scores.eczema_skin_rash = (scores.eczema_skin_rash || 0) + 14;
+    // Low Immunity
+    if (query.match(/cold|cough|sinus|mucus|phlegm|throat|immunity|frequent sick|feverish|nasal congestion|respiratory/)) scores.low_immunity = (scores.low_immunity || 0) + 10;
 
-  // Lumbar / Back keywords
-  if (query.match(/back|lumbar|spine|lower back|l4|l5|s1|sciatica|slip disc|sitting|waist|psoas/)) scores.back_pain += 10;
-  // Neck / Cervical keywords
-  if (query.match(/neck|cervical|shoulder|tech neck|trapezius|head forward|upper back|laptop/)) scores.neck_strain += 10;
-  // Acid / Reflux keywords
-  if (query.match(/acid|reflux|gerd|heartburn|burning|stomach burn|acidity|sour|chest burn|belching/)) scores.acid_reflux += 10;
-  // PCOS / Hormone keywords
-  if (query.match(/pcos|pcod|period|irregular|hormone|androgen|ovary|facial hair|acne|cycle|fertility/)) scores.pcos_hormone += 10;
-  // Sleep / Insomnia keywords
-  if (query.match(/sleep|insomnia|can't sleep|wake up|awake|night|tossing|anxiety|racing mind|restless/)) scores.insomnia += 10;
-  // Knee / Joint keywords
-  if (query.match(/knee|patella|joint|creaking|crepitus|stiff knee|squatting hurts|cartilage|meniscus/)) scores.knee_joint += 10;
-  // Migraine keywords
-  if (query.match(/migraine|headache|throbbing|light sensitive|aura|temple|one side head|nausea/)) scores.migraine += 10;
-  // Metabolism / Weight keywords
-  if (query.match(/metabolism|weight|fat|belly|sluggish|tired|heavy|fatty liver|cholesterol|stubborn/)) scores.sluggish_metabolism += 10;
-  // BP / Stress keywords
-  if (query.match(/blood pressure|bp|hypertension|stress|anxious|palpitation|pulse|heart rate/)) scores.high_bp_stress += 10;
-  // Constipation keywords
-  if (query.match(/constipation|bowel|hard stool|motion|bloat|gas|not clearing|toilet|irregular motion/)) scores.constipation += 10;
-  // Plantar / Heel keywords
-  if (query.match(/heel|foot|sole|plantar|fasciitis|morning walk pain|stepping on pin|achilles/)) scores.plantar_heel += 10;
-  // Immunity keywords
-  if (query.match(/cold|cough|sinus|mucus|phlegm|throat|immunity|frequent sick|feverish|nasal/)) scores.low_immunity += 10;
-
-  // Find highest scoring condition
-  let highestKey = 'back_pain';
-  let maxScore = -1;
-  for (const k in scores) {
-    if (scores[k] > maxScore) {
-      maxScore = scores[k];
-      highestKey = k;
+    let highestKey = 'back_pain';
+    let maxScore = -1;
+    for (const k in scores) {
+      if (scores[k] > maxScore) {
+        maxScore = scores[k];
+        highestKey = k;
+      }
     }
+
+    targetCondition = (maxScore > 0 && DB[highestKey]) ? DB[highestKey] : (DB[state.activeProblemPreset] || DB['back_pain']);
   }
 
-  if (maxScore > 0) {
-    return PROBLEM_HEALING_DATABASE[highestKey];
-  }
+  // Clone condition and individualize with clinical patient context
+  const analysis = JSON.parse(JSON.stringify(targetCondition));
+  analysis.userQuery = queryText;
+  analysis.duration = state.problemDuration || 'chronic';
+  analysis.severity = state.problemSeverity || 'moderate';
+  analysis.activeTriggers = state.problemTriggers ? [...state.problemTriggers] : ['sitting', 'stress'];
+  analysis.activeDiet = state.problemDietContext || state.userDiet || 'veg';
+  analysis.activeFastingType = state.problemFastingType || state.userFastingType || 'intermittent';
 
-  // Dynamic fallback: build a customized synthesis
-  return PROBLEM_HEALING_DATABASE['back_pain'];
+  return analysis;
 }
 
 function selectProblemPreset(presetKey) {
@@ -4384,7 +4979,8 @@ function selectProblemPreset(presetKey) {
     btn.classList.toggle('active', btn.dataset.problem === presetKey);
   });
 
-  const preset = PROBLEM_HEALING_DATABASE[presetKey];
+  const DB = (typeof window !== 'undefined' && window.PROBLEM_HEALING_DATABASE) ? window.PROBLEM_HEALING_DATABASE : PROBLEM_HEALING_DATABASE;
+  const preset = DB[presetKey];
   if (preset && textarea) {
     textarea.value = `I am experiencing ${preset.title.toLowerCase()}. It feels tight, uncomfortable and impacts my daily energy and focus.`;
     const charCounter = document.getElementById('problem-char-count');
@@ -4421,7 +5017,6 @@ function toggleProblemVoiceDictation() {
   const textarea = document.getElementById('problem-input-text');
   if (!textarea) return;
 
-  // Web Speech API check
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (SpeechRecognition) {
     try {
@@ -4448,7 +5043,6 @@ function toggleProblemVoiceDictation() {
     } catch(e) {}
   }
 
-  // Fallback prompt simulation
   textarea.value = "I feel persistent soreness and sharp stiffness in my lower back after working on my computer for hours.";
   const charCounter = document.getElementById('problem-char-count');
   if (charCounter) charCounter.innerText = `${textarea.value.length} / 500`;
@@ -4460,13 +5054,51 @@ function renderProblemHealingProtocol(data, userQuery = '') {
   const container = document.getElementById('problem-healing-output');
   if (!container || !data) return;
 
+  const activeDiet = data.activeDiet || state.problemDietContext || state.userDiet || 'veg';
+  const activeFastingType = data.activeFastingType || state.problemFastingType || state.userFastingType || 'intermittent';
+
+  // Determine prescribed foods based on active diet
+  let prescribedFoods = [];
+  if (data.whatToEatByDiet && data.whatToEatByDiet[activeDiet]) {
+    prescribedFoods = data.whatToEatByDiet[activeDiet];
+  } else if (data.whatToEat) {
+    prescribedFoods = data.whatToEat;
+  }
+
+  const dietTitles = {
+    veg: 'Vegetarian Healing Foods & Elixirs',
+    nonveg: 'Non-Vegetarian Lean Broths & Marine Proteins',
+    vegan: '100% Plant-Based Anti-Inflammatory Foods',
+    fasting: `Fasting-Compatible Medicinal Elixirs (${getFastingLabel(activeFastingType)})`
+  };
+
+  const dietPills = {
+    veg: '🥗 Vegetarian',
+    nonveg: '🍗 Non-Vegetarian',
+    vegan: '🌱 Vegan',
+    fasting: `🪔 Fasting (${getFastingLabel(activeFastingType)})`
+  };
+
+  const dietIcons = {
+    veg: '🥗',
+    nonveg: '🍗',
+    vegan: '🌱',
+    fasting: '🪔'
+  };
+
+  const fastingNotice = activeDiet === 'fasting' ? `
+    <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: var(--radius-md); padding: 10px 14px; margin-bottom: 12px; font-size: 12px; color: #92400e; line-height: 1.4;">
+      <strong>🪔 Fasting-Safe Therapeutic Protocol:</strong> These remedies provide essential cellular electrolytes, carminative herbs, and tissue repair without breaking your sacred fast vows or interrupting metabolic autophagy.
+    </div>
+  ` : '';
+
   // What to eat cards
-  const eatCardsHtml = data.whatToEat.map(item => `
+  const eatCardsHtml = prescribedFoods.map(item => `
     <div class="healing-pill-item healing-pill-eat">
-      <span style="font-size: 16px;">🥗</span>
+      <span style="font-size: 18px;">${dietIcons[activeDiet] || '🥗'}</span>
       <div>
         <strong style="color: #14532d; display: block; font-size: 13px;">${item.food}</strong>
-        <span style="color: #166534; font-size: 12px;">${item.why}</span>
+        <span style="color: #166534; font-size: 12px; line-height: 1.4; display: block; margin-top: 2px;">${item.why}</span>
       </div>
     </div>
   `).join('');
@@ -4474,10 +5106,10 @@ function renderProblemHealingProtocol(data, userQuery = '') {
   // Foods to avoid cards
   const avoidCardsHtml = data.foodsToAvoid.map(item => `
     <div class="healing-pill-item healing-pill-avoid">
-      <span style="font-size: 16px;">🚫</span>
+      <span style="font-size: 18px;">🚫</span>
       <div>
         <strong style="color: #881337; display: block; font-size: 13px;">${item.food}</strong>
-        <span style="color: #9f1239; font-size: 12px;">${item.why}</span>
+        <span style="color: #9f1239; font-size: 12px; line-height: 1.4; display: block; margin-top: 2px;">${item.why}</span>
       </div>
     </div>
   `).join('');
@@ -4485,10 +5117,10 @@ function renderProblemHealingProtocol(data, userQuery = '') {
   // Measures to take
   const measuresHtml = data.measuresToTake.map(m => `
     <div class="healing-pill-item healing-pill-measure">
-      <span style="font-size: 16px;">🛡️</span>
+      <span style="font-size: 18px;">🛡️</span>
       <div>
         <strong style="color: #1e3a8a; display: block; font-size: 13px;">${m.measure}</strong>
-        <span style="color: #1e40af; font-size: 12px;">${m.detail}</span>
+        <span style="color: #1e40af; font-size: 12px; line-height: 1.4; display: block; margin-top: 2px;">${m.detail}</span>
       </div>
     </div>
   `).join('');
@@ -4542,13 +5174,102 @@ function renderProblemHealingProtocol(data, userQuery = '') {
     `;
   }).join('');
 
+  // 7-Day Precision Roadmap
+  const roadmap = data.healingRoadmap || {
+    stage1: 'Days 1–2: Acute Symptom Relief, Inflammation Damping & Hydration',
+    stage2: 'Days 3–5: Tissue Remodeling, Metabolic Balancing & Synovial Activation',
+    stage3: 'Days 6–7+: Musculoskeletal Stabilization, Cellular Strength & Recurrence Prevention'
+  };
+
+  const roadmapHtml = `
+    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-lg); padding: 18px; margin-top: 20px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 20px;">📅</span>
+          <h4 style="font-family: var(--font-heading); font-size: 16px; font-weight: 800; color: #0f172a; margin: 0;">
+            7-Day Clinical Recovery Roadmap & Healing Timeline
+          </h4>
+        </div>
+        <span style="font-size: 11px; color: #047857; font-weight: 700; background: #ecfdf5; padding: 2px 8px; border-radius: 999px;">
+          Evidence-Based Progression
+        </span>
+      </div>
+      <div class="roadmap-timeline-grid">
+        <div class="roadmap-step-card stage-acute">
+          <span style="font-size: 10px; font-weight: 800; color: #dc2626; text-transform: uppercase; letter-spacing: 0.5px;">Phase 1: Days 1–2</span>
+          <p style="font-size: 12px; color: #334155; margin: 4px 0 0; line-height: 1.4;">${roadmap.stage1}</p>
+        </div>
+        <div class="roadmap-step-card stage-repair">
+          <span style="font-size: 10px; font-weight: 800; color: #d97706; text-transform: uppercase; letter-spacing: 0.5px;">Phase 2: Days 3–5</span>
+          <p style="font-size: 12px; color: #334155; margin: 4px 0 0; line-height: 1.4;">${roadmap.stage2}</p>
+        </div>
+        <div class="roadmap-step-card stage-strengthen">
+          <span style="font-size: 10px; font-weight: 800; color: #059669; text-transform: uppercase; letter-spacing: 0.5px;">Phase 3: Days 6–7+</span>
+          <p style="font-size: 12px; color: #334155; margin: 4px 0 0; line-height: 1.4;">${roadmap.stage3}</p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Clinical Red Flags Warning
+  const redFlags = data.clinicalRedFlags || [
+    'Progressive numbness, sudden shooting sensations, or loss of motor function',
+    'Severe unrelenting pain that awakens you from sleep while lying completely still',
+    'Unexplained fever, systemic chills, or sudden unintended weight loss'
+  ];
+
+  const redFlagsHtml = `
+    <div class="clinical-red-flags-card" style="margin-top: 16px;">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+        <span style="font-size: 16px;">🚨</span>
+        <strong style="color: #9f1239; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">
+          Clinical Safety Warning & Red Flags (When to Seek In-Person Physician Evaluation):
+        </strong>
+      </div>
+      <ul style="margin: 0; padding-left: 20px; font-size: 11px; color: #881337; line-height: 1.5;">
+        ${redFlags.map(rf => `<li>${rf}</li>`).join('')}
+      </ul>
+    </div>
+  `;
+
+  // Duration label
+  const durationLabels = {
+    acute: '⚡ Acute (<7 Days)',
+    subacute: '⏳ Subacute (1–4 Weeks)',
+    chronic: '🔄 Chronic (1–6 Months)',
+    longstanding: '📅 Longstanding (>6 Months)'
+  };
+  const durationLabel = durationLabels[data.duration] || durationLabels.chronic;
+
+  // Severity label
+  const severityLabels = {
+    mild: '🟢 Mild Discomfort',
+    moderate: '🟡 Moderate / Daily Limit',
+    severe: '🔴 Severe / High Discomfort'
+  };
+  const severityLabel = severityLabels[data.severity] || severityLabels.moderate;
+
+  // Triggers labels
+  const triggerMap = {
+    sitting: '🪑 Desk Sitting (>6h)',
+    screen: '📱 Screen Strain',
+    stress: '😰 Mental Stress',
+    spicy_food: '🍔 Late/Spicy Meals',
+    sleep_loss: '💤 Disrupted Sleep',
+    strain: '🏋️ Physical Strain',
+    hormones: '🩸 Hormonal Fluctuations'
+  };
+  const triggersText = (data.activeTriggers && data.activeTriggers.length > 0)
+    ? data.activeTriggers.map(t => triggerMap[t] || t).join(' • ')
+    : 'Standard Daily Demands';
+
   const html = `
     <div class="healing-protocol-card" id="active-healing-blueprint">
       <!-- HEADER DIAGNOSTIC BANNER -->
       <div class="healing-diagnostic-header">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
           <div>
-            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px;">
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px;">
               <span class="tag-badge tag-rose">🩺 Clinical Problem Diagnostic</span>
               <span class="tag-badge tag-indigo">${data.badge}</span>
               <span class="tag-badge tag-emerald">🎁 +30 Green Points</span>
@@ -4556,7 +5277,24 @@ function renderProblemHealingProtocol(data, userQuery = '') {
             <h3 style="font-family: var(--font-heading); font-size: 22px; font-weight: 800; color: #0f172a; margin: 4px 0;">
               ${data.icon} ${data.title}
             </h3>
-            <p style="font-size: 13px; color: #475569; margin: 2px 0 0; line-height: 1.5;">
+
+            <!-- Clinical Context Badges -->
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0;">
+              <span style="font-size: 11px; font-weight: 700; background: #ffffff; border: 1px solid #fecdd3; color: #9f1239; padding: 3px 8px; border-radius: 6px;">
+                ${durationLabel}
+              </span>
+              <span style="font-size: 11px; font-weight: 700; background: #ffffff; border: 1px solid #fecdd3; color: #9f1239; padding: 3px 8px; border-radius: 6px;">
+                ${severityLabel}
+              </span>
+              <span style="font-size: 11px; font-weight: 700; background: #ffffff; border: 1px solid #fecdd3; color: #9f1239; padding: 3px 8px; border-radius: 6px;">
+                ⚡ Aggravators: ${triggersText}
+              </span>
+              <span style="font-size: 11px; font-weight: 700; background: #ecfdf5; border: 1px solid #86efac; color: #065f46; padding: 3px 8px; border-radius: 6px;">
+                ${dietPills[activeDiet]} Active
+              </span>
+            </div>
+
+            <p style="font-size: 13px; color: #334155; margin: 6px 0 0; line-height: 1.5;">
               <strong>Biological Root Cause:</strong> ${data.rootCause}
             </p>
             <p style="font-size: 12px; color: #9f1239; margin: 6px 0 0; font-weight: 600;">
@@ -4575,46 +5313,79 @@ function renderProblemHealingProtocol(data, userQuery = '') {
         </div>
       </div>
 
-      <!-- 4-COLUMN CLINICAL HEALING MATRIX -->
+      <!-- IN-PRESCRIPTION 1-TAP DIETARY SWITCHER BAR -->
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-lg); padding: 12px 16px; margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
+          <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #475569; letter-spacing: 0.5px;">
+            🥗 Calibrate Prescription to Patient Dietary Healing Mode:
+          </span>
+          <span style="font-size: 11px; font-weight: 700; color: #047857;">
+            Currently Viewing: <strong>${dietPills[activeDiet]}</strong>
+          </span>
+        </div>
+        <div class="diet-tabs-strip">
+          <button type="button" class="diet-tab-btn ${activeDiet === 'veg' ? 'active' : ''}" onclick="setHealerDiet('veg')">🥗 Vegetarian</button>
+          <button type="button" class="diet-tab-btn ${activeDiet === 'nonveg' ? 'active' : ''}" onclick="setHealerDiet('nonveg')">🍗 Non-Vegetarian</button>
+          <button type="button" class="diet-tab-btn ${activeDiet === 'vegan' ? 'active' : ''}" onclick="setHealerDiet('vegan')">🌱 100% Plant-Based Vegan</button>
+          <button type="button" class="diet-tab-btn ${activeDiet === 'fasting' ? 'active' : ''}" onclick="setHealerDiet('fasting')">🪔 Fasting / Vrat Mode</button>
+        </div>
+        ${activeDiet === 'fasting' ? `
+          <div class="fasting-subtypes-strip" style="margin-top: 8px;">
+            <span style="font-size: 11px; font-weight: 700; color: #92400e;">🪔 Select Fasting Protocol:</span>
+            <button type="button" class="fasting-subtype-btn ${activeFastingType === 'intermittent' ? 'active' : ''}" onclick="setHealerFastingType('intermittent')">⏳ 16:8 Intermittent Fasting</button>
+            <button type="button" class="fasting-subtype-btn ${activeFastingType === 'vrat_ekadashi' ? 'active' : ''}" onclick="setHealerFastingType('vrat_ekadashi')">🪔 Sacred Vrat / Ekadashi</button>
+            <button type="button" class="fasting-subtype-btn ${activeFastingType === 'navratri_phalahar' ? 'active' : ''}" onclick="setHealerFastingType('navratri_phalahar')">🍎 Fruit Fast (Phalahar)</button>
+            <button type="button" class="fasting-subtype-btn ${activeFastingType === 'water_detox' ? 'active' : ''}" onclick="setHealerFastingType('water_detox')">💧 Liquid & Water Detox</button>
+          </div>
+        ` : ''}
+      </div>
+
+      <!-- 3-COLUMN CLINICAL HEALING MATRIX -->
       <div class="healing-grid-4">
         <!-- 1. WHAT TO EAT -->
         <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-lg); padding: 16px;">
-          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-            <span style="font-size: 20px;">🥗</span>
-            <h4 style="font-family: var(--font-heading); font-size: 16px; font-weight: 800; color: #166534; margin: 0;">
-              What to Eat & Drink
-            </h4>
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 20px;">${dietIcons[activeDiet] || '🥗'}</span>
+              <h4 style="font-family: var(--font-heading); font-size: 15px; font-weight: 800; color: #166534; margin: 0;">
+                What to Eat & Drink
+              </h4>
+            </div>
+            <span style="font-size: 10px; font-weight: 700; background: #dcfce7; color: #065f46; padding: 2px 6px; border-radius: 4px;">
+              ${dietPills[activeDiet]}
+            </span>
           </div>
           <p style="font-size: 12px; color: #64748b; margin: 0 0 10px;">
-            Targeted cellular foods, kitchen remedies & restorative elixirs:
+            ${dietTitles[activeDiet] || 'Targeted medicinal nutrition:'}
           </p>
+          ${fastingNotice}
           ${eatCardsHtml}
         </div>
 
         <!-- 2. FOODS TO STRICTLY AVOID -->
         <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-lg); padding: 16px;">
-          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
             <span style="font-size: 20px;">🚫</span>
-            <h4 style="font-family: var(--font-heading); font-size: 16px; font-weight: 800; color: #9f1239; margin: 0;">
+            <h4 style="font-family: var(--font-heading); font-size: 15px; font-weight: 800; color: #9f1239; margin: 0;">
               Foods to Strictly Avoid
             </h4>
           </div>
           <p style="font-size: 12px; color: #64748b; margin: 0 0 10px;">
-            Pro-inflammatory foods that delay tissue healing:
+            Pro-inflammatory compounds that delay healing:
           </p>
           ${avoidCardsHtml}
         </div>
 
         <!-- 3. MEASURES TO TAKE TO HEAL -->
         <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-lg); padding: 16px;">
-          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
             <span style="font-size: 20px;">🛡️</span>
-            <h4 style="font-family: var(--font-heading); font-size: 16px; font-weight: 800; color: #1e40af; margin: 0;">
-              Measures to Take to Heal
+            <h4 style="font-family: var(--font-heading); font-size: 15px; font-weight: 800; color: #1e40af; margin: 0;">
+              Measures & Acupressure
             </h4>
           </div>
           <p style="font-size: 12px; color: #64748b; margin: 0 0 10px;">
-            Ergonomics, hot/cold therapy, acupressure points & sleep posture:
+            Ergonomics, hot/cold therapy, acupressure & sleep posture:
           </p>
           ${measuresHtml}
         </div>
@@ -4641,6 +5412,12 @@ function renderProblemHealingProtocol(data, userQuery = '') {
           ${exercisesHtml}
         </div>
       </div>
+
+      <!-- 7-DAY PRECISION ROADMAP -->
+      ${roadmapHtml}
+
+      <!-- RED FLAGS SAFETY WARNING -->
+      ${redFlagsHtml}
 
       <!-- RECOVERY TIMELINE & ACTION BUTTONS -->
       <div style="background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border: 1.5px solid #bbf7d0; border-radius: var(--radius-lg); padding: 18px 20px; margin-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
@@ -4669,24 +5446,54 @@ function renderProblemHealingProtocol(data, userQuery = '') {
 }
 
 function speakHealingProtocol() {
-  const data = state.lastProblemAnalysis || PROBLEM_HEALING_DATABASE.back_pain;
+  const DB = (typeof window !== 'undefined' && window.PROBLEM_HEALING_DATABASE) ? window.PROBLEM_HEALING_DATABASE : PROBLEM_HEALING_DATABASE;
+  const data = state.lastProblemAnalysis || DB.back_pain;
   if (!data) return;
-  const msg = `Healing protocol for ${data.title}. Biological root cause: ${data.rootCause}. Recommended foods to eat: ${data.whatToEat.map(e => e.food).join(', ')}. Avoid: ${data.foodsToAvoid.map(a => a.food).join(', ')}. Key remedial exercise: ${data.exercises[0].name}. Expected recovery: ${data.recoveryMilestone}`;
+
+  const activeDiet = data.activeDiet || state.problemDietContext || state.userDiet || 'veg';
+  let foods = [];
+  if (data.whatToEatByDiet && data.whatToEatByDiet[activeDiet]) {
+    foods = data.whatToEatByDiet[activeDiet].map(e => e.food);
+  } else if (data.whatToEat) {
+    foods = data.whatToEat.map(e => e.food);
+  }
+
+  const msg = `Healing protocol for ${data.title}. Biological root cause: ${data.rootCause}. Recommended foods to eat for your ${activeDiet} lifestyle: ${foods.join(', ')}. Avoid: ${data.foodsToAvoid.map(a => a.food).join(', ')}. Key remedial exercise: ${data.exercises[0].name}. Expected recovery: ${data.recoveryMilestone}`;
   speakCoach(msg);
-  showToast('🔊 Audio Coach reciting healing protocol');
+  showToast('🔊 Audio Coach reciting tailored healing protocol');
 }
 
 function copyHealingPrescription() {
-  const data = state.lastProblemAnalysis || PROBLEM_HEALING_DATABASE.back_pain;
+  const DB = (typeof window !== 'undefined' && window.PROBLEM_HEALING_DATABASE) ? window.PROBLEM_HEALING_DATABASE : PROBLEM_HEALING_DATABASE;
+  const data = state.lastProblemAnalysis || DB.back_pain;
   if (!data) return;
+
+  const activeDiet = data.activeDiet || state.problemDietContext || state.userDiet || 'veg';
+  const activeFastingType = data.activeFastingType || state.problemFastingType || state.userFastingType || 'intermittent';
+
+  let foods = [];
+  if (data.whatToEatByDiet && data.whatToEatByDiet[activeDiet]) {
+    foods = data.whatToEatByDiet[activeDiet];
+  } else if (data.whatToEat) {
+    foods = data.whatToEat;
+  }
+
+  const roadmap = data.healingRoadmap || {
+    stage1: 'Days 1–2: Acute Symptom Relief',
+    stage2: 'Days 3–5: Core Remodeling',
+    stage3: 'Days 6–7+: Long-term Resilience'
+  };
+
   const text = `
 === PRANAFIT CLINICAL HEALING PROTOCOL ===
 Condition: ${data.title}
 Biological Root Cause: ${data.rootCause}
 Ayurvedic Dosha: ${data.ayurvedicDosha}
+Active Diet Mode: ${activeDiet.toUpperCase()}${activeDiet === 'fasting' ? ` (${getFastingLabel(activeFastingType)})` : ''}
+Duration: ${data.duration || 'Chronic'} | Severity: ${data.severity || 'Moderate'}
 
-WHAT TO EAT:
-${data.whatToEat.map(e => `• ${e.food} (${e.why})`).join('\n')}
+WHAT TO EAT & DRINK (${activeDiet.toUpperCase()} PROTOCOL):
+${foods.map(e => `• ${e.food} (${e.why})`).join('\n')}
 
 FOODS TO STRICTLY AVOID:
 ${data.foodsToAvoid.map(a => `• ${a.food} (${a.why})`).join('\n')}
@@ -4694,10 +5501,15 @@ ${data.foodsToAvoid.map(a => `• ${a.food} (${a.why})`).join('\n')}
 TARGETED REMEDIAL EXERCISES:
 ${data.exercises.map(ex => `• ${ex.name} (${ex.duration}) - ${ex.cue}`).join('\n')}
 
-HEALING MEASURES:
+HEALING MEASURES & ACUPRESSURE:
 ${data.measuresToTake.map(m => `• ${m.measure}: ${m.detail}`).join('\n')}
 
-RECOVERY MILESTONE:
+7-DAY HEALING ROADMAP:
+• Phase 1 (Days 1–2): ${roadmap.stage1}
+• Phase 2 (Days 3–5): ${roadmap.stage2}
+• Phase 3 (Days 6–7+): ${roadmap.stage3}
+
+EXPECTED RECOVERY MILESTONE:
 ${data.recoveryMilestone}
 ==========================================
 Generated by PranaFit Integrated AI Health Platform
@@ -4748,13 +5560,6 @@ function logHealingPlanDone() {
   addGreenPoints(30);
   synth.playSuccessChime();
   showToast('🎉 Problem healing adherence logged! +30 Green Points awarded.');
-}
-
-function jumpToSection(sectionId) {
-  const el = document.getElementById(sectionId);
-  if (el) {
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
 }
 
 let toastTimer = null;
@@ -4812,6 +5617,15 @@ window.toggleYogaPoseDone = toggleYogaPoseDone;
 window.setYogaTime = setYogaTime;
 window.renderProblemHealingProtocol = renderProblemHealingProtocol;
 window.analyzeHealthProblem = analyzeHealthProblem;
+window.setDiet = setDiet;
+window.setHealerDiet = setHealerDiet;
+window.setHealerFastingType = setHealerFastingType;
+window.setProblemDuration = setProblemDuration;
+window.setProblemSeverity = setProblemSeverity;
+window.toggleProblemTrigger = toggleProblemTrigger;
+window.onProfileDietChanged = onProfileDietChanged;
+window.onProfileFastingTypeChanged = onProfileFastingTypeChanged;
+window.getFastingLabel = getFastingLabel;
 
 // --- INITIALIZATION ON PAGE LOAD ---
 document.addEventListener('DOMContentLoaded', () => {
