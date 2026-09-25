@@ -273,6 +273,36 @@
             </div>
           </div>
 
+          <div class="grid-2" style="margin-bottom: 16px;">
+            <!-- Dietary Preference -->
+            <div class="form-group">
+              <label class="form-label" for="profile-diet">
+                <span>🥗 Dietary Preference</span>
+                <span class="optional-pill">Food Protocol</span>
+              </label>
+              <select id="profile-diet" class="input-field" onchange="onProfileDietChanged('inline')">
+                <option value="veg" selected>🥗 Vegetarian (Vegetables, Grains, Dals, Dairy)</option>
+                <option value="nonveg">🍗 Non-Vegetarian (Lean Chicken, Fish, Eggs)</option>
+                <option value="vegan">🌱 100% Plant-Based Vegan (Dairy-Free)</option>
+                <option value="fasting">🪔 Fasting / Vrat Mode (Intermittent / Sacred)</option>
+              </select>
+            </div>
+
+            <!-- Fasting Protocol (shown when Fasting is selected) -->
+            <div class="form-group" id="profile-fasting-group" style="display: none;">
+              <label class="form-label" for="profile-fasting-type">
+                <span>🪔 Fasting Protocol</span>
+                <span class="optional-pill">Fasting / Vrat</span>
+              </label>
+              <select id="profile-fasting-type" class="input-field" onchange="onProfileFastingTypeChanged('inline')">
+                <option value="intermittent" selected>⏳ 16:8 Intermittent Fasting (12 PM–8 PM feeding)</option>
+                <option value="vrat_ekadashi">🪔 Sacred Vrat / Ekadashi Fast (Phalahari)</option>
+                <option value="navratri_phalahar">🍎 Fruit Fast (Alkaline Phalahar & Coconut Water)</option>
+                <option value="water_detox">💧 Liquid & Herbal Water Detox (Zero Solid Food)</option>
+              </select>
+            </div>
+          </div>
+
           <!-- Live Metrics Strip (updates dynamically when values are typed) -->
           <div id="profile-live-metrics" class="metric-strip" style="display: none; margin-bottom: 16px;">
             <!-- Injected dynamically via script.js -->
@@ -352,12 +382,15 @@
       </div>
 
       <!-- Problem Input & Preset Selection Card -->
-      <div class="card" style="margin-bottom: 24px; border-top: 4px solid #e11d48;">
+      <div class="card problem-intake-card" style="margin-bottom: 24px;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
           <div>
-            <span class="tag-badge tag-rose">Step 1: Describe Your Condition</span>
-            <h3 style="font-family: var(--font-heading); font-size: 19px; font-weight: 800; color: #0f172a; margin-top: 4px;">
-              What health issue or discomfort are you experiencing?
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px;">
+              <span class="tag-badge tag-rose">Clinical Problem Intake</span>
+              <span class="tag-badge tag-indigo">Multi-Factor Diagnostic</span>
+            </div>
+            <h3 style="font-family: var(--font-heading); font-size: 20px; font-weight: 800; color: #0f172a; margin: 0;">
+              Describe Your Health Issue, Symptoms & Discomfort
             </h3>
           </div>
           <div style="display: flex; gap: 8px;">
@@ -372,38 +405,107 @@
 
         <!-- Problem Input Textarea -->
         <div style="margin-bottom: 16px;">
-          <textarea id="problem-input-text" class="problem-textarea" rows="3" placeholder="Type or describe your issue in your own words (e.g. 'I have chronic lower back pain after sitting at my desk all day, with morning stiffness and occasional bloating' or 'Severe acid reflux, burning sensation in throat after dinner with sleep disturbance' or 'PCOS with irregular cycles, cystic acne, and stubborn belly fat' or 'Knee joint pain with clicking when climbing stairs')..."></textarea>
+          <textarea id="problem-input-text" class="problem-textarea" rows="3" placeholder="Describe your exact issue, symptoms, location and triggers (e.g. 'Sharp lower back pain after sitting at desk, radiating into right glute with morning stiffness' or 'Severe acid reflux burning throat after dinner with bloating' or 'PCOS with irregular periods, acne, and stubborn weight gain' or 'Knee joint clicking and aching when taking stairs')..."></textarea>
           <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-size: 12px; color: #64748b;">
             <span>💡 Mention pain location, triggers, duration, digestion, or stress for maximum precision.</span>
-            <span id="problem-char-count">0 chars</span>
+            <span id="problem-char-count">0 / 500</span>
           </div>
         </div>
 
-        <!-- Quick 1-Click Common Health Issues Presets -->
+        <!-- CLINICAL MODIFIERS: DURATION, SEVERITY, TRIGGERS & DIET PROTOCOL -->
+        <div class="problem-intake-grid">
+          <!-- Duration -->
+          <div class="problem-modifier-card">
+            <span class="problem-modifier-label">⏱️ Duration / Onset</span>
+            <div class="context-chips-strip" id="problem-duration-chips">
+              <button type="button" class="context-chip-btn" data-duration="acute" onclick="setProblemDuration('acute')">⚡ Acute (&lt;7d)</button>
+              <button type="button" class="context-chip-btn" data-duration="subacute" onclick="setProblemDuration('subacute')">⏳ 1–4 Weeks</button>
+              <button type="button" class="context-chip-btn active" data-duration="chronic" onclick="setProblemDuration('chronic')">🔄 1–6 Months</button>
+              <button type="button" class="context-chip-btn" data-duration="longstanding" onclick="setProblemDuration('longstanding')">📅 &gt;6 Months</button>
+            </div>
+          </div>
+
+          <!-- Severity Scale -->
+          <div class="problem-modifier-card">
+            <span class="problem-modifier-label">📊 Severity & Impact</span>
+            <div class="context-chips-strip" id="problem-severity-chips">
+              <button type="button" class="context-chip-btn" data-severity="mild" onclick="setProblemSeverity('mild')">🟢 Mild Discomfort</button>
+              <button type="button" class="context-chip-btn active" data-severity="moderate" onclick="setProblemSeverity('moderate')">🟡 Moderate / Daily Limit</button>
+              <button type="button" class="context-chip-btn" data-severity="severe" onclick="setProblemSeverity('severe')">🔴 Severe / Sharp / Sleep Loss</button>
+            </div>
+          </div>
+
+          <!-- Patient Dietary Preference for Healing Prescription -->
+          <div class="problem-modifier-card" style="grid-column: 1 / -1;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+              <span class="problem-modifier-label">🥗 Patient Dietary Healing Mode (Select to tailor therapeutic foods & remedies):</span>
+              <span id="healer-diet-badge" style="font-size: 11px; font-weight: 700; color: #047857; background: #ecfdf5; padding: 2px 8px; border-radius: 999px;">Active: Vegetarian</span>
+            </div>
+            <div class="diet-tabs-strip" id="healer-diet-chips" style="margin-top: 4px;">
+              <button type="button" class="diet-tab-btn active" data-diet="veg" onclick="setHealerDiet('veg')">🥗 Vegetarian</button>
+              <button type="button" class="diet-tab-btn" data-diet="nonveg" onclick="setHealerDiet('nonveg')">🍗 Non-Vegetarian</button>
+              <button type="button" class="diet-tab-btn" data-diet="vegan" onclick="setHealerDiet('vegan')">🌱 100% Plant-Based Vegan</button>
+              <button type="button" class="diet-tab-btn" data-diet="fasting" onclick="setHealerDiet('fasting')">🪔 Fasting / Vrat Mode</button>
+            </div>
+
+            <!-- Fasting Protocol Sub-strip for Healer (visible when fasting is selected) -->
+            <div id="healer-fasting-subtypes" class="fasting-subtypes-strip" style="display: none;">
+              <span style="font-size: 11px; font-weight: 700; color: #92400e;">🪔 Fasting Protocol:</span>
+              <button type="button" class="fasting-subtype-btn active" data-fasting="intermittent" onclick="setHealerFastingType('intermittent')">⏳ 16:8 Intermittent Fasting</button>
+              <button type="button" class="fasting-subtype-btn" data-fasting="vrat_ekadashi" onclick="setHealerFastingType('vrat_ekadashi')">🪔 Sacred Vrat / Ekadashi (Phalahari)</button>
+              <button type="button" class="fasting-subtype-btn" data-fasting="navratri_phalahar" onclick="setHealerFastingType('navratri_phalahar')">🍎 Fruit Fast (Phalahar)</button>
+              <button type="button" class="fasting-subtype-btn" data-fasting="water_detox" onclick="setHealerFastingType('water_detox')">💧 Liquid & Water Detox</button>
+            </div>
+          </div>
+
+          <!-- Lifestyle Triggers & Factors (Multi-Select) -->
+          <div class="problem-modifier-card" style="grid-column: 1 / -1;">
+            <span class="problem-modifier-label">⚡ Daily Aggravating Factors / Context (Select all that apply):</span>
+            <div class="context-chips-strip" id="problem-trigger-chips" style="margin-top: 4px;">
+              <button type="button" class="context-chip-btn active" data-trigger="sitting" onclick="toggleProblemTrigger('sitting')">🪑 Desk Sitting (&gt;6h)</button>
+              <button type="button" class="context-chip-btn" data-trigger="screen" onclick="toggleProblemTrigger('screen')">📱 Tech / Laptop Screen</button>
+              <button type="button" class="context-chip-btn active" data-trigger="stress" onclick="toggleProblemTrigger('stress')">😰 Mental Stress / Anxiety</button>
+              <button type="button" class="context-chip-btn" data-trigger="spicy_food" onclick="toggleProblemTrigger('spicy_food')">🍔 Late / Heavy / Spicy Meals</button>
+              <button type="button" class="context-chip-btn" data-trigger="sleep_loss" onclick="toggleProblemTrigger('sleep_loss')">💤 Disrupted Sleep</button>
+              <button type="button" class="context-chip-btn" data-trigger="strain" onclick="toggleProblemTrigger('strain')">🏋️ Physical Strain / Workout</button>
+              <button type="button" class="context-chip-btn" data-trigger="hormones" onclick="toggleProblemTrigger('hormones')">🩸 Hormonal / Cycle Fluctuation</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick 1-Click Common Health Issues Presets (Expanded 20 Clinical Conditions) -->
         <div style="margin-bottom: 18px;">
           <span style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 8px;">
-            ⚡ Or Select a Common Health Condition:
+            ⚡ Or Select a Condition Preset for Instant Clinical Blueprint:
           </span>
           <div class="problem-preset-chips" id="problem-preset-chips">
             <button class="chip-btn problem-preset-btn active" data-problem="back_pain" onclick="selectProblemPreset('back_pain')">🪑 Lower Back Pain & Desk Slouch</button>
             <button class="chip-btn problem-preset-btn" data-problem="neck_strain" onclick="selectProblemPreset('neck_strain')">💻 Tech-Neck & Cervical Stiffness</button>
             <button class="chip-btn problem-preset-btn" data-problem="acid_reflux" onclick="selectProblemPreset('acid_reflux')">🔥 Acid Reflux, GERD & Bloating</button>
             <button class="chip-btn problem-preset-btn" data-problem="pcos_hormone" onclick="selectProblemPreset('pcos_hormone')">🩸 PCOS & Hormonal Imbalance</button>
-            <button class="chip-btn problem-preset-btn" data-problem="insomnia" onclick="selectProblemPreset('insomnia')">🌙 Insomnia & Night Racing Mind</button>
-            <button class="chip-btn problem-preset-btn" data-problem="knee_joint" onclick="selectProblemPreset('knee_joint')">🦵 Knee Joint Pain & Clicking</button>
+            <button class="chip-btn problem-preset-btn" data-problem="insomnia" onclick="selectProblemPreset('insomnia')">🌙 Insomnia & Racing Mind</button>
+            <button class="chip-btn problem-preset-btn" data-problem="knee_joint" onclick="selectProblemPreset('knee_joint')">🦵 Knee Joint Pain & Crepitus</button>
             <button class="chip-btn problem-preset-btn" data-problem="migraine" onclick="selectProblemPreset('migraine')">⚡ Migraine & Tension Headaches</button>
-            <button class="chip-btn problem-preset-btn" data-problem="sluggish_metabolism" onclick="selectProblemPreset('sluggish_metabolism')">🐢 Sluggish Digestion & Fatty Liver</button>
+            <button class="chip-btn problem-preset-btn" data-problem="sciatica_nerve" onclick="selectProblemPreset('sciatica_nerve')">⚡ Sciatica & Radiating Nerve Pain</button>
+            <button class="chip-btn problem-preset-btn" data-problem="cervical_spondylosis" onclick="selectProblemPreset('cervical_spondylosis')">🦴 Cervical Spondylosis & Arm Tingling</button>
+            <button class="chip-btn problem-preset-btn" data-problem="sluggish_metabolism" onclick="selectProblemPreset('sluggish_metabolism')">🐢 Sluggish Digestion & Weight Plateau</button>
+            <button class="chip-btn problem-preset-btn" data-problem="fatty_liver" onclick="selectProblemPreset('fatty_liver')">🛡️ Fatty Liver & Hepatic Congestion</button>
+            <button class="chip-btn problem-preset-btn" data-problem="ibs_bloating" onclick="selectProblemPreset('ibs_bloating')">🌪️ IBS, Gas & Visceral Spasms</button>
+            <button class="chip-btn problem-preset-btn" data-problem="constipation" onclick="selectProblemPreset('constipation')">🚽 Chronic Constipation & Sluggish Colon</button>
             <button class="chip-btn problem-preset-btn" data-problem="high_bp_stress" onclick="selectProblemPreset('high_bp_stress')">🫀 High Blood Pressure & Stress</button>
-            <button class="chip-btn problem-preset-btn" data-problem="constipation" onclick="selectProblemPreset('constipation')">🚽 Chronic Constipation & IBS</button>
-            <button class="chip-btn problem-preset-btn" data-problem="plantar_heel" onclick="selectProblemPreset('plantar_heel')">🏃 Plantar Fasciitis & Heel Pain</button>
-            <button class="chip-btn problem-preset-btn" data-problem="low_immunity" onclick="selectProblemPreset('low_immunity')">🛡️ Sinusitis & Low Immunity</button>
+            <button class="chip-btn problem-preset-btn" data-problem="anxiety_stress" onclick="selectProblemPreset('anxiety_stress')">🌊 Anxiety, Palpitations & Vata Burnout</button>
+            <button class="chip-btn problem-preset-btn" data-problem="plantar_heel" onclick="selectProblemPreset('plantar_heel')">🏃 Plantar Fasciitis & Morning Heel Pain</button>
+            <button class="chip-btn problem-preset-btn" data-problem="frozen_shoulder" onclick="selectProblemPreset('frozen_shoulder')">🧗 Frozen Shoulder & Rotator Stiffness</button>
+            <button class="chip-btn problem-preset-btn" data-problem="uric_acid_gout" onclick="selectProblemPreset('uric_acid_gout')">🦶 Uric Acid & Gout Joint Pain</button>
+            <button class="chip-btn problem-preset-btn" data-problem="eczema_skin_rash" onclick="selectProblemPreset('eczema_skin_rash')">🌿 Eczema & Pitta Skin Heat Rashes</button>
+            <button class="chip-btn problem-preset-btn" data-problem="low_immunity" onclick="selectProblemPreset('low_immunity')">🛡️ Recurrent Colds & Low Immunity</button>
           </div>
         </div>
 
         <!-- Analyze Action Button -->
         <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
           <button class="btn-primary" id="btn-analyze-problem" onclick="triggerProblemAnalysis()" style="padding: 12px 24px; font-size: 14px; font-weight: 800;">
-            <span>🔬 Analyze Problem & Generate Healing Protocol</span>
+            <span>🔬 Analyze Problem & Generate Accurate Healing Protocol</span>
           </button>
           <span style="font-size: 12px; color: #059669; font-weight: 700;">✓ Awards +30 Green Points on logging adherence</span>
         </div>
@@ -974,6 +1076,32 @@
         </div>
       </div>
 
+      <div class="grid-2" style="margin-bottom: 16px;">
+        <div class="form-group">
+          <label class="form-label" for="modal-diet">
+            <span>🥗 Dietary Preference</span>
+          </label>
+          <select id="modal-diet" class="input-field" onchange="onProfileDietChanged('modal')">
+            <option value="veg" selected>🥗 Vegetarian (Vegetables, Grains, Dals, Dairy)</option>
+            <option value="nonveg">🍗 Non-Vegetarian (Lean Chicken, Fish, Eggs)</option>
+            <option value="vegan">🌱 100% Plant-Based Vegan (Dairy-Free)</option>
+            <option value="fasting">🪔 Fasting / Vrat Mode (Intermittent / Sacred)</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="modal-fasting-group" style="display: none;">
+          <label class="form-label" for="modal-fasting-type">
+            <span>🪔 Fasting Protocol</span>
+          </label>
+          <select id="modal-fasting-type" class="input-field" onchange="onProfileFastingTypeChanged('modal')">
+            <option value="intermittent" selected>⏳ 16:8 Intermittent Fasting (12 PM–8 PM feeding)</option>
+            <option value="vrat_ekadashi">🪔 Sacred Vrat / Ekadashi Fast (Phalahari)</option>
+            <option value="navratri_phalahar">🍎 Fruit Fast (Alkaline Phalahar & Coconut Water)</option>
+            <option value="water_detox">💧 Liquid & Herbal Water Detox (Zero Solid Food)</option>
+          </select>
+        </div>
+      </div>
+
       <!-- Live metrics strip in modal -->
       <div id="modal-live-metrics" class="metric-strip" style="display: none; margin-bottom: 16px;">
         <!-- Dynamically rendered -->
@@ -1372,7 +1500,8 @@
     Notification text
   </div>
 
-  <!-- Standalone Script -->
+  <!-- Standalone Scripts -->
+  <script src="./problem_healer_data.js"></script>
   <script src="./script.js"></script>
 </body>
 </html>
