@@ -3755,385 +3755,45 @@ function redeemReward(name, cost) {
 
 function getPoseAnimKey(poseId = '', poseName = '') {
   const str = `${poseId} ${poseName}`.toLowerCase();
+  if (str.includes('pelvic') || str.includes('tilt') || str.includes('sacral') || str.includes('rocking')) return 'warmup_pelvic_tilts';
+  if ((str.includes('nerve') && str.includes('floss')) || str.includes('neural')) return 'warmup_nerve_flossing';
+  if (str.includes('joint') || str.includes('mobility') || str.includes('chin') || str.includes('tuck') || str.includes('shrug') || str.includes('retraction') || str.includes('sandhi')) return 'warmup_joint_mobility';
+  if (str.includes('diaphragm') || str.includes('agni') || (str.includes('belly') && str.includes('breath'))) return 'warmup_diaphragmatic_breath';
   if (str.includes('cat') || str.includes('cow') || str.includes('marjary')) return 'cat_cow';
   if (str.includes('dog') || str.includes('adho') || str.includes('parvat')) return 'downward_dog';
-  if (str.includes('warrior') || str.includes('vira') || str.includes('lunge') && str.includes('high')) return 'warrior2';
+  if (str.includes('warrior') || str.includes('vira') || (str.includes('lunge') && str.includes('high'))) return 'warrior2';
+  if (str.includes('low_lunge') || str.includes('anjaneya') || str.includes('ashwa') || str.includes('crescent')) return 'low_lunge';
   if (str.includes('triangle') || str.includes('trikon')) return 'triangle';
   if (str.includes('cobra') || str.includes('bhujang') || str.includes('upward') || str.includes('locust')) return 'cobra';
-  if (str.includes('bridge') || str.includes('setu') || str.includes('pelvic')) return 'bridge';
+  if (str.includes('bridge') || str.includes('setu')) return 'bridge';
   if (str.includes('child') || str.includes('balasana') || str.includes('savasana') || str.includes('rest')) return 'childs_pose';
-  if (str.includes('low_lunge') || str.includes('anjaneya') || str.includes('ashwa') || str.includes('crescent')) return 'low_lunge';
   if (str.includes('tree') || str.includes('vriksh') || str.includes('dancer') || str.includes('eagle') || str.includes('garud')) return 'tree_pose';
   if (str.includes('boat') || str.includes('nava') || str.includes('core') || str.includes('plank')) return 'boat_pose';
   if (str.includes('pigeon') || str.includes('kapot') || str.includes('butterfly') || str.includes('baddha') || str.includes('hip')) return 'pigeon_pose';
-  if (str.includes('pranayama') || str.includes('kapal') || str.includes('anulom') || str.includes('breath') || str.includes('nadi')) return 'pranayama';
+  if (str.includes('pranayama') || str.includes('kapal') || str.includes('anulom') || str.includes('breath') || str.includes('nadi') || str.includes('sheetali')) return 'pranayama';
   if (str.includes('wall') || str.includes('angel') || str.includes('scapula') || str.includes('shoulder')) return 'wall_angels';
   if (str.includes('squat') || str.includes('mala') || str.includes('chair') || str.includes('utkat')) return 'squats';
   if (str.includes('inversion') || str.includes('viparita') || str.includes('wall_legs') || str.includes('sarvang')) return 'inversion';
   if (str.includes('twist') || str.includes('matsyend') || str.includes('spine')) return 'spinal_twist';
+  if (str.includes('sciatica') || str.includes('piriformis') || str.includes('figure')) return 'sciatica_nerve';
+  if (str.includes('knee') || str.includes('heel') || str.includes('slide')) return 'knee_joint';
+  if (str.includes('neck') || str.includes('cervical')) return 'neck_strain';
   return 'cat_cow';
 }
 
 function renderPoseAnimationSVG(animKey, mode = 'sm') {
-  const isLg = mode === 'lg';
-  const width = isLg ? '100%' : '100%';
-  const height = isLg ? '220' : '100%';
-  const strokeThick = isLg ? 5 : 4;
-
-  switch (animKey) {
-    case 'cat_cow':
-      return `
-        <svg viewBox="0 0 160 110" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-          <!-- Floor mat -->
-          <line x1="15" y1="95" x2="145" y2="95" stroke="#cbd5e1" stroke-width="3" stroke-linecap="round" />
-          
-          <!-- Animated Inhale/Exhale Aura -->
-          <circle cx="80" cy="74" r="${isLg ? 24 : 16}" fill="#ecfdf5" opacity="0.65" style="animation: childsBreatheGlow 4s infinite ease-in-out;" />
-          
-          <!-- Limbs (Arms vertical & Thighs vertical) -->
-          <line x1="45" y1="95" x2="45" y2="70" stroke="#0f766e" stroke-width="${strokeThick}" stroke-linecap="round" />
-          <line x1="115" y1="95" x2="115" y2="70" stroke="#0f766e" stroke-width="${strokeThick}" stroke-linecap="round" />
-          
-          <!-- Undulating Spine Wave -->
-          <path d="M 45,70 Q 80,86 115,70" fill="none" stroke="#10b981" stroke-width="${strokeThick + 2}" stroke-linecap="round" style="animation: catCowSpineWave 4s infinite ease-in-out;" />
-          
-          <!-- Kinetic Head -->
-          <g style="animation: catCowHeadMove 4s infinite ease-in-out;">
-            <circle cx="32" cy="62" r="${isLg ? 10 : 8}" fill="#047857" />
-            <line x1="32" y1="62" x2="45" y2="70" stroke="#047857" stroke-width="${strokeThick - 1}" stroke-linecap="round" />
-          </g>
-          
-          <!-- Pelvis / Tail -->
-          <g style="animation: catCowTailMove 4s infinite ease-in-out;">
-            <circle cx="124" cy="68" r="${isLg ? 7 : 5}" fill="#0f766e" />
-          </g>
-          
-          ${isLg ? `
-            <text x="80" y="24" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="10" font-weight="700" fill="#059669">
-              INHALE: Cow (Drop Belly) ⟷ EXHALE: Cat (Arch Spine)
-            </text>
-          ` : ''}
-        </svg>
-      `;
-
-    case 'downward_dog':
-      return `
-        <svg viewBox="0 0 160 110" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-          <line x1="15" y1="95" x2="145" y2="95" stroke="#cbd5e1" stroke-width="3" stroke-linecap="round" />
-          
-          <g style="animation: downwardDogPulse 3.5s infinite ease-in-out;">
-            <!-- Body Inverted V: Hands at (40,95), Hips at (80,38), Feet at (122,95) -->
-            <!-- Back & Arms -->
-            <line x1="40" y1="95" x2="80" y2="38" stroke="#047857" stroke-width="${strokeThick + 1}" stroke-linecap="round" />
-            <!-- Legs -->
-            <line x1="80" y1="38" x2="122" y2="95" stroke="#059669" stroke-width="${strokeThick + 1}" stroke-linecap="round" />
-            <!-- Head tucked -->
-            <circle cx="56" cy="64" r="${isLg ? 9 : 7}" fill="#0f766e" />
-            <!-- Pelvis Apex marker -->
-            <circle cx="80" cy="38" r="${isLg ? 7 : 5}" fill="#10b981" />
-          </g>
-          
-          <!-- Dynamic heel press indicator -->
-          <g style="animation: dogHeelPress 3.5s infinite ease-in-out;">
-            <line x1="122" y1="95" x2="132" y2="95" stroke="#10b981" stroke-width="4" stroke-linecap="round" />
-          </g>
-          
-          ${isLg ? `
-            <text x="80" y="20" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="10" font-weight="700" fill="#047857">
-              Apex Hips Lifted • Press Chest Gently Toward Thighs
-            </text>
-          ` : ''}
-        </svg>
-      `;
-
-    case 'warrior2':
-      return `
-        <svg viewBox="0 0 160 110" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-          <line x1="15" y1="95" x2="145" y2="95" stroke="#cbd5e1" stroke-width="3" stroke-linecap="round" />
-          
-          <g style="animation: warriorLungePulse 3s infinite ease-in-out;">
-            <!-- Front bent leg: Foot at (50,95), Knee at (50,65), Hip at (85,65) -->
-            <line x1="50" y1="95" x2="50" y2="65" stroke="#059669" stroke-width="${strokeThick + 1}" stroke-linecap="round" />
-            <line x1="50" y1="65" x2="85" y2="65" stroke="#059669" stroke-width="${strokeThick + 1}" stroke-linecap="round" />
-            
-            <!-- Back straight leg: Hip (85,65) to back foot (130,95) -->
-            <line x1="85" y1="65" x2="130" y2="95" stroke="#0f766e" stroke-width="${strokeThick + 1}" stroke-linecap="round" />
-            
-            <!-- Torso: Hip (85,65) to Shoulders (85,38) -->
-            <line x1="85" y1="65" x2="85" y2="38" stroke="#047857" stroke-width="${strokeThick + 1}" stroke-linecap="round" />
-            <circle cx="85" cy="26" r="${isLg ? 9 : 7}" fill="#047857" />
-            
-            <!-- Horizontal Arms: reaching left (front) and right (back) -->
-            <g style="animation: warriorArmsBreathe 3s infinite ease-in-out;">
-              <line x1="35" y1="42" x2="135" y2="42" stroke="#10b981" stroke-width="${strokeThick}" stroke-linecap="round" />
-              <circle cx="35" cy="42" r="3" fill="#10b981" />
-              <circle cx="135" cy="42" r="3" fill="#10b981" />
-            </g>
-          </g>
-          
-          ${isLg ? `
-            <text x="80" y="16" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="10" font-weight="700" fill="#047857">
-              Front Knee 90° Stacked • Open Chest & Gaze Forward
-            </text>
-          ` : ''}
-        </svg>
-      `;
-
-    case 'triangle':
-      return `
-        <svg viewBox="0 0 160 110" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-          <line x1="15" y1="95" x2="145" y2="95" stroke="#cbd5e1" stroke-width="3" stroke-linecap="round" />
-          
-          <!-- Legs wide triangle -->
-          <line x1="45" y1="95" x2="80" y2="60" stroke="#047857" stroke-width="${strokeThick}" stroke-linecap="round" />
-          <line x1="125" y1="95" x2="80" y2="60" stroke="#059669" stroke-width="${strokeThick}" stroke-linecap="round" />
-          
-          <!-- Hinging torso -->
-          <g style="animation: triangleSideStretch 3.5s infinite ease-in-out; transform-origin: 80px 60px;">
-            <line x1="80" y1="60" x2="55" y2="45" stroke="#0f766e" stroke-width="${strokeThick}" stroke-linecap="round" />
-            <circle cx="50" cy="38" r="${isLg ? 8 : 6}" fill="#047857" />
-            <!-- Arms vertical reach line -->
-            <line x1="50" y1="78" x2="60" y2="16" stroke="#10b981" stroke-width="${strokeThick}" stroke-linecap="round" />
-            <circle cx="60" cy="16" r="3.5" fill="#f59e0b" />
-          </g>
-          
-          ${isLg ? `
-            <text x="80" y="15" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="10" font-weight="700" fill="#059669">
-              Side Rib Expansion • Align Torso in One Vertical Plane
-            </text>
-          ` : ''}
-        </svg>
-      `;
-
-    case 'cobra':
-      return `
-        <svg viewBox="0 0 160 110" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-          <line x1="15" y1="95" x2="145" y2="95" stroke="#cbd5e1" stroke-width="3" stroke-linecap="round" />
-          
-          <!-- Legs resting prone -->
-          <line x1="90" y1="95" x2="140" y2="95" stroke="#059669" stroke-width="${strokeThick + 1}" stroke-linecap="round" />
-          
-          <!-- Rising Chest & Head -->
-          <g style="animation: cobraRiseChest 4s infinite ease-in-out; transform-origin: 90px 95px;">
-            <!-- Curved Spine -->
-            <path d="M 90,95 Q 65,85 52,50" fill="none" stroke="#10b981" stroke-width="${strokeThick + 2}" stroke-linecap="round" />
-            <!-- Head lifting -->
-            <circle cx="50" cy="36" r="${isLg ? 9 : 7}" fill="#047857" />
-            <!-- Arms pressing floor -->
-            <line x1="58" y1="62" x2="52" y2="95" stroke="#0f766e" stroke-width="${strokeThick}" stroke-linecap="round" />
-            <line x1="52" y1="95" x2="42" y2="95" stroke="#0f766e" stroke-width="${strokeThick}" stroke-linecap="round" />
-          </g>
-          
-          ${isLg ? `
-            <text x="80" y="20" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="10" font-weight="700" fill="#059669">
-              Inhale & Broaden Collarbones • Roll Shoulders Away From Ears
-            </text>
-          ` : ''}
-        </svg>
-      `;
-
-    case 'bridge':
-      return `
-        <svg viewBox="0 0 160 110" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-          <line x1="15" y1="95" x2="145" y2="95" stroke="#cbd5e1" stroke-width="3" stroke-linecap="round" />
-          
-          <!-- Grounded Head and Shoulders at (35, 95) -->
-          <circle cx="28" cy="91" r="${isLg ? 9 : 7}" fill="#047857" />
-          <line x1="35" y1="95" x2="70" y2="95" stroke="#0f766e" stroke-width="${strokeThick}" stroke-linecap="round" />
-          <!-- Feet at (125, 95) -->
-          <line x1="120" y1="95" x2="135" y2="95" stroke="#059669" stroke-width="${strokeThick + 1}" stroke-linecap="round" />
-          
-          <!-- Elevated Pelvis & Thigh Bridge -->
-          <g style="animation: bridgePelvisElevate 3.8s infinite ease-in-out;">
-            <path d="M 38,92 Q 75,50 115,62" fill="none" stroke="#10b981" stroke-width="${strokeThick + 2}" stroke-linecap="round" />
-            <!-- Shins vertical -->
-            <line x1="115" y1="62" x2="125" y2="95" stroke="#059669" stroke-width="${strokeThick + 1}" stroke-linecap="round" />
-            <!-- Glute activation indicator -->
-            <circle cx="78" cy="56" r="${isLg ? 8 : 6}" fill="#f59e0b" opacity="0.8" />
-          </g>
-          
-          ${isLg ? `
-            <text x="80" y="24" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="10" font-weight="700" fill="#059669">
-              Drive Glutes Upward • Ground Shoulders • Relax Cervical Spine
-            </text>
-          ` : ''}
-        </svg>
-      `;
-
-    case 'childs_pose':
-      return `
-        <svg viewBox="0 0 160 110" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-          <line x1="15" y1="95" x2="145" y2="95" stroke="#cbd5e1" stroke-width="3" stroke-linecap="round" />
-          
-          <!-- Pulsing calm breath aura -->
-          <ellipse cx="80" cy="80" rx="${isLg ? 45 : 35}" ry="${isLg ? 25 : 18}" fill="#d1fae5" style="animation: childsBreatheGlow 4s infinite ease-in-out;" />
-          
-          <!-- Knees and folded lower body -->
-          <!-- Feet (125,95), Knees (95,95), Hips on heels (120,78) -->
-          <path d="M 95,95 L 125,95 L 120,78" fill="none" stroke="#047857" stroke-width="${strokeThick + 1}" stroke-linecap="round" />
-          <!-- Torso folding forward onto thighs -->
-          <path d="M 120,78 Q 85,74 55,90" fill="none" stroke="#10b981" stroke-width="${strokeThick + 2}" stroke-linecap="round" />
-          <!-- Head resting on floor -->
-          <circle cx="48" cy="88" r="${isLg ? 8 : 6}" fill="#0f766e" />
-          <!-- Arms reaching forward along floor -->
-          <line x1="55" y1="88" x2="22" y2="95" stroke="#059669" stroke-width="${strokeThick}" stroke-linecap="round" />
-          
-          ${isLg ? `
-            <text x="80" y="25" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="10" font-weight="700" fill="#047857">
-              Deep Diaphragmatic Breath • Surrender Spine to Gravity
-            </text>
-          ` : ''}
-        </svg>
-      `;
-
-    case 'tree_pose':
-      return `
-        <svg viewBox="0 0 160 110" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-          <line x1="30" y1="98" x2="130" y2="98" stroke="#cbd5e1" stroke-width="3" stroke-linecap="round" />
-          
-          <!-- Subtle balance sway -->
-          <g style="animation: treeBalanceSway 4s infinite ease-in-out; transform-origin: 80px 98px;">
-            <!-- Grounded Standing Leg -->
-            <line x1="80" y1="98" x2="80" y2="58" stroke="#047857" stroke-width="${strokeThick + 1}" stroke-linecap="round" />
-            
-            <!-- Bent Leg placed on inner thigh -->
-            <path d="M 80,58 L 56,68 L 78,74" fill="none" stroke="#059669" stroke-width="${strokeThick}" stroke-linecap="round" />
-            
-            <!-- Upright Spine & Head -->
-            <line x1="80" y1="58" x2="80" y2="34" stroke="#047857" stroke-width="${strokeThick + 1}" stroke-linecap="round" />
-            <circle cx="80" cy="22" r="${isLg ? 9 : 7}" fill="#0f766e" />
-            
-            <!-- Anjali Mudra (Prayer hands at chest or reaching overhead) -->
-            <line x1="72" y1="42" x2="80" y2="38" stroke="#10b981" stroke-width="${strokeThick}" stroke-linecap="round" />
-            <line x1="88" y1="42" x2="80" y2="38" stroke="#10b981" stroke-width="${strokeThick}" stroke-linecap="round" />
-            <circle cx="80" cy="38" r="3.5" fill="#f59e0b" />
-          </g>
-          
-          ${isLg ? `
-            <text x="80" y="14" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="10" font-weight="700" fill="#059669">
-              Fix Drishti (Gaze) on One Still Point • Root Through Four Corners of Foot
-            </text>
-          ` : ''}
-        </svg>
-      `;
-
-    case 'boat_pose':
-      return `
-        <svg viewBox="0 0 160 110" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-          <line x1="20" y1="95" x2="140" y2="95" stroke="#cbd5e1" stroke-width="3" stroke-linecap="round" />
-          
-          <!-- Sitting bones balance apex -->
-          <circle cx="80" cy="85" r="${isLg ? 6 : 4}" fill="#0f766e" />
-          
-          <!-- Core tension pulse -->
-          <g style="animation: boatCoreTension 2.5s infinite ease-in-out; transform-origin: 80px 85px;">
-            <!-- Torso angled back -->
-            <line x1="80" y1="85" x2="52" y2="48" stroke="#047857" stroke-width="${strokeThick + 1}" stroke-linecap="round" />
-            <circle cx="48" cy="38" r="${isLg ? 8 : 6}" fill="#047857" />
-            
-            <!-- Legs angled up -->
-            <line x1="80" y1="85" x2="120" y2="48" stroke="#059669" stroke-width="${strokeThick + 1}" stroke-linecap="round" />
-            
-            <!-- Arms horizontal parallel to floor -->
-            <line x1="62" y1="58" x2="108" y2="58" stroke="#10b981" stroke-width="${strokeThick}" stroke-linecap="round" />
-            
-            <!-- Golden core indicator -->
-            <circle cx="76" cy="74" r="${isLg ? 8 : 6}" fill="#f59e0b" opacity="0.85" />
-          </g>
-          
-          ${isLg ? `
-            <text x="80" y="20" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="10" font-weight="700" fill="#047857">
-              Balance on Sitting Bones • Lift Sternum • Activate Deep Transverse Abdominis
-            </text>
-          ` : ''}
-        </svg>
-      `;
-
-    case 'pranayama':
-      return `
-        <svg viewBox="0 0 160 110" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-          <ellipse cx="80" cy="92" rx="45" ry="10" fill="#e2e8f0" />
-          
-          <!-- Cross-legged Base -->
-          <path d="M 45,90 Q 80,96 115,90" fill="none" stroke="#047857" stroke-width="${strokeThick + 2}" stroke-linecap="round" />
-          <line x1="80" y1="90" x2="80" y2="48" stroke="#059669" stroke-width="${strokeThick + 1}" stroke-linecap="round" />
-          <circle cx="80" cy="35" r="${isLg ? 10 : 8}" fill="#0f766e" />
-          
-          <!-- Vishnu Mudra Hand at Face -->
-          <path d="M 80,55 Q 88,48 83,40" fill="none" stroke="#10b981" stroke-width="${strokeThick}" stroke-linecap="round" />
-          
-          <!-- Animated Pranic energy particles flowing -->
-          <circle cx="72" cy="40" r="3" fill="#10b981" style="animation: pranaParticleFlowLeft 3s infinite ease-in-out;" />
-          <circle cx="88" cy="40" r="3" fill="#3b82f6" style="animation: pranaParticleFlowRight 3s infinite ease-in-out;" />
-          
-          ${isLg ? `
-            <text x="80" y="16" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="10" font-weight="700" fill="#059669">
-              Left Nostril (Ida / Cooling) ⟷ Right Nostril (Pingala / Vitality)
-            </text>
-          ` : ''}
-        </svg>
-      `;
-
-    case 'wall_angels':
-      return `
-        <svg viewBox="0 0 160 110" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-          <!-- Vertical Wall Line -->
-          <line x1="125" y1="15" x2="125" y2="98" stroke="#94a3b8" stroke-width="4" stroke-dasharray="4 4" />
-          
-          <!-- Upright Standing Figure -->
-          <line x1="105" y1="98" x2="105" y2="35" stroke="#047857" stroke-width="${strokeThick + 1}" stroke-linecap="round" />
-          <circle cx="105" cy="22" r="${isLg ? 9 : 7}" fill="#0f766e" />
-          
-          <!-- Gliding Arms from W to Y -->
-          <g style="animation: wallAngelArmsGlide 3.5s infinite ease-in-out;">
-            <path d="M 65,55 L 85,50 L 105,42" fill="none" stroke="#10b981" stroke-width="${strokeThick}" stroke-linecap="round" />
-            <circle cx="65" cy="55" r="4" fill="#10b981" />
-          </g>
-          
-          ${isLg ? `
-            <text x="65" y="18" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="10" font-weight="700" fill="#047857">
-              Keep Elbows & Wrists Against Wall • Glide Up Into Y
-            </text>
-          ` : ''}
-        </svg>
-      `;
-
-    case 'squats':
-      return `
-        <svg viewBox="0 0 160 110" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-          <line x1="20" y1="98" x2="140" y2="98" stroke="#cbd5e1" stroke-width="3" stroke-linecap="round" />
-          
-          <g style="animation: squatLowerRise 3.5s infinite ease-in-out;">
-            <!-- Lowering Hips & Thighs at 90° -->
-            <line x1="60" y1="98" x2="60" y2="70" stroke="#047857" stroke-width="${strokeThick + 1}" stroke-linecap="round" />
-            <line x1="60" y1="70" x2="90" y2="70" stroke="#059669" stroke-width="${strokeThick + 1}" stroke-linecap="round" />
-            
-            <!-- Torso tall with arms forward -->
-            <line x1="90" y1="70" x2="82" y2="36" stroke="#047857" stroke-width="${strokeThick + 1}" stroke-linecap="round" />
-            <circle cx="80" cy="24" r="${isLg ? 9 : 7}" fill="#0f766e" />
-            
-            <line x1="82" y1="42" x2="48" y2="42" stroke="#10b981" stroke-width="${strokeThick}" stroke-linecap="round" />
-          </g>
-          
-          ${isLg ? `
-            <text x="80" y="15" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="10" font-weight="700" fill="#047857">
-              Knees Track Over Toes • Chest Proud • Core Braced
-            </text>
-          ` : ''}
-        </svg>
-      `;
-
-    default: // Cat-Cow / General movement fallback
-      return `
-        <svg viewBox="0 0 160 110" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-          <line x1="15" y1="95" x2="145" y2="95" stroke="#cbd5e1" stroke-width="3" stroke-linecap="round" />
-          <line x1="45" y1="95" x2="45" y2="70" stroke="#0f766e" stroke-width="${strokeThick}" stroke-linecap="round" />
-          <line x1="115" y1="95" x2="115" y2="70" stroke="#0f766e" stroke-width="${strokeThick}" stroke-linecap="round" />
-          <path d="M 45,70 Q 80,86 115,70" fill="none" stroke="#10b981" stroke-width="${strokeThick + 2}" stroke-linecap="round" style="animation: catCowSpineWave 4s infinite ease-in-out;" />
-          <circle cx="32" cy="62" r="${isLg ? 9 : 7}" fill="#047857" style="animation: catCowHeadMove 4s infinite ease-in-out;" />
-        </svg>
-      `;
+  if (typeof window !== 'undefined' && typeof window.renderHumanBodyPoseSVG === 'function') {
+    return window.renderHumanBodyPoseSVG(animKey, mode);
   }
+  const isLg = mode === 'lg';
+  const width = '100%';
+  const height = isLg ? '220' : '100%';
+  return `
+    <svg viewBox="0 0 160 110" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" class="human-body-root">
+      <ellipse cx="80" cy="98" rx="64" ry="4.5" fill="rgba(15, 23, 42, 0.3)" />
+      <rect x="14" y="94" width="132" height="4.5" rx="2.2" fill="#059669" />
+    </svg>
+  `;
 }
 
 // --- POSE ANIMATION MODAL CONTROLS ---
@@ -4168,30 +3828,62 @@ function updateBreathPacerUI() {
 }
 
 function openPoseAnimationModal(poseId, routineKey = null) {
-  const currentKey = routineKey || state.yogaTime || '20';
-  const routine = YOGA_ROUTINES_DATA[currentKey];
+  let routine = null;
   let pose = null;
   let poseIndex = 0;
 
-  if (routine && routine.poses) {
-    const idx = routine.poses.findIndex(p => p.id === poseId);
-    if (idx !== -1) {
-      pose = routine.poses[idx];
-      poseIndex = idx;
+  // Check if Problem Healer routine is requested or active
+  if (routineKey === 'problem_healer' || (state.activeModalRoutine && state.activeModalRoutine.isProblemHealer && !routineKey)) {
+    const DB = (typeof window !== 'undefined' && window.PROBLEM_HEALING_DATABASE) ? window.PROBLEM_HEALING_DATABASE : null;
+    const condData = state.lastAnalyzedConditionData || (DB && state.lastAnalyzedConditionKey ? DB[state.lastAnalyzedConditionKey] : null) || (DB ? DB['back_pain'] : null);
+    
+    if (condData) {
+      const warmups = condData.warmupExercises || (window.WARMUP_COOLDOWN_MAP && window.WARMUP_COOLDOWN_MAP[condData.key] ? window.WARMUP_COOLDOWN_MAP[condData.key].warmup : []);
+      const exercises = condData.exercises || [];
+      const cooldown = condData.cooldownExercise || (window.WARMUP_COOLDOWN_MAP && window.WARMUP_COOLDOWN_MAP[condData.key] ? window.WARMUP_COOLDOWN_MAP[condData.key].cooldown : null);
+      
+      const allPoses = [...warmups, ...exercises];
+      if (cooldown) allPoses.push(cooldown);
+
+      routine = {
+        isProblemHealer: true,
+        time: 'problem_healer',
+        title: `${condData.title} (Clinical Sequence)`,
+        poses: allPoses
+      };
+
+      const foundIdx = allPoses.findIndex(p => p.id === poseId);
+      if (foundIdx !== -1) {
+        pose = allPoses[foundIdx];
+        poseIndex = foundIdx;
+      }
     }
   }
 
-  // Fallback for custom problem healer poses or micro goals
+  // Standard yoga routine lookup
+  if (!routine) {
+    const currentKey = routineKey || state.yogaTime || '20';
+    routine = YOGA_ROUTINES_DATA[currentKey];
+    if (routine && routine.poses) {
+      const idx = routine.poses.findIndex(p => p.id === poseId);
+      if (idx !== -1) {
+        pose = routine.poses[idx];
+        poseIndex = idx;
+      }
+    }
+  }
+
+  // Fallback for custom or direct queries
   if (!pose) {
-    const cleanName = poseId.replace(/^pose_\d+_/, '').replace(/_/g, ' ');
+    const cleanName = poseId.replace(/^pose_\d+_/, '').replace(/^warmup_/, '').replace(/^cooldown_/, '').replace(/_/g, ' ');
     pose = {
       id: poseId,
       name: cleanName.charAt(0).toUpperCase() + cleanName.slice(1),
-      sanskrit: 'Kinesiological Practice',
-      duration: '3.0 min',
-      target: 'Spinal Alignment & Neuro-Fascial Release',
-      cue: 'Synchronize rhythmic inhalation and exhalation. Maintain gentle muscle activation without strain.',
-      benefit: 'Stimulates vital microcirculation, releases cellular adhesions, and calms central nervous tone.',
+      sanskrit: 'Therapeutic Kinesiology',
+      duration: '2.5 min',
+      target: 'Joint Mobilization & Decompression',
+      cue: 'Maintain smooth diaphragmatic nasal breathing. Keep joints aligned without strain.',
+      benefit: 'Circulates warm synovial fluid, breaks fascial adhesions, and calms pain pathways.',
       icon: '🧘'
     };
   }
@@ -4200,8 +3892,9 @@ function openPoseAnimationModal(poseId, routineKey = null) {
   state.activeModalRoutine = routine;
   state.activeModalPoseIndex = poseIndex;
 
-  // Populate modal UI (supporting both semantic ID patterns)
+  // Populate modal UI
   const titleEl = document.getElementById('pose-modal-name') || document.getElementById('pose-modal-title');
+  const categoryEl = document.getElementById('pose-modal-category');
   const sanskritEl = document.getElementById('pose-modal-sanskrit');
   const targetEl = document.getElementById('pose-modal-target') || document.getElementById('pose-modal-badge-target');
   const durationEl = document.getElementById('pose-modal-duration') || document.getElementById('pose-modal-badge-time');
@@ -4213,33 +3906,48 @@ function openPoseAnimationModal(poseId, routineKey = null) {
   const markDoneBtn = document.getElementById('btn-modal-mark-done');
   const markDoneBtnText = document.getElementById('pose-modal-done-btn-text');
 
+  if (categoryEl) {
+    if (pose.isWarmup) {
+      categoryEl.innerText = '⚡ Step 1: Mandatory Joint Warm-Up';
+      categoryEl.className = 'tag-badge tag-amber';
+    } else if (pose.isCooldown) {
+      categoryEl.innerText = '🕊️ Step 3: Somatic Cool-Down & Vagus Reset';
+      categoryEl.className = 'tag-badge tag-indigo';
+    } else {
+      categoryEl.innerText = routine && routine.isProblemHealer ? '🌿 Step 2: Problem Rehabilitation' : 'Therapeutic Asana Animation';
+      categoryEl.className = 'tag-badge tag-emerald';
+    }
+  }
+
   if (titleEl) titleEl.innerText = `${pose.icon ? pose.icon + ' ' : ''}${pose.name}`;
-  if (sanskritEl) sanskritEl.innerText = pose.sanskrit || 'Classical Form';
+  if (sanskritEl) sanskritEl.innerText = pose.sanskrit || 'Classical Anatomical Form';
   if (targetEl) targetEl.innerText = `🎯 Target: ${pose.target}`;
   if (durationEl) durationEl.innerText = `⏱️ ${pose.duration}`;
   if (cueEl) cueEl.innerText = pose.cue;
   if (benefitEl) benefitEl.innerText = pose.benefit;
   if (cautionEl) {
-    cautionEl.innerText = pose.caution || 'Maintain slow, diaphragmatic breathing. Never force past your pain threshold or compromise joint alignment.';
+    cautionEl.innerText = pose.caution || (pose.whyRequired ? `⚠️ Why First: ${pose.whyRequired}` : 'Maintain slow, diaphragmatic breathing. Never force past your pain threshold.');
   }
 
   if (counterEl && routine && routine.poses && routine.poses.length > 0) {
-    counterEl.innerText = `Pose ${poseIndex + 1} of ${routine.poses.length}`;
+    const stepLabel = pose.isWarmup ? '(Warm-Up)' : (pose.isCooldown ? '(Cool-Down)' : '(Rehab)');
+    counterEl.innerText = `Step ${poseIndex + 1} of ${routine.poses.length} ${stepLabel}`;
   }
 
-  const isDone = state.completedYogaPoseIds && state.completedYogaPoseIds.includes(pose.id);
-  const doneLabel = isDone ? '✓ Pose Completed' : '✓ Mark Pose Done (+5 Pts)';
-  if (markDoneBtnText) {
-    markDoneBtnText.innerText = doneLabel;
-  }
+  const isWarmupDone = pose.isWarmup && state.completedWarmupIds && state.completedWarmupIds.includes(pose.id);
+  const isYogaDone = !pose.isWarmup && state.completedYogaPoseIds && state.completedYogaPoseIds.includes(pose.id);
+  const isDone = isWarmupDone || isYogaDone;
+  const doneLabel = isDone ? '✓ Exercise Completed' : '✓ Mark Exercise Done (+5 Pts)';
+  
+  if (markDoneBtnText) markDoneBtnText.innerText = doneLabel;
   if (markDoneBtn) {
     markDoneBtn.innerHTML = `<span>${doneLabel}</span>`;
     markDoneBtn.className = isDone ? 'btn-primary' : 'btn-secondary';
   }
 
-  // Render High-Resolution Kinetic Animated SVG
+  // Render High-Resolution Kinetic Animated Real Human Body SVG
   if (containerEl) {
-    const animKey = getPoseAnimKey(pose.id, pose.name);
+    const animKey = pose.animKey || getPoseAnimKey(pose.id, pose.name);
     containerEl.innerHTML = renderPoseAnimationSVG(animKey, 'lg');
   }
 
@@ -4272,13 +3980,14 @@ function navigateModalPose(direction) {
   if (!routine || !routine.poses || routine.poses.length === 0) return;
   const newIndex = (state.activeModalPoseIndex + direction + routine.poses.length) % routine.poses.length;
   const nextPose = routine.poses[newIndex];
-  openPoseAnimationModal(nextPose.id, routine.time.toString());
+  const routineKey = routine.isProblemHealer ? 'problem_healer' : (routine.time ? routine.time.toString() : null);
+  openPoseAnimationModal(nextPose.id, routineKey);
 }
 
 function speakCurrentModalPose() {
   const pose = state.activeModalPose;
   if (!pose) return;
-  const msg = `${pose.name}. ${pose.sanskrit}. Target focus: ${pose.target}. Alignment cue: ${pose.cue}. Deep physiological benefit: ${pose.benefit}. Maintain smooth breathing throughout.`;
+  const msg = `${pose.name}. Target focus: ${pose.target}. Alignment cue: ${pose.cue}. Deep physiological benefit: ${pose.benefit}. Maintain smooth breathing throughout.`;
   speakCoach(msg);
   showToast('🔊 Audio Coach reading alignment cues');
 }
@@ -4286,19 +3995,69 @@ function speakCurrentModalPose() {
 function markCurrentModalPoseDone() {
   const pose = state.activeModalPose;
   if (!pose) return;
-  toggleYogaPoseDone(pose.id);
-  const isDone = state.completedYogaPoseIds && state.completedYogaPoseIds.includes(pose.id);
-  const doneLabel = isDone ? '✓ Pose Completed' : '✓ Mark Pose Done (+5 Pts)';
+
+  if (pose.isWarmup) {
+    toggleWarmupDone(pose.id);
+  } else {
+    toggleYogaPoseDone(pose.id);
+  }
+
+  const isWarmupDone = pose.isWarmup && state.completedWarmupIds && state.completedWarmupIds.includes(pose.id);
+  const isYogaDone = !pose.isWarmup && state.completedYogaPoseIds && state.completedYogaPoseIds.includes(pose.id);
+  const isDone = isWarmupDone || isYogaDone;
+  const doneLabel = isDone ? '✓ Exercise Completed' : '✓ Mark Exercise Done (+5 Pts)';
+  
   const markDoneBtn = document.getElementById('btn-modal-mark-done');
   const markDoneBtnText = document.getElementById('pose-modal-done-btn-text');
-  if (markDoneBtnText) {
-    markDoneBtnText.innerText = doneLabel;
-  }
+  if (markDoneBtnText) markDoneBtnText.innerText = doneLabel;
   if (markDoneBtn) {
     markDoneBtn.innerHTML = `<span>${doneLabel}</span>`;
     markDoneBtn.className = isDone ? 'btn-primary' : 'btn-secondary';
   }
-  showToast(isDone ? '✓ Pose marked done! +5 Green Points' : 'Pose unmarked');
+}
+
+function toggleWarmupDone(warmupId) {
+  state.completedWarmupIds = state.completedWarmupIds || [];
+  const idx = state.completedWarmupIds.indexOf(warmupId);
+  const wasDone = idx !== -1;
+
+  if (wasDone) {
+    state.completedWarmupIds.splice(idx, 1);
+    showToast('Warm-up unmarked.');
+  } else {
+    state.completedWarmupIds.push(warmupId);
+    addGreenPoints(5);
+    synth.playSuccessChime();
+    showToast('✓ Warm-up completed! Tissues safely primed for rehabilitation (+5 Pts).');
+  }
+
+  // Update inline card UI if present
+  const cardEl = document.getElementById(`warmup-card-${warmupId}`);
+  if (cardEl) {
+    cardEl.classList.toggle('done', !wasDone);
+    const btn = cardEl.querySelector('button:last-child');
+    if (btn) {
+      btn.className = !wasDone ? 'btn-primary' : 'btn-secondary';
+      btn.innerHTML = `<span>${!wasDone ? '✓ Completed' : '✓ Mark Done (+5 Pts)'}</span>`;
+    }
+  }
+}
+
+function startGuidedHealingSequence() {
+  const DB = (typeof window !== 'undefined' && window.PROBLEM_HEALING_DATABASE) ? window.PROBLEM_HEALING_DATABASE : null;
+  const condData = state.lastAnalyzedConditionData || (DB && state.lastAnalyzedConditionKey ? DB[state.lastAnalyzedConditionKey] : null) || (DB ? DB['back_pain'] : null);
+  
+  if (!condData) {
+    showToast('Please select or analyze a health problem first.');
+    return;
+  }
+
+  const warmups = condData.warmupExercises || (window.WARMUP_COOLDOWN_MAP && window.WARMUP_COOLDOWN_MAP[condData.key] ? window.WARMUP_COOLDOWN_MAP[condData.key].warmup : []);
+  const firstId = warmups.length > 0 ? warmups[0].id : (condData.exercises && condData.exercises.length > 0 ? condData.exercises[0].id : 'pose_cat_cow_remedial');
+  
+  openPoseAnimationModal(firstId, 'problem_healer');
+  speakCoach(`Starting guided rehabilitation sequence for ${condData.title}. Step 1: Complete the mandatory joint and fascia warm-up.`);
+  showToast(`🚀 Guided Sequence Started: Step 1 Warm-Up First!`);
 }
 
 function openExerciseAnimationByKeywords(text = '') {
@@ -5125,32 +4884,98 @@ function renderProblemHealingProtocol(data, userQuery = '') {
     </div>
   `).join('');
 
-  // Animated Exercise cards with inline preview and Play Animation trigger
-  const exercisesHtml = data.exercises.map((ex, idx) => {
-    const animSvg = renderPoseAnimationSVG(ex.animKey || 'cat_cow', 'sm');
+  // Save active protocol for modal sequence navigation
+  state.lastAnalyzedConditionData = data;
+  state.lastAnalyzedConditionKey = data.key;
+
+  // 1. Mandatory Warm-up exercises (Phase 1)
+  const warmupExercises = data.warmupExercises || (window.WARMUP_COOLDOWN_MAP && window.WARMUP_COOLDOWN_MAP[data.key] ? window.WARMUP_COOLDOWN_MAP[data.key].warmup : []);
+  const cooldownExercise = data.cooldownExercise || (window.WARMUP_COOLDOWN_MAP && window.WARMUP_COOLDOWN_MAP[data.key] ? window.WARMUP_COOLDOWN_MAP[data.key].cooldown : null);
+
+  // Warm-Up Cards HTML
+  const warmupCardsHtml = warmupExercises.map((w, idx) => {
+    const isDone = state.completedWarmupIds && state.completedWarmupIds.includes(w.id);
+    const animSvg = renderPoseAnimationSVG(w.animKey || 'warmup_joint_mobility', 'sm');
     return `
-      <div style="background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px; display: flex; flex-direction: column; justify-content: space-between;">
+      <div class="warmup-exercise-card ${isDone ? 'done' : ''}" id="warmup-card-${w.id}">
         <div>
-          <!-- Inline Animated Thumbnail -->
-          <div class="pose-thumbnail-svg" onclick="openPoseAnimationModal('${ex.id}', '${state.yogaTime}')" title="Click to view kinetic exercise guide">
+          <!-- Inline Real Human Body Animated Thumbnail -->
+          <div class="pose-thumbnail-svg" onclick="openPoseAnimationModal('${w.id}', 'problem_healer')" title="Click to view full real human body animated coach">
             ${animSvg}
-            <span class="play-badge">▶ Kinetic Guide</span>
+            <span class="play-badge" style="background: rgba(180, 83, 9, 0.9);">⚡ Warm-Up Demo</span>
           </div>
 
           <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
             <div>
-              <h5 style="font-family: var(--font-heading); font-size: 15px; font-weight: 800; color: #0f172a; margin: 0;">
-                ${idx + 1}. ${ex.name}
+              <span class="warmup-step-badge" style="margin-bottom: 4px;">⚡ Step 1: Warm-Up #${idx + 1}</span>
+              <h5 style="font-family: var(--font-heading); font-size: 15px; font-weight: 800; color: #0f172a; margin: 4px 0 0;">
+                ${w.name}
               </h5>
-              <span style="font-size: 11px; color: #64748b; font-style: italic;">${ex.sanskrit}</span>
+              <span style="font-size: 11px; color: #b45309; font-style: italic;">${w.sanskrit}</span>
+            </div>
+            <span class="warmup-status-ribbon">
+              ⏱️ ${w.duration}
+            </span>
+          </div>
+
+          <div style="font-size: 11px; font-weight: 700; color: #d97706; margin-bottom: 6px;">
+            🎯 Pre-Activation: ${w.target}
+          </div>
+
+          <p style="font-size: 12px; color: #334155; line-height: 1.5; margin: 0 0 6px;">
+            <strong>Alignment Cue:</strong> ${w.cue}
+          </p>
+
+          <div style="background: #fffbeb; border: 1px solid #fef3c7; border-radius: var(--radius-sm); padding: 8px 10px; margin-bottom: 8px;">
+            <span style="font-size: 11px; font-weight: 800; color: #92400e; display: block;">⚠️ Why Warm-Up Is Mandatory First:</span>
+            <span style="font-size: 11px; color: #b45309; line-height: 1.4;">${w.whyRequired || 'Lubricates joint capsules and prevents tissue strain.'}</span>
+          </div>
+
+          <p style="font-size: 11px; color: #64748b; line-height: 1.4; margin: 0 0 10px;">
+            💡 <em>${w.benefit}</em>
+          </p>
+        </div>
+
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; padding-top: 10px; border-top: 1px solid #fde68a;">
+          <button class="btn-secondary" onclick="openPoseAnimationModal('${w.id}', 'problem_healer')" style="padding: 5px 10px; font-size: 11px; flex: 1; border-color: #fcd34d;">
+            <span>▶ Play Human Animation</span>
+          </button>
+          <button class="${isDone ? 'btn-primary' : 'btn-secondary'}" onclick="toggleWarmupDone('${w.id}')" style="padding: 5px 12px; font-size: 11px;">
+            <span>${isDone ? '✓ Completed' : '✓ Mark Done (+5 Pts)'}</span>
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Targeted Remedial Rehabilitation Cards (Phase 2)
+  const exercisesHtml = data.exercises.map((ex, idx) => {
+    const isDone = state.completedYogaPoseIds && state.completedYogaPoseIds.includes(ex.id);
+    const animSvg = renderPoseAnimationSVG(ex.animKey || 'cat_cow', 'sm');
+    return `
+      <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: var(--radius-lg); padding: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.25s ease;" id="exercise-card-${ex.id}">
+        <div>
+          <!-- Inline Real Human Body Animated Thumbnail -->
+          <div class="pose-thumbnail-svg" onclick="openPoseAnimationModal('${ex.id}', 'problem_healer')" title="Click to view real human kinetic animation">
+            ${animSvg}
+            <span class="play-badge">▶ Kinetic Rehab Guide</span>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+            <div>
+              <span class="healing-step-badge" style="margin-bottom: 4px;">🌿 Step 2: Rehabilitation #${idx + 1}</span>
+              <h5 style="font-family: var(--font-heading); font-size: 15px; font-weight: 800; color: #0f172a; margin: 4px 0 0;">
+                ${ex.name}
+              </h5>
+              <span style="font-size: 11px; color: #047857; font-style: italic;">${ex.sanskrit}</span>
             </div>
             <span style="font-size: 10px; font-weight: 700; background: #dcfce7; color: #047857; padding: 2px 6px; border-radius: 4px;">
               ⏱️ ${ex.duration}
             </span>
           </div>
 
-          <div style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: #059669; margin-bottom: 6px;">
-            🎯 ${ex.target}
+          <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #059669; margin-bottom: 6px;">
+            🎯 Biomechanical Target: ${ex.target}
           </div>
 
           <p style="font-size: 12px; color: #334155; line-height: 1.5; margin: 0 0 6px;">
@@ -5162,17 +4987,55 @@ function renderProblemHealingProtocol(data, userQuery = '') {
           </p>
         </div>
 
-        <div style="display: flex; gap: 8px; flex-wrap: wrap; padding-top: 8px; border-top: 1px solid var(--border);">
-          <button class="btn-primary" onclick="openPoseAnimationModal('${ex.id}', '${state.yogaTime}')" style="padding: 4px 10px; font-size: 11px; flex: 1;">
-            <span>▶ Play Kinetic Animation</span>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; padding-top: 10px; border-top: 1px solid var(--border);">
+          <button class="btn-primary" onclick="openPoseAnimationModal('${ex.id}', 'problem_healer')" style="padding: 5px 12px; font-size: 11px; flex: 1;">
+            <span>▶ Play Human Animation</span>
           </button>
-          <button class="btn-secondary" onclick="speakYogaPose('${ex.id}')" style="padding: 4px 8px; font-size: 11px;" title="Listen to alignment cues">
+          <button class="btn-secondary" onclick="speakYogaPose('${ex.id}')" style="padding: 5px 8px; font-size: 11px;" title="Listen to voice coach">
             <span>🔊 Audio</span>
+          </button>
+          <button class="${isDone ? 'btn-primary' : 'btn-secondary'}" onclick="toggleYogaPoseDone('${ex.id}')" style="padding: 5px 10px; font-size: 11px;">
+            <span>${isDone ? '✓ Completed' : '✓ Mark Done'}</span>
           </button>
         </div>
       </div>
     `;
   }).join('');
+
+  // Somatic Cool-Down & Vagus Reset Card (Phase 3)
+  let cooldownHtml = '';
+  if (cooldownExercise) {
+    const isDone = state.completedYogaPoseIds && state.completedYogaPoseIds.includes(cooldownExercise.id);
+    const animSvg = renderPoseAnimationSVG(cooldownExercise.animKey || 'childs_pose', 'sm');
+    cooldownHtml = `
+      <div style="background: #faf5ff; border: 1.5px solid #e9d5ff; border-radius: var(--radius-lg); padding: 16px; margin-top: 16px; display: grid; grid-template-columns: 200px 1fr; gap: 16px; align-items: center;">
+        <div class="pose-thumbnail-svg" style="height: 110px; margin: 0;" onclick="openPoseAnimationModal('${cooldownExercise.id}', 'problem_healer')" title="Click to view real human kinetic animation">
+          ${animSvg}
+          <span class="play-badge" style="background: rgba(109, 40, 217, 0.9);">🕊️ Cool-Down Demo</span>
+        </div>
+        <div>
+          <span class="cooldown-step-badge" style="margin-bottom: 4px;">🕊️ Step 3: Somatic Cool-Down & Vagus Reset</span>
+          <h5 style="font-family: var(--font-heading); font-size: 15px; font-weight: 800; color: #581c87; margin: 4px 0 2px;">
+            ${cooldownExercise.name} <span style="font-size: 12px; font-weight: 500; font-style: italic; color: #7e22ce;">(${cooldownExercise.sanskrit})</span>
+          </h5>
+          <p style="font-size: 12px; color: #4b5563; line-height: 1.4; margin: 4px 0 6px;">
+            <strong>Integration Cue:</strong> ${cooldownExercise.cue}
+          </p>
+          <p style="font-size: 11px; color: #7e22ce; margin: 0 0 10px;">
+            ✨ <em>${cooldownExercise.benefit}</em>
+          </p>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn-secondary" onclick="openPoseAnimationModal('${cooldownExercise.id}', 'problem_healer')" style="padding: 5px 12px; font-size: 11px; border-color: #d8b4fe; color: #6b21a8;">
+              <span>▶ Play Human Animation</span>
+            </button>
+            <button class="${isDone ? 'btn-primary' : 'btn-secondary'}" onclick="toggleYogaPoseDone('${cooldownExercise.id}')" style="padding: 5px 12px; font-size: 11px;">
+              <span>${isDone ? '✓ Completed' : '✓ Mark Done (+5 Pts)'}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
 
   // 7-Day Precision Roadmap
   const roadmap = data.healingRoadmap || {
@@ -5391,26 +5254,90 @@ function renderProblemHealingProtocol(data, userQuery = '') {
         </div>
       </div>
 
-      <!-- TARGETED ANIMATED YOGA & EXERCISES SECTION -->
-      <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--border);">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;">
+      <!-- 3-STEP CLINICAL PROGRESSION: WARM-UP FIRST -> REHABILITATION -> COOL-DOWN -->
+      <div class="warmup-flow-wrapper">
+        <!-- Master Sequence Header & Guided Player Launcher -->
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 18px; padding-bottom: 16px; border-bottom: 1px solid var(--border);">
           <div>
-            <div style="display: flex; align-items: center; gap: 6px;">
-              <span class="tag-badge tag-emerald">Kinetic Asana Rehabilitation</span>
-              <span style="font-size: 11px; color: var(--text-muted);">Interactive Visual Form Coaching</span>
+            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+              <span class="tag-badge tag-amber">⚡ Required Warm-Up Protocol</span>
+              <span class="tag-badge tag-emerald">🌿 Real Human Body Kinetic Guide</span>
             </div>
-            <h4 style="font-family: var(--font-heading); font-size: 18px; font-weight: 800; color: #0f172a; margin: 4px 0 0;">
-              🧘 Targeted Remedial Exercises & Kinetic Animations
+            <h4 style="font-family: var(--font-heading); font-size: 20px; font-weight: 800; color: #0f172a; margin: 0;">
+              🧘 Clinical Exercise Rehabilitation Flow
             </h4>
+            <p style="font-size: 12px; color: #64748b; margin: 4px 0 0;">
+              Follow the required 3-step sequence: <strong>Warm-Up First</strong> to lubricate joints, followed by <strong>Targeted Rehabilitation</strong> and <strong>Somatic Cool-Down</strong>.
+            </p>
           </div>
-          <span style="font-size: 12px; color: #047857; font-weight: 600; background: #dcfce7; padding: 4px 10px; border-radius: 999px;">
-            ⚡ Tap Any Animation to Practice in Real-Time
+          <button class="btn-start-flow" onclick="startGuidedHealingSequence()" title="Start automated step-by-step guided player with real human body animations">
+            <span>🚀 Start Guided Sequence (Step 1 → 2 → 3)</span>
+          </button>
+        </div>
+
+        <!-- Visual Step Progression Bar -->
+        <div class="sequence-stepper-bar">
+          <span style="font-size: 11px; font-weight: 800; color: #475569; text-transform: uppercase;">Sequence Flow:</span>
+          <span class="stepper-chip active">
+            <span>⚡ Step 1: Warm-Up (${warmupExercises.length} Poses)</span>
+          </span>
+          <span style="color: #cbd5e1;">➔</span>
+          <span class="stepper-chip">
+            <span>🌿 Step 2: Rehabilitation (${data.exercises.length} Poses)</span>
+          </span>
+          <span style="color: #cbd5e1;">➔</span>
+          <span class="stepper-chip">
+            <span>🕊️ Step 3: Somatic Cool-Down (1 Pose)</span>
           </span>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
-          ${exercisesHtml}
+        <!-- STEP 1: MANDATORY WARM-UP CARDS (REQUIRED FIRST) -->
+        <div style="margin-bottom: 26px;">
+          <div class="warmup-mandatory-alert-box">
+            <span style="font-size: 24px;">⚡</span>
+            <div>
+              <strong style="color: #92400e; font-size: 14px; display: block;">
+                STEP 1: MANDATORY JOINT & FASCIA WARM-UP (REQUIRED FIRST)
+              </strong>
+              <span style="color: #b45309; font-size: 12px; line-height: 1.5; display: block; margin-top: 3px;">
+                ⚠️ <strong>Never begin corrective exercises on cold tissues.</strong> Cold muscle fibers and dehydrated facet discs have reduced tensile resilience. These required pre-activations circulate synovial fluid and prevent micro-tears before deeper rehabilitation.
+              </span>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+            ${warmupCardsHtml}
+          </div>
         </div>
+
+        <!-- STEP 2: PROBLEM REHABILITATION EXERCISES -->
+        <div style="margin-bottom: 24px; padding-top: 20px; border-top: 1.5px dashed #cbd5e1;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="healing-step-badge">Step 2: Unlocked After Warm-Up</span>
+                <span style="font-size: 11px; color: var(--text-muted);">Real Human Kinetic Anatomy</span>
+              </div>
+              <h4 style="font-family: var(--font-heading); font-size: 17px; font-weight: 800; color: #0f172a; margin: 4px 0 0;">
+                🌿 Targeted Corrective Rehabilitation Exercises
+              </h4>
+            </div>
+            <span style="font-size: 11px; color: #047857; font-weight: 700; background: #ecfdf5; padding: 4px 10px; border-radius: 999px;">
+              ⚡ Animated Human Anatomical Demonstrations
+            </span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+            ${exercisesHtml}
+          </div>
+        </div>
+
+        <!-- STEP 3: SOMATIC COOL-DOWN & VAGUS RESET -->
+        ${cooldownHtml ? `
+          <div style="padding-top: 16px; border-top: 1.5px dashed #cbd5e1;">
+            ${cooldownHtml}
+          </div>
+        ` : ''}
       </div>
 
       <!-- 7-DAY PRECISION ROADMAP -->
@@ -5626,6 +5553,8 @@ window.toggleProblemTrigger = toggleProblemTrigger;
 window.onProfileDietChanged = onProfileDietChanged;
 window.onProfileFastingTypeChanged = onProfileFastingTypeChanged;
 window.getFastingLabel = getFastingLabel;
+window.toggleWarmupDone = toggleWarmupDone;
+window.startGuidedHealingSequence = startGuidedHealingSequence;
 
 // --- INITIALIZATION ON PAGE LOAD ---
 document.addEventListener('DOMContentLoaded', () => {
