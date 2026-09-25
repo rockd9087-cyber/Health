@@ -1533,103 +1533,131 @@ body {
 }
 
 /* ==========================================================================
-   KINETIC YOGA & EXERCISE SVG ANIMATION KEYFRAMES
+   REALISTIC HUMAN BODY KINETIC ANIMATION KEYFRAMES & WARM-UP WORKFLOW
    ========================================================================== */
 
-/* 1. Cat-Cow undulation */
-@keyframes catCowSpineWave {
+/* 1. Realistic Cat-Cow Spinal Wave & Vertebral Articulation */
+@keyframes realisticCatCowTorso {
   0%, 100% {
-    d: path("M 40,80 Q 75,98 110,80");
-    stroke: #059669;
+    d: path("M 46,67 C 62,82 96,82 114,67 C 112,74 100,77 80,78 C 60,77 48,74 46,67 Z");
   }
   50% {
-    d: path("M 40,80 Q 75,55 110,80");
-    stroke: #d97706;
+    d: path("M 46,64 C 62,50 96,50 114,66 C 112,60 100,56 80,56 C 60,56 48,60 46,64 Z");
   }
 }
 
-@keyframes catCowHeadMove {
-  0%, 100% { transform: translate(0px, -6px); }
-  50% { transform: translate(0px, 8px); }
+@keyframes realisticCatCowSpine {
+  0%, 100% {
+    d: path("M 46,70 C 65,85 95,85 114,70");
+    stroke: #10b981;
+  }
+  50% {
+    d: path("M 46,62 C 65,46 95,46 114,64");
+    stroke: #f59e0b;
+  }
 }
 
-@keyframes catCowTailMove {
-  0%, 100% { transform: translate(0px, -4px); }
-  50% { transform: translate(0px, 6px); }
+@keyframes realisticCatCowHead {
+  0%, 100% { transform: translateY(0px) rotate(-6deg); }
+  50% { transform: translateY(-8px) rotate(14deg); }
 }
 
-/* 2. Downward Dog breathing and heel press */
-@keyframes downwardDogPulse {
-  0%, 100% { transform: translateY(0px) scale(1); }
-  50% { transform: translateY(-3px) scale(1.02); }
+@keyframes realisticChildsBreath {
+  0%, 100% { transform: scale(1); opacity: 0.55; }
+  50% { transform: scale(1.1); opacity: 0.95; }
 }
 
-@keyframes dogHeelPress {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(4px); }
+/* 2. Realistic Downward Dog Hip Apex & Heel Press */
+@keyframes realisticDogBody {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-4px); }
 }
 
-/* 3. Warrior II Lunge Pulse */
-@keyframes warriorLungePulse {
+@keyframes realisticDogHeel {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(3.5px); }
+}
+
+/* 3. Realistic Warrior II Lunge & Torso Breathing */
+@keyframes realisticWarriorLunge {
   0%, 100% { transform: translateX(0px); }
-  50% { transform: translateX(6px); }
+  50% { transform: translateX(3.5px); }
 }
 
-@keyframes warriorArmsBreathe {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
+@keyframes realisticWarriorBreathing {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-2px); }
 }
 
-/* 4. Cobra Pose Rising */
-@keyframes cobraRiseChest {
-  0%, 100% { transform: rotate(0deg); }
-  50% { transform: rotate(-8deg) translateY(-8px); }
+/* 4. Realistic Cobra Thoracic Rise */
+@keyframes realisticCobraRise {
+  0%, 100% { transform: rotate(0deg) translateY(0px); }
+  50% { transform: rotate(-7deg) translateY(-8px); }
 }
 
-/* 5. Bridge Pose Pelvis Elevate */
-@keyframes bridgePelvisElevate {
-  0%, 100% { transform: translateY(0); }
+/* 5. Realistic Bridge Pelvis Elevation */
+@keyframes realisticBridgeDrive {
+  0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-16px); }
 }
 
-/* 6. Child's Pose Breathing Glow */
-@keyframes childsBreatheGlow {
-  0%, 100% { opacity: 0.4; transform: scale(0.95); }
-  50% { opacity: 0.85; transform: scale(1.06); }
-}
-
-/* 7. Tree Pose Balance Sway */
-@keyframes treeBalanceSway {
+/* 6. Realistic Tree Balance Micro-Sway */
+@keyframes realisticTreeBalance {
   0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(1.2deg); }
-  75% { transform: rotate(-1.2deg); }
+  25% { transform: rotate(1deg); }
+  75% { transform: rotate(-1deg); }
 }
 
-/* 8. Boat Pose Core Pulse */
-@keyframes boatCoreTension {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.03); }
+/* 7. Realistic Boat Pose Core Isometric Tension */
+@keyframes realisticBoatBalance {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  25% { transform: translateY(-1.2px) rotate(0.4deg); }
+  75% { transform: translateY(1.2px) rotate(-0.4deg); }
 }
 
-/* 9. Wall Angels Scapular Glide */
-@keyframes wallAngelArmsGlide {
-  0%, 100% { transform: translateY(0) scaleY(1); }
-  50% { transform: translateY(-20px) scaleY(1.15); }
-}
-
-/* 10. Squat Hip Lowering */
-@keyframes squatLowerRise {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(18px); }
-}
-
-/* 11. Triangle Pose Hinge */
-@keyframes triangleSideStretch {
+/* 8. Realistic Triangle Lateral Side Stretch */
+@keyframes realisticTriangleStretch {
   0%, 100% { transform: rotate(0deg); }
-  50% { transform: rotate(3deg); }
+  50% { transform: rotate(2.5deg); }
 }
 
-/* 12. Pranayama Flow Particles */
+/* 9. Realistic Wall Angels Scapular Glide */
+@keyframes realisticWallAngelGlide {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-18px); }
+}
+
+/* 10. Realistic Malasana Squat Depth */
+@keyframes realisticSquatDepth {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(16px); }
+}
+
+/* 11. Realistic Supine Pelvic Rocking & Tilts */
+@keyframes realisticPelvicTiltRock {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-6px) rotate(-3.5deg); }
+}
+
+/* 12. Realistic Sciatic Nerve Flossing Wave */
+@keyframes realisticNerveFlossMotion {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(8deg); }
+}
+
+/* 13. Realistic Low Lunge Crescent Arc */
+@keyframes realisticLowLungePulse {
+  0%, 100% { transform: translateX(0px) translateY(0px); }
+  50% { transform: translateX(3px) translateY(2px); }
+}
+
+/* 14. Active Working Muscle Kinetic Heatmap Glow */
+@keyframes muscleEnergyGlow {
+  0%, 100% { opacity: 0.45; filter: drop-shadow(0 0 3px rgba(245, 158, 11, 0.45)); }
+  50% { opacity: 0.95; filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.85)); }
+}
+
+/* 15. Pranayama Flow Particles */
 @keyframes pranaParticleFlowLeft {
   0% { opacity: 0; transform: translateY(10px); }
   50% { opacity: 1; transform: translateY(-6px); }
@@ -1641,6 +1669,167 @@ body {
   50% { opacity: 1; transform: translateY(-6px); }
   100% { opacity: 0; transform: translateY(10px); }
 }
+
+/* ==========================================================================
+   WARM-UP FIRST WORKFLOW & SEQUENTIAL REHABILITATION CARDS
+   ========================================================================== */
+.warmup-flow-wrapper {
+  margin-top: 24px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: var(--radius-xl);
+  padding: 22px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.03);
+}
+
+.warmup-mandatory-alert-box {
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border: 1.5px solid #fde68a;
+  border-left: 6px solid #f59e0b;
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.warmup-step-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f59e0b;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 11px;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.5px;
+}
+
+.healing-step-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #059669;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 11px;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.5px;
+}
+
+.cooldown-step-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #6366f1;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 11px;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.5px;
+}
+
+.warmup-exercise-card {
+  background: #fffdfa;
+  border: 1.5px solid #fde68a;
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.warmup-exercise-card:hover {
+  border-color: #f59e0b;
+  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.14);
+}
+
+.warmup-exercise-card.done {
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+
+.warmup-exercise-card.done .warmup-status-ribbon {
+  background: #059669;
+  color: #ffffff;
+}
+
+.warmup-status-ribbon {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.sequence-stepper-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.stepper-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+}
+
+.stepper-chip.active {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #1d4ed8;
+}
+
+.stepper-chip.completed {
+  background: #ecfdf5;
+  border-color: #10b981;
+  color: #047857;
+}
+
+.btn-start-flow {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: #ffffff;
+  font-weight: 800;
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
+}
+
+.btn-start-flow:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(5, 150, 105, 0.35);
+}
+
 
 /* ==========================================================================
    DIETARY PREFERENCE & FASTING SWITCHER STYLES
@@ -1841,6 +2030,245 @@ body {
 
 .roadmap-step-card.stage-strengthen {
   border-left-color: #10b981;
+}
+
+/* ==========================================================================
+   REALISTIC HUMAN ANATOMY & PHASED REHABILITATION CARDS
+   ========================================================================== */
+.human-body-root {
+  filter: drop-shadow(0 6px 12px rgba(15, 23, 42, 0.08));
+}
+
+.human-joint-dot {
+  fill: #34d399;
+  filter: drop-shadow(0 0 4px rgba(52, 211, 153, 0.7));
+}
+
+.bio-kinetic-line {
+  stroke-dasharray: 4 2;
+  animation: kineticPulseFlow 2s linear infinite;
+}
+
+@keyframes kineticPulseFlow {
+  from { stroke-dashoffset: 24; }
+  to { stroke-dashoffset: 0; }
+}
+
+/* Realistic Cat-Cow Human Undulation */
+@keyframes realisticCatCowSpine {
+  0%, 100% {
+    d: path("M 46,70 C 65,85 95,85 114,70");
+  }
+  50% {
+    d: path("M 46,70 C 65,52 95,52 114,70");
+  }
+}
+
+@keyframes realisticCatCowHead {
+  0%, 100% { transform: translate(0px, -6px) rotate(-10deg); }
+  50% { transform: translate(0px, 9px) rotate(16deg); }
+}
+
+@keyframes realisticCatCowPelvis {
+  0%, 100% { transform: rotate(-6deg); }
+  50% { transform: rotate(9deg); }
+}
+
+@keyframes realisticDogBody {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(-4px) scale(1.015); }
+}
+
+@keyframes realisticDogHeel {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(3.5px); }
+}
+
+@keyframes realisticWarriorLunge {
+  0%, 100% { transform: translateX(0px); }
+  50% { transform: translateX(6px); }
+}
+
+@keyframes realisticWarriorBreathing {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(1.04); }
+}
+
+@keyframes realisticCobraRise {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-7deg) translateY(-8px); }
+}
+
+@keyframes realisticBridgeDrive {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-16px); }
+}
+
+@keyframes realisticChildsBreath {
+  0%, 100% { transform: scale(1); opacity: 0.55; }
+  50% { transform: scale(1.06); opacity: 0.95; }
+}
+
+@keyframes realisticTreeBalance {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(1.4deg); }
+  75% { transform: rotate(-1.4deg); }
+}
+
+@keyframes realisticBoatBalance {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.025); }
+}
+
+@keyframes realisticTriangleStretch {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(2.5deg); }
+}
+
+@keyframes realisticSquatDepth {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(16px); }
+}
+
+@keyframes realisticWallAngelGlide {
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  50% { transform: translateY(-22px) scaleY(1.15); }
+}
+
+@keyframes muscleEnergyGlow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.9; }
+}
+
+/* Phase Cards in Problem Healer */
+.rehab-progression-banner {
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+  border: 1.5px solid #86efac;
+  border-radius: var(--radius-lg);
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.rehab-progression-steps {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.progression-step-pill {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.progression-step-warmup {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.progression-step-core {
+  background: #dcfce7;
+  color: #14532d;
+  border: 1px solid #bbf7d0;
+}
+
+.progression-step-cooldown {
+  background: #eff6ff;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+}
+
+.progression-arrow {
+  color: #94a3b8;
+  font-weight: 800;
+  font-size: 12px;
+}
+
+.rehab-phase-card {
+  background: #ffffff;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+
+.rehab-phase-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.rehab-phase-card.phase-warmup {
+  border-left: 5px solid #f59e0b;
+  background: linear-gradient(180deg, #fffbeb 0%, #ffffff 100px);
+}
+
+.rehab-phase-card.phase-core {
+  border-left: 5px solid #10b981;
+  background: linear-gradient(180deg, #ecfdf5 0%, #ffffff 100px);
+}
+
+.rehab-phase-card.phase-cooldown {
+  border-left: 5px solid #3b82f6;
+  background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100px);
+}
+
+.phase-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.phase-header-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.phase-header-title h4 {
+  font-family: var(--font-heading);
+  font-size: 17px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.phase-rationale-box {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #475569;
+}
+
+.rehab-action-banner {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  margin-top: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  color: #ffffff;
 }
 
 
