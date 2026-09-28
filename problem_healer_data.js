@@ -1623,6 +1623,378 @@ window.PROBLEM_HEALING_DATABASE = {
       stage3: 'Days 6–7+: Ojas Rebuilding & Lymphatic Defense Resilience'
     },
     recoveryMilestone: 'Sinus congestion clears within 24 hours; immune resilience and energy rebound within 7 days.'
+  },
+
+  high_cholesterol_lipid: {
+    key: 'high_cholesterol_lipid',
+    badge: 'Lipid Profile & Cardio-Metabolic',
+    title: 'Dyslipidemia, High LDL Cholesterol & Elevated Triglycerides',
+    icon: '🩸',
+    rootCause: 'Impaired hepatic lipid metabolism and circulating apoB lipoproteins leading to arterial endothelial shear stress, oxidative LDL plaque formation, and sluggish micro-capillary flow.',
+    ayurvedicDosha: 'Aggravated Kapha-Meda Dhatu (excess sticky adipose ama obstructing vascular micro-channels known as Raktavaha Srotas).',
+    whatToEatByDiet: {
+      veg: [
+        { food: 'Steel-Cut Oats with Chia Seeds & Ceylon Cinnamon', why: 'Soluble beta-glucan fiber binds intestinal bile acids, forcing the liver to clear circulating LDL.' },
+        { food: 'Sprouted Green Moong & Garlic-Coriander Broth', why: 'Allicin in fresh garlic downregulates HMG-CoA reductase and reduces hepatic triglyceride synthesis.' },
+        { food: 'Raw Fenugreek (Methi) Seed Infusion (Morning)', why: 'Contains saponins and galactomannan fiber that reduce total serum cholesterol absorption by ~18%.' },
+        { food: 'Steamed Moringa Pods (Drumstick) & Turmeric Curry', why: 'Rich in beta-sitosterol and plant sterols that competitively block bad LDL uptake.' }
+      ],
+      nonveg: [
+        { food: 'Steamed Wild Salmon / Sardines with Lemon & Dill', why: 'High marine EPA/DHA omega-3 fatty acids decrease hepatic VLDL secretion and lower triglycerides.' },
+        { food: 'Skinless Poached Chicken Breast with Steamed Broccoli', why: 'Lean, ultra-low saturated fat protein source sparing hepatic lipid pathways.' },
+        { food: 'Clear Garlic-Ginger Fish Broth', why: 'Vasodilatory natural broth improving micro-vascular perfusion.' },
+        { food: 'Egg White Scramble with Baby Spinach & Garlic', why: 'High-purity albumin without yolk cholesterol for acute lipid control.' }
+      ],
+      vegan: [
+        { food: 'Raw Walnuts (4 halves) & Ground Flaxseed Oatmeal', why: 'High alpha-linolenic acid (ALA) enhancing endothelial nitric oxide and lowering arterial stiffness.' },
+        { food: 'Amla (Indian Gooseberry) & Ginger Fresh Elixir', why: 'High natural ascorbic acid and gallic acid prevents LDL oxidation into arterial foam cells.' },
+        { food: 'Sprouted Methi Leaves & Multi-Millet Khichdi', why: 'Complex prebiotic resistant starch that feeds gut bacteria producing cholesterol-lowering SCFAs.' },
+        { food: 'Steamed Tofu with Bok Choy & Cold-Pressed Sesame Drizzle', why: 'Plant isoflavones support healthy HDL clearance pathways.' }
+      ],
+      fasting: [
+        { food: 'Warm Water with 1 tsp Fresh Amla Juice & Sendha Namak', why: 'Fasting-safe antioxidant tonic stimulating hepatic autophagy and lipid clearance.' },
+        { food: 'Roasted Foxnuts (Makhana) without Butter (Dry Roasted)', why: 'Zero-cholesterol, low-sodium fasting snack high in cardioprotective magnesium.' },
+        { food: 'Cumin-Coriander-Fenugreek Warm Decoction', why: 'Traditional carminative and lipid-digesting fasting beverage (Deepana-Pachana).' },
+        { food: 'Tender Coconut Water (Fresh)', why: 'Natural potassium counteracting vascular tension during fasting.' }
+      ]
+    },
+    whatToEat: [
+      { food: 'Steel-cut oats with soluble beta-glucan fiber and chia seeds', why: 'Binds bile acids in the gut to reduce blood LDL levels.' },
+      { food: 'Sprouted moong dal with raw crushed garlic and moringa', why: 'Allicin inhibits cholesterol synthesis enzymes in the liver.' },
+      { food: 'Amla (Indian Gooseberry) and soaked fenugreek seeds', why: 'High polyphenols protect LDL from dangerous oxidative cross-linking.' }
+    ],
+    foodsToAvoid: [
+      { food: 'Trans Fats, Vanaspati Ghee & Commercial Bakery Goods', why: 'Raises atherogenic LDL while simultaneously depressing protective HDL.' },
+      { food: 'Deep-Fried Street Snacks (Samosas, Pakoras, Namkeens)', why: 'Oxidized seed oils trigger vascular endothelial inflammation.' },
+      { food: 'Full-Fat Dairy Cream, Butter & Processed Cheeses', why: 'High myristic and palmitic saturated fats stimulate hepatic LDL production.' }
+    ],
+    exercises: [
+      {
+        id: 'pose_surya_namaskar_cardio',
+        name: 'Rhythmic Surya Namaskar (Sun Salutation Flow)',
+        sanskrit: 'Surya Namaskar Dynamic Series',
+        duration: '5.0 min',
+        target: 'Systemic Lipid Oxidation & Endothelial Stimulation',
+        cue: 'Flow continuously through 6 cycles, keeping breath deep and unbroken through each transition.',
+        benefit: 'Up-regulates lipoprotein lipase enzyme activity across skeletal muscle capillary beds.',
+        animKey: 'surya_namaskar'
+      },
+      {
+        id: 'pose_warrior2_cardio',
+        name: 'Warrior II with Controlled Breath Holds',
+        sanskrit: 'Virabhadrasana II',
+        duration: '3.0 min',
+        target: 'Large Muscle Glycogen & Lipid Clearing',
+        cue: 'Sink hips low, extend arms parallel to floor, press outer edge of back foot firmly down.',
+        benefit: 'Engages major quadriceps and gluteal muscle mass to burn circulating free fatty acids.',
+        animKey: 'warrior'
+      },
+      {
+        id: 'pose_kapalbhati_metabolic',
+        name: 'Kapalbhati Metabolic Skull-Shining Breath',
+        sanskrit: 'Kapalbhati Pranayama',
+        duration: '3.0 min',
+        target: 'Hepato-Biliary & Abdominal Agni Stimulation',
+        cue: 'Passive smooth inhalation followed by active, rhythmic diaphragmatic exhalations through nostrils.',
+        benefit: 'Vigorously massages the liver, stimulates bile ejection, and clears Kapha stagnation.',
+        animKey: 'cat_cow'
+      }
+    ],
+    measuresToTake: [
+      { measure: 'Daily 35-Minute Brisk Zone-2 Walk', detail: 'Sustained brisk aerobic walking at ~110 steps/min activates intramuscular triglyceride burning.' },
+      { measure: 'Morning Soaked Methi Water', detail: 'Soak 1 tsp fenugreek seeds in water overnight; drink the water and chew the seeds on an empty stomach.' },
+      { measure: 'Arjuna Bark Decoction (Terminalia arjuna)', detail: 'Drink 50ml warm Arjuna bark decoction before bed to strengthen myocardial tone and coronary flow.' }
+    ],
+    clinicalRedFlags: [
+      'Crushing central chest heaviness radiating to left shoulder, arm, or jaw (Call emergency immediately)',
+      'Sudden severe shortness of breath or cold diaphoresis upon minimal exertion',
+      'Sudden dizziness, syncope, or uncharacteristic palpitations'
+    ],
+    healingRoadmap: {
+      stage1: 'Days 1–5: Dietary Saturated Fat Elimination, Fiber Doubling & Bile Acid Binding',
+      stage2: 'Days 6–14: Zone-2 Mitochondrial Lipid Beta-Oxidation & Hepatic Triglyceride Drop',
+      stage3: 'Days 15–28: Plaque Stabilization, HDL Particle Maturation & Endothelial Elasticity'
+    },
+    recoveryMilestone: 'Triglycerides drop 20–35% within 3 weeks; LDL decreases significantly with sustained soluble fiber adherence.'
+  },
+
+  diabetes_hba1c: {
+    key: 'diabetes_hba1c',
+    badge: 'Endocrine & Glycemic Control',
+    title: 'Elevated HbA1c, Insulin Resistance & Type-2 Diabetes Care',
+    icon: '📊',
+    rootCause: 'Receptor-level insulin desensitization and chronic GLUT4 transporter down-regulation causing prolonged postprandial glucose surges, advanced glycation end-products (AGEs), and pancreatic beta-cell fatigue.',
+    ayurvedicDosha: 'Aggravated Kaphaja Prameha with Medo-Dhatu dushti (sluggish metabolic fire / Agnimandya resulting in sweet urine and tissue stagnation).',
+    whatToEatByDiet: {
+      veg: [
+        { food: 'Sprouted Fenugreek (Methi) & Bitter Gourd (Karela) Stir-Fry', why: 'Contains charantin, vicine, and polypeptide-p which function as natural plant insulins.' },
+        { food: 'Barnyard / Foxtail Millet Khichdi with Ridge Gourd & Turmeric', why: 'Extremely low glycemic index (GI < 50) and high amylose fiber preventing post-meal spikes.' },
+        { food: 'Soaked Black Jamun Seed Powder (1/2 tsp in warm water)', why: 'Contains jamboline which arrests the pathological conversion of starch into glucose.' },
+        { food: 'Cinnamon & Vijaysar Herbal Tea', why: 'Improves peripheral cellular insulin sensitivity by activating insulin receptor kinase.' }
+      ],
+      nonveg: [
+        { food: 'Grilled Lemon Herb Fish with Steamed French Beans', why: 'High-purity lean protein with zero carbohydrate impact on blood glucose.' },
+        { food: 'Skinless Chicken Breast Salad with Bitter Greens & Olive Oil', why: 'Prevents glycemic volatility while delivering essential leucine for muscle glucose uptake.' },
+        { food: 'Boiled Egg Whites with Black Pepper & Turmeric', why: 'Zero-glycemic complete protein ideal for stabilizing dawn phenomenon glucose.' },
+        { food: 'Bone Broth with Fenugreek & Garlic', why: 'Nourishes joint collagen without elevating serum insulin.' }
+      ],
+      vegan: [
+        { food: 'Sprouted Green Moong & Methi Chilla with Mint Chutney', why: 'High resistant starch and peptide content enhances GLP-1 hormone release.' },
+        { food: 'Raw Chia & Basil Seed Hydration Drink (Lemon + Rock Salt)', why: 'Soluble mucilage slows gastric emptying and blocks carbohydrate absorption.' },
+        { food: 'Bitter Gourd (Karela) & Amla Fresh Cold-Pressed Juice', why: 'Directly up-regulates skeletal muscle GLUT4 glucose transport.' },
+        { food: 'Steamed Tofu & Broccoli with Garlic-Ginger Sauce', why: 'Low carb, high micronutrient plant dish rich in chromium and magnesium.' }
+      ],
+      fasting: [
+        { food: 'Bitter Gourd & Jamun Fasting Infusion', why: 'Fasting-permitted herbal decoction that maintains normal basal glucose without food intake.' },
+        { food: 'Warm Lemon Water with Crushed Cinnamon Stick', why: 'Suppresses liver gluconeogenesis and morning dawn glucose elevation.' },
+        { food: 'Roasted Makhana with Black Salt (Sendha Namak)', why: 'Low glycemic fasting fuel that prevents hypoglycemia dips.' },
+        { food: 'Pure Tulsi & Ginger Herbal Tea', why: 'Calms adrenal cortisol surges that trigger stress-induced glucose spikes.' }
+      ]
+    },
+    whatToEat: [
+      { food: 'Bitter gourd (Karela), jamun seeds, and fenugreek', why: 'Contains polypeptide-p mimicking natural insulin activity.' },
+      { food: 'Foxtail and barnyard millets instead of polished white rice', why: 'Slow digestion profile prevents rapid blood sugar spikes.' },
+      { food: 'Cinnamon bark infusion and amla juice', why: 'Enhances insulin receptor sensitivity in skeletal muscles.' }
+    ],
+    foodsToAvoid: [
+      { food: 'Refined White Sugar, Syrups & Carbonated Beverages', why: 'Triggers instantaneous glycemic surges and pancreatic exhaustion.' },
+      { food: 'Polished White Rice, Maida & Ultra-Processed Bread', why: 'High glycemic index quickly converts into bloodstream glucose.' },
+      { food: 'Sweet High-Fructose Fruits (Mangoes, Grapes, Chiku, Bananas)', why: 'Overwhelms hepatic fructose pathways and increases visceral fat.' }
+    ],
+    exercises: [
+      {
+        id: 'pose_chair_insulin',
+        name: 'Chair Pose Isometric Holds',
+        sanskrit: 'Utkatasana GLUT4 Activation',
+        duration: '3.5 min',
+        target: 'Quadriceps GLUT4 Glucose Uptake',
+        cue: 'Bend knees as if sitting back into an imaginary chair, keep spine tall, hold for 5 breaths.',
+        benefit: 'Recruits the largest skeletal muscles to consume glucose directly without requiring high insulin.',
+        animKey: 'warrior'
+      },
+      {
+        id: 'pose_mandukasana_pancreas',
+        name: 'Frog Pose Pancreatic Compression',
+        sanskrit: 'Mandukasana',
+        duration: '3.0 min',
+        target: 'Beta-Cell Perfusion & Pancreatic Agni',
+        cue: 'Make fists with thumbs inside, press into navel, exhale and fold forward touching forehead toward floor.',
+        benefit: 'Direct mechanical compression stimulates the pancreas to optimize endogenous insulin secretion.',
+        animKey: 'childs_pose'
+      },
+      {
+        id: 'pose_spinal_twist_diabetic',
+        name: 'Seated Half-Spinal Twist',
+        sanskrit: 'Ardha Matsyendrasana',
+        duration: '3.0 min',
+        target: 'Visceral Organ Detoxification',
+        cue: 'Sit tall, wrap arm around bent knee, rotate chest gently to the side while lengthening crown.',
+        benefit: 'Increases arterial circulation through liver, spleen, and abdominal endocrine organs.',
+        animKey: 'cat_cow'
+      }
+    ],
+    measuresToTake: [
+      { measure: '10-Minute Post-Meal Walk (Shatapawali)', detail: 'Walking 100 paces immediately after lunch and dinner blunts glucose spikes by up to 30%.' },
+      { measure: 'Raw Methi Seeds Overnight', detail: 'Swallow 1 tsp soaked fenugreek seeds with warm water every morning on an empty stomach.' },
+      { measure: 'Continuous Glucose Tracking & Hydration', detail: 'Drink 3 liters of water daily to facilitate renal filtration of excess ketones and glucose.' }
+    ],
+    clinicalRedFlags: [
+      'Blood glucose > 300 mg/dL accompanied by nausea, fruity breath, or confusion (Diabetic Ketoacidosis)',
+      'Severe hypoglycemia symptoms: cold shaking, blurred vision, intense diaphoresis (Blood sugar < 60 mg/dL)',
+      'Non-healing sores, ulcers, or loss of sensation in feet or toes'
+    ],
+    healingRoadmap: {
+      stage1: 'Days 1–3: Postprandial Spike Elimination & Low Glycemic Stabilization',
+      stage2: 'Days 4–14: Skeletal Muscle GLUT4 Re-sensitization & Fasting Glucose Drop',
+      stage3: 'Days 15–30+: Hepatic Glycogen Normalization & Measurable HbA1c Reduction'
+    },
+    recoveryMilestone: 'Fasting blood glucose normalizes within 10–14 days; HbA1c typically improves by 0.5–1.2% over 60–90 days.'
+  },
+
+  vitamin_d_deficiency: {
+    key: 'vitamin_d_deficiency',
+    badge: 'Musculoskeletal & Immune Steroid',
+    title: 'Severe Vitamin D3 (Cholecalciferol) Deficiency & Bone Fatigue',
+    icon: '☀️',
+    rootCause: 'Inadequate solar cutaneous synthesis combined with dietary insufficiency, causing impaired active calcium absorption, secondary hyperparathyroidism, diffuse musculoskeletal aching, and impaired T-cell maturation.',
+    ayurvedicDosha: 'Asthi Dhatu Kshaya (depletion of fundamental bone matrix and deep marrow energy caused by chronic lack of solar Agni / Tejas).',
+    whatToEatByDiet: {
+      veg: [
+        { food: 'Sun-Exposed Shiitake & Button Mushrooms (Sliced in Sun for 30m)', why: 'Synthesizes high levels of natural Ergocalciferol (Vitamin D2) when exposed to solar UV.' },
+        { food: 'A2 Cow Milk Fortified with Saffron & Crushed Almonds', why: 'Natural dietary fat vehicle ensuring optimal micellar absorption of fat-soluble D3.' },
+        { food: 'White Sesame Seeds (Til) & Jaggery Laddu', why: 'Provides dense organic calcium and magnesium essential for enzymatic D3 activation.' },
+        { food: 'Fresh Homemade Paneer (Cottage Cheese) with Turmeric', why: 'Concentrated casein protein and bioavailable phosphorus to support bone mineralization.' }
+      ],
+      nonveg: [
+        { food: 'Wild Salmon / Mackerel Fillet (Twice weekly)', why: 'One of the richest natural whole-food sources of active Vitamin D3 and marine fatty acids.' },
+        { food: 'Whole Pastured Egg Yolks (Soft Boiled)', why: 'Contains true Cholecalciferol alongside lecithin for rapid digestive assimilation.' },
+        { food: 'Simmered Chicken Liver with Onion & Herbs', why: 'Dense storage of preformed fat-soluble vitamins and bio-iron.' },
+        { food: 'Rich Bone Marrow Soup with Black Pepper', why: 'Delivers osteocalcin and matrix minerals directly to depleted skeletal bones.' }
+      ],
+      vegan: [
+        { food: 'UV-Exposed Dried Wild Mushrooms in Warm Vegetable Broth', why: 'Potent vegan source of bioavailable Vitamin D2 precursors.' },
+        { food: 'Fortified Sprouted Soy Milk / Almond Milk with Chia Seeds', why: 'Essential plant vehicle providing lipid carrier for fat-soluble vitamins.' },
+        { food: 'Raw Black Sesame Paste (Tahini) with Figs', why: 'Ultra-high plant calcium and boron to maximize circulating Vitamin D efficiency.' },
+        { food: 'Sprouted Ragi (Finger Millet) Malt with Cinnamon', why: 'Dense bioavailable calcium that stops bone demineralization.' }
+      ],
+      fasting: [
+        { food: 'Warm Water with 1/2 tsp Desi Cow Ghee (Empty Stomach)', why: 'Provides essential lipid vehicle for fat-soluble vitamin uptake without disturbing fast vows.' },
+        { food: 'Sun-Exposed Coconut Water with Pinch of Sendha Namak', why: 'Natural electrolytes and minerals supporting bone-cellular ion channels.' },
+        { food: 'Roasted Makhana with Sesame Powder', why: 'Fasting-safe mineral powerhouse rich in magnesium cofactors.' },
+        { food: 'Warm Almond-Saffron Fasting Milk', why: 'Nourishing Ojas-building beverage supporting skeletal stability.' }
+      ]
+    },
+    whatToEat: [
+      { food: 'Sun-exposed mushrooms and fortified dairy or plant milks', why: 'Rich natural sources of ergocalciferol and cholecalciferol.' },
+      { food: 'Egg yolks or fatty wild fish (for non-veg)', why: 'Direct preformed vitamin D3 easily assimilated by intestinal enterocytes.' },
+      { food: 'Sesame seeds and moringa leaves', why: 'Provides calcium and magnesium required for vitamin D metabolic activation.' }
+    ],
+    foodsToAvoid: [
+      { food: 'High Carbonated Sodas & Phosphoric Acid Drinks', why: 'Leaches calcium from bone matrix and accelerates osteoclast activity.' },
+      { food: 'Excessive Caffeine (>3 cups daily)', why: 'Impairs calcium absorption in the proximal duodenum and accelerates urinary excretion.' },
+      { food: 'Ultra-Processed Seed Oils & Trans Fats', why: 'Causes mucosal gut inflammation that blocks fat-soluble vitamin absorption.' }
+    ],
+    exercises: [
+      {
+        id: 'pose_sun_salute_d3',
+        name: 'Outdoor Morning Sun Salutation Series',
+        sanskrit: 'Surya Namaskar in Morning Sunlight',
+        duration: '5.0 min',
+        target: 'Solar Tejas Absorption & Bone Density Loading',
+        cue: 'Perform gently outdoors between 7 AM and 9 AM with exposed forearms and face.',
+        benefit: 'Stimulates 7-dehydrocholesterol conversion in skin while load-bearing stimulates bone remodeling.',
+        animKey: 'surya_namaskar'
+      },
+      {
+        id: 'pose_tree_balance_d3',
+        name: 'Tree Pose with Raised Arms to Sun',
+        sanskrit: 'Vrikshasana Solar Reach',
+        duration: '3.0 min',
+        target: 'Axial Skeletal Bone Remodeling',
+        cue: 'Place sole of foot against inner thigh or calf, lift palms upward like branches, breathe steadily.',
+        benefit: 'Creates piezoelectric currents in long leg bones that trigger osteoblast mineral deposition.',
+        animKey: 'tree'
+      },
+      {
+        id: 'pose_cobra_thoracic_d3',
+        name: 'Gentle Cobra Pose Thoracic Lift',
+        sanskrit: 'Bhujangasana',
+        duration: '3.0 min',
+        target: 'Vertebral Body Compression Relief',
+        cue: 'Lie on belly, place hands under shoulders, gently peel chest upward using back muscles.',
+        benefit: 'Strengthens thoracic vertebrae and relieves bone-fatigue aches.',
+        animKey: 'cobra'
+      }
+    ],
+    measuresToTake: [
+      { measure: '20-Minute Midday Solar Exposure', detail: 'Expose arms and legs to direct sunlight between 10:30 AM and 1:30 PM (without sunscreen) for 15–20 mins.' },
+      { measure: 'Clinical 60,000 IU Cholecalciferol Supplementation', detail: 'If blood levels are <20 ng/mL, take physician-recommended 60K IU weekly with a fat-containing meal.' },
+      { measure: 'Magnesium Glycinate Synergy', detail: 'Take 250mg magnesium glycinate daily; magnesium is the essential enzymatic cofactor that activates Vitamin D in liver and kidneys.' }
+    ],
+    clinicalRedFlags: [
+      'Severe unrelenting deep bone tenderness in pelvis or hips (suspected osteomalacia)',
+      'Spontaneous fractures or micro-fractures occurring without significant traumatic impact',
+      'Extreme muscle tetany, twitching, or tingling around mouth/fingers (severe acute hypocalcemia)'
+    ],
+    healingRoadmap: {
+      stage1: 'Days 1–7: Cholecalciferol Loading, Solar Exposure & Gut Absorption Optimization',
+      stage2: 'Days 8–21: Intestinal Calcium Active Transport Re-activation & Muscle Cramp Relief',
+      stage3: 'Days 22–60+: Bone Mineral Density Restoration & Immune T-Cell Competence'
+    },
+    recoveryMilestone: 'Muscle aches and lethargy subside within 2 weeks; serum 25(OH)D levels climb above 40 ng/mL within 8 weeks.'
+  },
+
+  thyroid_tsh: {
+    key: 'thyroid_tsh',
+    badge: 'Endocrine & Metabolic Basal Rate',
+    title: 'Hypothyroidism, Elevated TSH & Sluggish Basal Metabolism',
+    icon: '🦋',
+    rootCause: 'Insufficient thyroid follicular hormone output (T4/T3) or peripheral deiodinase conversion deficit causing depressed Basal Metabolic Rate (BMR), water retention, cold intolerance, and chronic brain fog.',
+    ayurvedicDosha: 'Galaganda & Kaphaja Mandagni (stagnant Kapha and Ama obstructing the throat Vishuddha chakra and extinguishing cellular Agni).',
+    whatToEatByDiet: {
+      veg: [
+        { food: 'Brazil Nuts (2 nuts daily) & Pumpkin Seeds', why: 'Delivers 100% daily selenium and zinc required for the conversion of inactive T4 into active T3.' },
+        { food: 'Coriander Seed (Dhania) Warm Morning Infusion', why: 'Traditional Ayurvedic thyroid balancer that clears glandular inflammation and water retention.' },
+        { food: 'Ashwagandha Root Powder in Warm A2 Milk with Pinch of Black Pepper', why: 'Clinically shown in trials to significantly lower serum TSH and boost circulating T4 levels.' },
+        { food: 'Iodized Himalayan Pink Salt & Sea Vegetables', why: 'Provides essential elemental iodine for thyroid peroxidase synthesis.' }
+      ],
+      nonveg: [
+        { food: 'Steamed Wild Cod / Haddock with Steamed Carrots', why: 'Natural iodine and selenium-dense marine protein that does not overload liver pathways.' },
+        { food: 'Organic Free-Range Eggs (Whole with Yolk)', why: 'Rich in iodine, selenium, tyrosine, and choline essential for thyroid hormone production.' },
+        { food: 'Warm Chicken Bone Broth with Ginger & Black Pepper', why: 'Restores gut mucosal integrity to improve peripheral T4 to T3 conversion.' },
+        { food: 'Grilled Lemon Salmon with Asparagus', why: 'Omega-3 fatty acids reduce thyroid autoimmunity (anti-TPO antibodies).' }
+      ],
+      vegan: [
+        { food: 'Nori / Kelp Seaweed Flakes on Warm Quinoa', why: 'Pure plant iodine and ocean minerals supporting thyroid hormone synthesis.' },
+        { food: 'Raw Brazil Nuts (Exactly 2 daily) & Sprouted Sunflower Seeds', why: 'Supplies optimal dietary selenium preventing free radical damage to follicular cells.' },
+        { food: 'Boiled Coriander & Cumin Herbal Water (Dhania Paani)', why: 'Gently stimulates lymphatic drainage around the throat and reduces facial puffiness.' },
+        { food: 'Steamed Edamame (Lightly Cooked) with Sesame Seeds', why: 'Cooking deactivates mild goitrogens while providing clean protein.' }
+      ],
+      fasting: [
+        { food: 'Warm Coriander Seed Herbal Decoction (Dhania Water)', why: 'Classic fasting-safe thyroid stimulant reducing sluggish water retention and edema.' },
+        { food: 'Fresh Coconut Water with Lemon', why: 'Restores cellular hydration and provides trace minerals permitted during fasting.' },
+        { food: 'Roasted Makhana with Rock Salt', why: 'Light thyroid-friendly fasting snack rich in magnesium.' },
+        { food: 'Warm Ginger & Cinnamon Tea', why: 'Kindles sluggish metabolic fire (Deepana) and dispels internal coldness.' }
+      ]
+    },
+    whatToEat: [
+      { food: 'Brazil nuts (2 per day) and pumpkin seeds', why: 'Supplies selenium and zinc cofactors for T4 to T3 deiodinase conversion.' },
+      { food: 'Boiled coriander seed water (Dhania paani)', why: 'Ayurvedic remedy that reduces thyroid swelling and boosts basal metabolism.' },
+      { food: 'Iodine-rich sea vegetables, iodized salt, and whole eggs', why: 'Supplies the fundamental tyrosine and iodine building blocks of thyroid hormone.' }
+    ],
+    foodsToAvoid: [
+      { food: 'Raw Cruciferous Vegetables (Raw Broccoli, Cabbage, Cauliflower, Kale)', why: 'Contains raw goitrogens (glucosinolates) that block iodine uptake by thyroid follicles (safe if steamed/cooked).' },
+      { food: 'Unfermented Soy Isolates & Commercial Soy Protein Powders', why: 'Isoflavones can inhibit thyroid peroxidase enzyme activity.' },
+      { food: 'Gluten-Dense Refined Wheat & Bakery Maida', why: 'Gluten proteins share molecular mimicry with thyroid tissue, aggravating autoimmune Hashimoto\'s.' }
+    ],
+    exercises: [
+      {
+        id: 'pose_sarvangasana_thyroid',
+        name: 'Supported Shoulder Stand / Legs-Up-The-Wall',
+        sanskrit: 'Viparita Karani / Salamba Sarvangasana',
+        duration: '4.0 min',
+        target: 'Thyroid Gland Hyperemia & Lymphatic Flush',
+        cue: 'Rest legs up the wall or lift hips onto a bolster. Breathe slowly into the throat pit.',
+        benefit: 'Inverts hydrostatic pressure to flood the thyroid and parathyroid glands with fresh oxygenated blood.',
+        animKey: 'bridge'
+      },
+      {
+        id: 'pose_matsyasana_thyroid',
+        name: 'Fish Pose Throat Extension',
+        sanskrit: 'Matsyasana Vishuddha Opener',
+        duration: '3.0 min',
+        target: 'Thyroid Hyperextension & Glandular Stimulation',
+        cue: 'Lie on back, prop up onto forearms, arch chest toward ceiling and gently rest crown on floor.',
+        benefit: 'Directly stretches and stimulates the thyroid gland, relieving anterior neck compression.',
+        animKey: 'cobra'
+      },
+      {
+        id: 'pose_ujjayi_pranayama',
+        name: 'Ujjayi Oceanic Throat Breathing',
+        sanskrit: 'Ujjayi Pranayama',
+        duration: '3.0 min',
+        target: 'Vagus Nerve & Carotid Sinus Tone',
+        cue: 'Gently constrict the glottis at the back of the throat to produce a soft whispering ocean sound.',
+        benefit: 'Gently vibrates the thyroid cartilage and calms sympathetic endocrine overdrive.',
+        animKey: 'cat_cow'
+      }
+    ],
+    measuresToTake: [
+      { measure: 'Morning Coriander Seed Water Ritual', detail: 'Crush 2 tbsp coriander seeds, boil in 2 cups of water until reduced to 1 cup; drink warm every morning.' },
+      { measure: 'Take Thyroid Medications on Empty Stomach', detail: 'If prescribed levothyroxine, take with plain water 60 minutes before breakfast (never with coffee, calcium, or iron).' },
+      { measure: 'Dry Brushing (Garshana) for Lymphatic Flow', detail: 'Perform 5 minutes of gentle dry skin brushing toward the heart to clear sluggish Kapha fluid retention.' }
+    ],
+    clinicalRedFlags: [
+      'Severe bradycardia (resting heart rate < 45 BPM) with hypothermia and confusion (Myxedema crisis)',
+      'Rapidly enlarging hard, non-tender lump in the neck or hoarseness of voice persisting > 3 weeks',
+      'Severe shortness of breath when lying flat or difficulty swallowing solid foods'
+    ],
+    healingRoadmap: {
+      stage1: 'Days 1–7: Goitrogen Elimination, Selenium Repletion & Dhania Water Initiation',
+      stage2: 'Days 8–21: Endocrine Inversion Poses, Basal Core Temperature Rise & Edema Drain',
+      stage3: 'Days 22–60+: TSH Normalization, Thyroid Antibody Reduction & Energy Rebound'
+    },
+    recoveryMilestone: 'Facial puffiness and fatigue noticeably decrease within 10 days; TSH levels stabilize within 6–8 weeks.'
   }
 };
 
