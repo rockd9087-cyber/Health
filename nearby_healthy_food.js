@@ -1,1040 +1,2336 @@
-/**
- * nearby_healthy_food.js
- * Live Geolocation Health Dining & Clean Food Order Recommendation Engine for PranaFit
- * Auto-detects user coordinates and provides 100% HEALTHY FOOD ORDER RECOMMENDATIONS ONLY
- * Scored dynamically against the user's active health symptoms, dietary restrictions & smartwatch vitals.
- */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PranaFit - Holistic Lifestyle & Health Assistant</title>
+  <meta name="description" content="Innovative holistic fitness and lifestyle assistant with live geolocation healthy food orders from nearby places, real human body animated yoga and exercise guides, AI symptom & problem healing analyzer with dietary prescriptions, smartwatch telemetry sync, micro-goals, and gamified green points." />
+  <meta property="og:title" content="PranaFit - Holistic Lifestyle & Health Assistant" />
+  <meta property="og:description" content="Innovative holistic fitness and lifestyle assistant with live geolocation healthy food orders from nearby places, real human body animated yoga and exercise guides, AI symptom & problem healing analyzer with dietary prescriptions, smartwatch telemetry sync, micro-goals, and gamified green points." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
 
-(function (window) {
-  'use strict';
+  <!-- ==========================================================================
+       STARTING ANIMATION (3-5s FULL-SCREEN KINETIC FOOD & EXERCISE EXPERIENCE)
+       Visible on app open from any system (mobile, tablet, desktop)
+       ========================================================================== -->
+  <div id="app-launch-splash" role="dialog" aria-modal="true" aria-label="PranaFit Startup Experience">
+    <div class="splash-ambient-aurora"></div>
 
-  // --- LOCATION PRESETS & LOCALITIES ---
-  const LOCALITY_DATABASE = {
-    bengaluru_indiranagar: {
-      name: 'Indiranagar / Koramangala',
-      city: 'Bengaluru',
-      state: 'Karnataka',
-      lat: 12.9784,
-      lng: 77.6408,
-      region: 'south'
-    },
-    bengaluru_hsr: {
-      name: 'HSR Layout / Whitefield',
-      city: 'Bengaluru',
-      state: 'Karnataka',
-      lat: 12.9121,
-      lng: 77.6446,
-      region: 'south'
-    },
-    mumbai_bandra: {
-      name: 'Bandra West / Khar',
-      city: 'Mumbai',
-      state: 'Maharashtra',
-      lat: 19.0596,
-      lng: 72.8295,
-      region: 'west'
-    },
-    mumbai_andheri: {
-      name: 'Andheri West / Powai / BKC',
-      city: 'Mumbai',
-      state: 'Maharashtra',
-      lat: 19.1136,
-      lng: 72.8697,
-      region: 'west'
-    },
-    delhi_cp: {
-      name: 'Connaught Place / South Ext',
-      city: 'Delhi NCR',
-      state: 'Delhi',
-      lat: 28.6315,
-      lng: 77.2167,
-      region: 'north'
-    },
-    delhi_gurgaon: {
-      name: 'Gurgaon CyberCity / Golf Course',
-      city: 'Delhi NCR',
-      state: 'Haryana',
-      lat: 28.4595,
-      lng: 77.0266,
-      region: 'north'
-    },
-    hyderabad_gachibowli: {
-      name: 'Gachibowli / Hitec City',
-      city: 'Hyderabad',
-      state: 'Telangana',
-      lat: 17.4401,
-      lng: 78.3489,
-      region: 'south'
-    },
-    hyderabad_jubilee: {
-      name: 'Jubilee Hills / Banjara Hills',
-      city: 'Hyderabad',
-      state: 'Telangana',
-      lat: 17.4319,
-      lng: 78.4073,
-      region: 'south'
-    },
-    chennai_adyar: {
-      name: 'Adyar / Besant Nagar',
-      city: 'Chennai',
-      state: 'Tamil Nadu',
-      lat: 13.0012,
-      lng: 80.2565,
-      region: 'south'
-    },
-    chennai_tnagar: {
-      name: 'T. Nagar / Alwarpet',
-      city: 'Chennai',
-      state: 'Tamil Nadu',
-      lat: 13.0418,
-      lng: 80.2341,
-      region: 'south'
-    },
-    pune_koregaon: {
-      name: 'Koregaon Park / Kalyani Nagar',
-      city: 'Pune',
-      state: 'Maharashtra',
-      lat: 18.5362,
-      lng: 73.8958,
-      region: 'west'
-    },
-    pune_baner: {
-      name: 'Baner / Aundh / Hinjewadi',
-      city: 'Pune',
-      state: 'Maharashtra',
-      lat: 18.5590,
-      lng: 73.7868,
-      region: 'west'
-    },
-    kolkata_saltlake: {
-      name: 'Salt Lake / Park Street',
-      city: 'Kolkata',
-      state: 'West Bengal',
-      lat: 22.5867,
-      lng: 88.4172,
-      region: 'east'
-    },
-    ahmedabad_bodakdev: {
-      name: 'Bodakdev / SG Highway',
-      city: 'Ahmedabad',
-      state: 'Gujarat',
-      lat: 23.0373,
-      lng: 72.5119,
-      region: 'west'
-    },
-    jaipur_cscheme: {
-      name: 'C-Scheme / Malviya Nagar',
-      city: 'Jaipur',
-      state: 'Rajasthan',
-      lat: 26.9075,
-      lng: 75.8056,
-      region: 'north'
-    }
-  };
-
-  // --- CERTIFIED HEALTHY FOOD ORDERS DATABASE ---
-  // Every item is 100% healthy: whole-food, unrefined, zero trans fat, zero refined sugar.
-  const HEALTHY_MEALS_CATALOG = [
-    {
-      id: 'meal_millet_idli',
-      title: 'Steamed Foxtail Millet Idlis with Moringa Sambar & Mint-Amla Chutney',
-      icon: '🌿',
-      kitchenName: 'The Green Bowl Organic Kitchen',
-      kitchenType: 'Certified Clean Organic Cafe',
-      baseDistanceKm: 0.7,
-      baseDeliveryMins: 18,
-      rating: 4.9,
-      reviewCount: 640,
-      fssaiCertified: true,
-      price: 185,
-      diet: 'veg',
-      isVegan: true,
-      isGlutenFree: true,
-      isFastingSafe: false,
-      goals: ['anti_inflammatory', 'low_gi', 'gut_friendly', 'under_400'],
-      conditions: ['back_pain', 'sciatica_nerve', 'pcos_hormone', 'sluggish_metabolism', 'acid_reflux', 'knee_joint', 'constipation', 'high_cholesterol_lipid', 'diabetes_hba1c', 'thyroid_tsh'],
-      nutrition: {
-        calories: 320,
-        protein: 14,
-        carbs: 44,
-        fiber: 10,
-        fat: 4.5
-      },
-      tags: ['🌾 Foxtail Millet', '🍃 Moringa Bio-Flavonoids', '🥑 Zero Seed Oil', '🩸 Low Glycemic Index'],
-      whyItHeals: 'Alkaline foxtail millet contains anti-inflammatory ferulic acid. Fresh drumstick/moringa leaves provide potent anti-cytokine polyphenols and bio-available iron to soothe tissue inflammation and promote disc hydration without blood sugar spikes.'
-    },
-    {
-      id: 'meal_sattvic_khichdi',
-      title: 'Sattvic Yellow Moong & Baby Spinach Khichdi with A2 Cow Ghee & Cumin',
-      icon: '🍲',
-      kitchenName: 'Satvam Pure Sattvic Health Kitchen',
-      kitchenType: 'Ayurvedic Therapeutic Kitchen',
-      baseDistanceKm: 1.2,
-      baseDeliveryMins: 22,
-      rating: 5.0,
-      reviewCount: 920,
-      fssaiCertified: true,
-      price: 195,
-      diet: 'veg',
-      isVegan: false,
-      isGlutenFree: true,
-      isFastingSafe: false,
-      goals: ['gut_friendly', 'anti_inflammatory', 'under_400'],
-      conditions: ['acid_reflux', 'ibs_bloating', 'constipation', 'fatty_liver', 'anxiety_stress', 'back_pain', 'low_immunity', 'high_cholesterol_lipid', 'diabetes_hba1c'],
-      nutrition: {
-        calories: 310,
-        protein: 16,
-        carbs: 46,
-        fiber: 8,
-        fat: 6
-      },
-      tags: ['🪔 A2 Bilona Ghee', '🌾 Split Moong Dal', '🌿 Roasted Jeera Carminative', '🛡️ Zero Onion-Garlic'],
-      whyItHeals: 'Split yellow moong and organic baby spinach are easiest on the mucosal gastrointestinal lining. Tempered with cumin, hing, and pure A2 cow ghee rich in butyric acid to nourish colonocytes, heal leaky gut, and damp visceral burning.'
-    },
-    {
-      id: 'meal_quinoa_paneer_skillet',
-      title: 'Warm Tri-Color Quinoa & Grilled Low-Fat Paneer Skillet with Turmeric Tahini',
-      icon: '🥗',
-      kitchenName: 'NutriDine Superfoods & Clean Bowls',
-      kitchenType: 'Clinical Nutrition Kitchen',
-      baseDistanceKm: 1.1,
-      baseDeliveryMins: 20,
-      rating: 4.9,
-      reviewCount: 480,
-      fssaiCertified: true,
-      price: 245,
-      diet: 'veg',
-      isVegan: false,
-      isGlutenFree: true,
-      isFastingSafe: false,
-      goals: ['anti_inflammatory', 'low_gi', 'cardiac'],
-      conditions: ['knee_joint', 'back_pain', 'pcos_hormone', 'sluggish_metabolism', 'frozen_shoulder', 'plantar_heel', 'vitamin_d_deficiency', 'thyroid_tsh'],
-      nutrition: {
-        calories: 385,
-        protein: 26,
-        carbs: 32,
-        fiber: 9,
-        fat: 11
-      },
-      tags: ['💪 26g High Protein', '🌾 Complete Amino Acid Quinoa', '🔥 Curcumin Golden Tahini', '🦴 High Calcium'],
-      whyItHeals: 'Complete plant protein from quinoa paired with grass-fed low-fat cottage cheese provides branched-chain amino acids for myofascial recovery. Turmeric and sesame tahini supply bioactive sesamin and curcumin to inhibit inflammatory COX-2 pathways.'
-    },
-    {
-      id: 'meal_herb_chicken_greens',
-      title: 'Steamed Lemon-Herb Chicken Breast with Sautéed Bok Choy & Asparagus',
-      icon: '🍗',
-      kitchenName: 'FitBox Gourmet Meal Prep',
-      kitchenType: 'Lean Athletic Kitchen',
-      baseDistanceKm: 1.6,
-      baseDeliveryMins: 25,
-      rating: 4.8,
-      reviewCount: 510,
-      fssaiCertified: true,
-      price: 310,
-      diet: 'nonveg',
-      isVegan: false,
-      isGlutenFree: true,
-      isFastingSafe: false,
-      goals: ['anti_inflammatory', 'low_gi', 'under_400'],
-      conditions: ['back_pain', 'knee_joint', 'sluggish_metabolism', 'plantar_heel', 'fatty_liver'],
-      nutrition: {
-        calories: 360,
-        protein: 38,
-        carbs: 11,
-        fiber: 6,
-        fat: 8
-      },
-      tags: ['🍗 38g Lean Protein', '🥬 Low FODMAP Greens', '🫒 Cold-Pressed Olive Oil', '⚡ Zero Added Sugar'],
-      whyItHeals: 'Provides 38g of bioavailable leucine and glutamine to accelerate connective tissue repair after daily physical activity. Steamed cruciferous greens and asparagus provide sulforaphane and glutathione precursors without gastric gas.'
-    },
-    {
-      id: 'meal_green_goddess_salad',
-      title: 'Alkaline Green Detox Bowl: Sprouted Moong, Avocado, Cucumber & Pomegranate',
-      icon: '🥑',
-      kitchenName: 'Urban Herbivore Clean Salads',
-      kitchenType: 'Raw & Vegan Whole Food Cafe',
-      baseDistanceKm: 0.9,
-      baseDeliveryMins: 16,
-      rating: 4.9,
-      reviewCount: 780,
-      fssaiCertified: true,
-      price: 220,
-      diet: 'vegan',
-      isVegan: true,
-      isGlutenFree: true,
-      isFastingSafe: false,
-      goals: ['cardiac', 'anti_inflammatory', 'under_400', 'gut_friendly'],
-      conditions: ['high_bp_stress', 'fatty_liver', 'eczema_skin_rash', 'anxiety_stress', 'uric_acid_gout', 'acid_reflux', 'high_cholesterol_lipid', 'diabetes_hba1c'],
-      nutrition: {
-        calories: 275,
-        protein: 15,
-        carbs: 28,
-        fiber: 12,
-        fat: 9.5
-      },
-      tags: ['🥑 Healthy Monounsaturated Fats', '🫀 High Potassium (>700mg)', '🌱 Raw Sprouted Enzymes', '🩸 Low Sodium'],
-      whyItHeals: 'High natural potassium and magnesium act as physiological calcium channel blockers, lowering vascular vascular resistance. Rich in live digestive enzymes, chlorophyll, and folate to enhance hepatic detoxification.'
-    },
-    {
-      id: 'meal_vrat_kuttu_crepe',
-      title: 'Sacred Vrat Kuttu (Buckwheat) Crepe with Roasted Almond Lauki Mash',
-      icon: '🪔',
-      kitchenName: 'AyurAahar Sacred Clean Kitchens',
-      kitchenType: '100% Vrat & Fasting Certified',
-      baseDistanceKm: 1.3,
-      baseDeliveryMins: 20,
-      rating: 4.9,
-      reviewCount: 430,
-      fssaiCertified: true,
-      price: 175,
-      diet: 'fasting',
-      isVegan: true,
-      isGlutenFree: true,
-      isFastingSafe: true,
-      goals: ['gut_friendly', 'low_gi', 'under_400'],
-      conditions: ['acid_reflux', 'ibs_bloating', 'pcos_hormone', 'constipation', 'eczema_skin_rash', 'sluggish_metabolism'],
-      nutrition: {
-        calories: 285,
-        protein: 11,
-        carbs: 42,
-        fiber: 8,
-        fat: 5
-      },
-      tags: ['🪔 100% Sacred Vrat Safe', '🌾 Grain-Free Buckwheat', '🧂 Himalayan Sendha Namak', '🛡️ Zero Grain Gluten'],
-      whyItHeals: 'Buckwheat (Kuttu) is an alkaline seed fruit high in rutin, a bioflavonoid that strengthens blood vessels. Paired with cooling bottle gourd (Lauki) and sendha namak to sustain electrolyte balance without breaking sacred fast vows.'
-    },
-    {
-      id: 'meal_turmeric_bone_broth',
-      title: 'Turmeric-Ashwagandha Slow-Simmered Golden Bone Broth with Ginger & Garlic',
-      icon: '🍵',
-      kitchenName: 'Kitchens of Ayurveda Clean Broths',
-      kitchenType: 'Medicinal Broths & Elixirs Hub',
-      baseDistanceKm: 0.8,
-      baseDeliveryMins: 15,
-      rating: 4.9,
-      reviewCount: 390,
-      fssaiCertified: true,
-      price: 165,
-      diet: 'nonveg',
-      isVegan: false,
-      isGlutenFree: true,
-      isFastingSafe: true,
-      goals: ['anti_inflammatory', 'gut_friendly', 'under_400'],
-      conditions: ['back_pain', 'knee_joint', 'sciatica_nerve', 'insomnia', 'anxiety_stress', 'low_immunity', 'frozen_shoulder', 'vitamin_d_deficiency'],
-      nutrition: {
-        calories: 160,
-        protein: 18,
-        carbs: 5,
-        fiber: 2,
-        fat: 3
-      },
-      tags: ['🦴 Type I & II Collagen', '🌿 KSM-66 Ashwagandha', '⚡ 18g Bioactive Peptides', '🌙 Restorative Sleep Inducer'],
-      whyItHeals: 'Slow-simmered collagen peptides, glucosamine, and glycine directly fuel articular cartilage and intervertebral disc rehydration. Ashwagandha lowers nocturnal cortisol and down-regulates inflammatory pain sensitivity.'
-    },
-    {
-      id: 'meal_ragi_moringa_cheela',
-      title: 'Sprouted Ragi & Moringa Therapeutic Cheela with Fresh Coconut-Ginger Chutney',
-      icon: '🥞',
-      kitchenName: 'Millet Express Health Hub',
-      kitchenType: 'Whole Millet Specialized Kitchen',
-      baseDistanceKm: 1.0,
-      baseDeliveryMins: 18,
-      rating: 4.8,
-      reviewCount: 560,
-      fssaiCertified: true,
-      price: 155,
-      diet: 'veg',
-      isVegan: true,
-      isGlutenFree: true,
-      isFastingSafe: false,
-      goals: ['anti_inflammatory', 'low_gi', 'under_400', 'cardiac'],
-      conditions: ['plantar_heel', 'pcos_hormone', 'knee_joint', 'sluggish_metabolism', 'back_pain', 'high_bp_stress', 'vitamin_d_deficiency', 'diabetes_hba1c', 'thyroid_tsh'],
-      nutrition: {
-        calories: 270,
-        protein: 12,
-        carbs: 39,
-        fiber: 9.5,
-        fat: 4
-      },
-      tags: ['🦴 Highest Calcium Grain (344mg)', '🌾 Sprouted Finger Millet', '🍃 Fresh Moringa Leaf', '🩸 Low GI (54)'],
-      whyItHeals: 'Sprouted finger millet (Ragi) provides exceptional bio-available calcium and polyphenols to accelerate calcaneal fascia remodeling in plantar fasciitis and strengthen spinal bone mineral density.'
-    },
-    {
-      id: 'meal_grilled_tofu_greens',
-      title: 'Steamed Edamame & Grilled Organic Tofu Bowl with Garlic-Ginger Sesame Greens',
-      icon: '🌱',
-      kitchenName: 'Urban Herbivore Clean Salads',
-      kitchenType: 'Raw & Vegan Whole Food Cafe',
-      baseDistanceKm: 1.4,
-      baseDeliveryMins: 22,
-      rating: 4.9,
-      reviewCount: 610,
-      fssaiCertified: true,
-      price: 255,
-      diet: 'vegan',
-      isVegan: true,
-      isGlutenFree: true,
-      isFastingSafe: false,
-      goals: ['anti_inflammatory', 'low_gi', 'cardiac'],
-      conditions: ['fatty_liver', 'uric_acid_gout', 'pcos_hormone', 'sluggish_metabolism', 'high_bp_stress'],
-      nutrition: {
-        calories: 340,
-        protein: 25,
-        carbs: 18,
-        fiber: 10,
-        fat: 11
-      },
-      tags: ['🌱 100% Plant Protein (25g)', '🌾 Low Purine Safe', '🥑 Cold-Pressed Sesame', '🩸 Zero Glycemic Spike'],
-      whyItHeals: 'Soy isoflavones and edamame fiber help mobilize hepatic triglycerides in fatty liver. Low purine load makes it safe for uric acid clearance while preserving lean skeletal muscle.'
-    }
-  ];
-
-  // --- STATE FOR NEARBY FOOD ENGINE ---
-  const nearbyFoodState = {
-    detectedLocation: {
-      key: 'bengaluru_indiranagar',
-      title: 'Indiranagar / Koramangala',
-      city: 'Bengaluru',
-      lat: 12.9784,
-      lng: 77.6408,
-      accuracy: 12,
-      isGpsLive: false
-    },
-    filterDiet: 'all',
-    filterGoal: 'all',
-    sortBy: 'health_match',
-    activeOrderMeal: null,
-    isOrdering: false
-  };
-
-  // --- DETECT USER GEOLOCATION ---
-  function detectUserLocation(isUserInitiated = false) {
-    const titleEl = document.getElementById('nearby-detected-location-title');
-    const subEl = document.getElementById('nearby-detected-coords-sub');
-    const badgeText = document.getElementById('location-badge-text');
-
-    if (!navigator.geolocation) {
-      if (isUserInitiated && window.showToast) {
-        window.showToast('⚠️ Geolocation not supported in this browser. Showing nearest city.');
-      }
-      return;
-    }
-
-    if (isUserInitiated && window.showToast) {
-      window.showToast('📡 Accessing system GPS hardware for exact live location...');
-    }
-
-    if (subEl) {
-      subEl.innerHTML = '⏳ Pinpointing high-precision live GPS coordinates...';
-    }
-
-    // Auto-sync diet with active user profile if not manually selected
-    const pranaState = window.state || {};
-    const userDiet = pranaState.problemDietContext || pranaState.userDiet || 'veg';
-    if (!nearbyFoodState.userExplicitDietSelection) {
-      nearbyFoodState.filterDiet = userDiet;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-        const accuracy = Math.round(position.coords.accuracy || 12);
-
-        // Find closest locality in database
-        let closestKey = 'bengaluru_indiranagar';
-        let minDistance = 999999;
-
-        for (const key in LOCALITY_DATABASE) {
-          const loc = LOCALITY_DATABASE[key];
-          const dist = calculateHaversineDistance(lat, lng, loc.lat, loc.lng);
-          if (dist < minDistance) {
-            minDistance = dist;
-            closestKey = key;
-          }
-        }
-
-        const matchedLoc = LOCALITY_DATABASE[closestKey];
-        nearbyFoodState.detectedLocation = {
-          key: closestKey,
-          title: `${matchedLoc.name}, ${matchedLoc.city}`,
-          city: matchedLoc.city,
-          lat: lat,
-          lng: lng,
-          accuracy: accuracy,
-          isGpsLive: true
-        };
-
-        // Update UI immediately with exact GPS coords
-        if (titleEl) {
-          titleEl.innerText = `${matchedLoc.name}, ${matchedLoc.city} (${lat.toFixed(4)}° N, ${lng.toFixed(4)}° E)`;
-        }
-        if (subEl) {
-          subEl.innerHTML = `● High-Precision GPS Active (±${accuracy}m accuracy) • Exact coordinates locked • Delivery radius: 5 km`;
-        }
-        if (badgeText) {
-          badgeText.innerText = matchedLoc.city;
-        }
-
-        // Attempt reverse geocoding for exact road/neighborhood name
-        try {
-          fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`, {
-            headers: { 'Accept': 'application/json' }
-          })
-          .then(res => res.json())
-          .then(geoData => {
-            if (geoData && geoData.address) {
-              const road = geoData.address.road || geoData.address.suburb || geoData.address.neighbourhood || geoData.address.residential || '';
-              const city = geoData.address.city || geoData.address.town || geoData.address.city_district || matchedLoc.city;
-              const stateName = geoData.address.state || matchedLoc.state;
-              const exactResolved = road ? `${road}, ${city}` : `${city}, ${stateName}`;
-              nearbyFoodState.detectedLocation.title = `${exactResolved} (${lat.toFixed(4)}° N, ${lng.toFixed(4)}° E)`;
-              if (titleEl) {
-                titleEl.innerText = nearbyFoodState.detectedLocation.title;
-              }
-              if (badgeText) {
-                badgeText.innerText = city;
-              }
-            }
-          })
-          .catch(() => {});
-        } catch (e) {}
-
-        // Sync dropdown
-        const selectEl = document.getElementById('select-nearby-city');
-        if (selectEl) selectEl.value = closestKey;
-
-        // Re-render recommendations
-        renderNearbyHealthyFoodOrders();
-
-        if (window.showToast) {
-          window.showToast(`📍 Exact Location Detected (${lat.toFixed(4)}° N, ${lng.toFixed(4)}° E)! Clean kitchens calibrated to your diet.`);
-        }
-      },
-      (err) => {
-        console.warn('Geolocation error:', err.message);
-        const fallback = LOCALITY_DATABASE.bengaluru_indiranagar;
-        nearbyFoodState.detectedLocation = {
-          key: 'bengaluru_indiranagar',
-          title: `${fallback.name}, ${fallback.city}`,
-          city: fallback.city,
-          lat: fallback.lat,
-          lng: fallback.lng,
-          accuracy: 50,
-          isGpsLive: false
-        };
-
-        if (titleEl) {
-          titleEl.innerText = `${fallback.name}, ${fallback.city} (${fallback.lat}° N, ${fallback.lng}° E)`;
-        }
-        if (subEl) {
-          subEl.innerHTML = `● Default City Active • Tap 'Detect My Live Location' or choose your area`;
-        }
-        if (badgeText) {
-          badgeText.innerText = fallback.city;
-        }
-
-        renderNearbyHealthyFoodOrders();
-
-        if (isUserInitiated && window.showToast) {
-          window.showToast(`📍 Using ${fallback.city}. You can select your exact neighborhood anytime!`);
-        }
-      },
-      { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
-    );
-  }
-
-  // --- MANUAL LOCATION SELECTOR ---
-  function onManualLocationSelect(locKey) {
-    const loc = LOCALITY_DATABASE[locKey] || LOCALITY_DATABASE.bengaluru_indiranagar;
-    nearbyFoodState.detectedLocation = {
-      key: locKey,
-      title: `${loc.name}, ${loc.city}`,
-      city: loc.city,
-      lat: loc.lat,
-      lng: loc.lng,
-      accuracy: 25,
-      isGpsLive: false
-    };
-
-    const titleEl = document.getElementById('nearby-detected-location-title');
-    const subEl = document.getElementById('nearby-detected-coords-sub');
-    const badgeText = document.getElementById('location-badge-text');
-
-    if (titleEl) {
-      titleEl.innerText = `${loc.name}, ${loc.city} (${loc.lat.toFixed(4)}° N, ${loc.lng.toFixed(4)}° E)`;
-    }
-    if (subEl) {
-      subEl.innerHTML = `● Location set to ${loc.name} • Certified clean kitchens within 5 km`;
-    }
-    if (badgeText) {
-      badgeText.innerText = loc.city;
-    }
-
-    renderNearbyHealthyFoodOrders();
-
-    if (window.showToast) {
-      window.showToast(`📍 Switched to ${loc.name}, ${loc.city}. Re-calculating healthy meal delivery.`);
-    }
-  }
-
-  // --- HAVERSINE DISTANCE FORMULA (KM) ---
-  function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371; // Earth radius in km
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-      Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
-  }
-
-  // --- HEALTH MATCH ALGORITHM ---
-  function computeHealthMatch(meal, activeConditionKey, activeDiet, vitals) {
-    let score = 88; // High baseline for certified clean food
-
-    // Condition match
-    if (meal.conditions.includes(activeConditionKey)) {
-      score += 8;
-    }
-
-    // Diet match
-    if (activeDiet === 'fasting' && meal.isFastingSafe) {
-      score += 4;
-    } else if (activeDiet === 'vegan' && meal.isVegan) {
-      score += 3;
-    } else if (activeDiet === 'veg' && meal.diet === 'veg') {
-      score += 3;
-    }
-
-    // Smartwatch vitals calibration
-    if (vitals) {
-      // If user walked > 6000 steps today, favor protein and electrolyte restoration
-      if (vitals.steps > 6000 && meal.nutrition.protein >= 15) {
-        score += 2;
-      }
-      // If stress is high (>50) and meal has calming anti-inflammatory herbs
-      if (vitals.stressIndex > 50 && meal.goals.includes('anti_inflammatory')) {
-        score += 2;
-      }
-      // If HR resting is elevated (>80) and meal is low sodium
-      if (vitals.hr > 80 && meal.goals.includes('cardiac')) {
-        score += 2;
-      }
-    }
-
-    return Math.min(score, 99);
-  }
-
-  // --- RENDER NEARBY HEALTHY FOOD ORDERS ---
-  function renderNearbyHealthyFoodOrders() {
-    const container = document.getElementById('nearby-food-recommendations-grid');
-    if (!container) return;
-
-    // Get active app state
-    const pranaState = window.state || {};
-    const activeConditionKey = (pranaState.lastProblemAnalysis && pranaState.lastProblemAnalysis.key)
-      ? pranaState.lastProblemAnalysis.key
-      : (pranaState.activeProblemPreset || 'back_pain');
-
-    const activeConditionTitle = (pranaState.lastProblemAnalysis && pranaState.lastProblemAnalysis.title)
-      ? pranaState.lastProblemAnalysis.title
-      : 'Lower Back Pain & Inflammation';
-
-    const activeDiet = pranaState.problemDietContext || pranaState.userDiet || 'veg';
-    const vitals = pranaState.vitals || { hr: 74, steps: 7340, calories: 460, stressIndex: 38 };
-
-    // Update calibration badge in UI
-    const condBadge = document.getElementById('nearby-active-condition-badge');
-    const dietBadge = document.getElementById('nearby-diet-badge');
-    const watchBadge = document.getElementById('nearby-watch-badge');
-
-    if (condBadge) condBadge.innerText = activeConditionTitle;
-    if (dietBadge) {
-      const dietLabels = {
-        veg: '🥗 Vegetarian',
-        nonveg: '🍗 Non-Vegetarian',
-        vegan: '🌱 Vegan',
-        fasting: '🪔 Fasting/Vrat'
-      };
-      dietBadge.innerText = dietLabels[activeDiet] || '🥗 Vegetarian';
-    }
-    if (watchBadge) {
-      const walkKm = vitals.walkDistanceKm || (vitals.steps * 0.00078).toFixed(2);
-      watchBadge.innerText = `⌚ Watch: ${vitals.hr} BPM • ${walkKm} km Walked`;
-    }
-
-    // Filter meals
-    let list = HEALTHY_MEALS_CATALOG.filter(m => {
-      // Strict Diet filter
-      if (nearbyFoodState.filterDiet !== 'all') {
-        if (nearbyFoodState.filterDiet === 'veg' && m.diet !== 'veg' && m.diet !== 'vegan' && m.diet !== 'fasting') return false;
-        if (nearbyFoodState.filterDiet === 'nonveg' && m.diet !== 'nonveg') return false;
-        if (nearbyFoodState.filterDiet === 'vegan' && !m.isVegan) return false;
-        if (nearbyFoodState.filterDiet === 'fasting' && !m.isFastingSafe) return false;
-      }
-
-      // Goal filter
-      if (nearbyFoodState.filterGoal !== 'all') {
-        if (nearbyFoodState.filterGoal === 'under_400' && m.nutrition.calories > 400) return false;
-        if (nearbyFoodState.filterGoal !== 'under_400' && !m.goals.includes(nearbyFoodState.filterGoal)) return false;
-      }
-
-      return true;
-    });
-
-    // Score meals against current health
-    list = list.map(m => {
-      const healthMatch = computeHealthMatch(m, activeConditionKey, activeDiet, vitals);
-      // Adjust distance based on detected location variance
-      const distance = (m.baseDistanceKm + (Math.sin(m.title.length) * 0.4)).toFixed(1);
-      const deliveryMins = Math.round(m.baseDeliveryMins + (parseFloat(distance) * 5));
-      return {
-        ...m,
-        computedMatch: healthMatch,
-        computedDistance: parseFloat(distance),
-        computedEta: deliveryMins
-      };
-    });
-
-    // Sort meals
-    list.sort((a, b) => {
-      if (nearbyFoodState.sortBy === 'health_match') {
-        return b.computedMatch - a.computedMatch;
-      } else if (nearbyFoodState.sortBy === 'distance') {
-        return a.computedDistance - b.computedDistance;
-      } else if (nearbyFoodState.sortBy === 'delivery_time') {
-        return a.computedEta - b.computedEta;
-      } else if (nearbyFoodState.sortBy === 'protein') {
-        return b.nutrition.protein - a.nutrition.protein;
-      } else if (nearbyFoodState.sortBy === 'calories_low') {
-        return a.nutrition.calories - b.nutrition.calories;
-      }
-      return b.computedMatch - a.computedMatch;
-    });
-
-    if (list.length === 0) {
-      container.innerHTML = `
-        <div style="grid-column: 1 / -1; text-align: center; padding: 40px; background: #ffffff; border: 1px dashed #cbd5e1; border-radius: var(--radius-lg);">
-          <span style="font-size: 36px;">🥗</span>
-          <h4 style="font-family: var(--font-heading); font-size: 18px; font-weight: 800; color: #0f172a; margin: 8px 0 4px;">
-            No healthy meals match this specific filter combination
-          </h4>
-          <p style="font-size: 13px; color: #64748b; margin-bottom: 14px;">
-            Try selecting 'All Diets' or 'All Health Goals' to view all nearby clean kitchen offerings.
-          </p>
-          <button class="btn-primary" onclick="resetNearbyFoodFilters()">
-            <span>Reset Filters & Show All</span>
-          </button>
+    <div class="splash-container">
+      <!-- LEFT: ADVANCED ANIMATED EXERCISE & KINETIC BIOMECHANICS -->
+      <div class="splash-kinetic-panel panel-exercise">
+        <div class="splash-panel-header">
+          <span class="splash-badge-mini splash-badge-emerald">🏃 Kinetic Exercise</span>
+          <span style="font-size: 11px; color: #34d399; font-weight: 700;">Live Motion 60fps</span>
         </div>
-      `;
-      return;
-    }
+        
+        <div class="splash-exercise-viewport">
+          <svg class="exercise-runner-svg" viewBox="0 0 200 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Concentric Power Shockwaves -->
+            <circle cx="100" cy="90" r="28" stroke="#10b981" stroke-opacity="0.6" class="kinetic-power-ring" />
+            <circle cx="100" cy="90" r="46" stroke="#34d399" stroke-opacity="0.4" class="kinetic-power-ring" />
+            <circle cx="100" cy="90" r="64" stroke="#6ee7b7" stroke-opacity="0.25" class="kinetic-power-ring" />
 
-    // Render HTML Cards
-    container.innerHTML = list.map(item => {
-      const isTopMatch = item.computedMatch >= 95;
-      const tagHtml = item.tags.map(t => `<span class="macro-chip">${t}</span>`).join('');
+            <!-- Biomechanical Ground Velocity Line -->
+            <path d="M 20 162 L 180 162" stroke="rgba(255,255,255,0.2)" stroke-width="2" stroke-dasharray="8 6" />
+            <path d="M 40 162 L 140 162" stroke="#34d399" stroke-width="3" stroke-linecap="round" filter="drop-shadow(0 0 6px #10b981)" />
 
-      return `
-        <div class="healthy-order-card">
-          <div>
-            <!-- Top Kitchen & Health Badges -->
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 8px;">
-              <span class="health-match-badge" title="Scored directly against your active health diagnostic">
-                🎯 ${item.computedMatch}% Health Match
-              </span>
-              <div style="display: flex; align-items: center; gap: 6px;">
-                <span class="kitchen-rating-tag">⭐ ${item.rating}</span>
-                <span style="font-size: 10px; font-weight: 800; background: #ecfdf5; color: #047857; padding: 2px 6px; border-radius: 4px;">
-                  FSSAI Clean
+            <!-- Human Kinetic Silhouette Group -->
+            <g transform="translate(10, -5)">
+              <!-- Torso & Spinal Axis with Chakra Energy Centers -->
+              <line x1="90" y1="52" x2="90" y2="100" stroke="#34d399" stroke-width="6" stroke-linecap="round" filter="drop-shadow(0 0 6px #10b981)" />
+
+              <!-- Head & Crown Chakra -->
+              <circle cx="90" cy="38" r="14" fill="#047857" stroke="#34d399" stroke-width="2.5" filter="drop-shadow(0 0 8px #10b981)" />
+              <circle cx="90" cy="38" r="5" fill="#a7f3d0" />
+              <!-- Crown Halo Aura -->
+              <ellipse cx="90" cy="30" rx="12" ry="4" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="3 2" />
+
+              <!-- Spinal Energy Nodes (Chakras) -->
+              <circle cx="90" cy="54" r="4" fill="#a855f7" class="joint-chakra" /> <!-- Throat / Brow -->
+              <circle cx="90" cy="68" r="5" fill="#10b981" class="joint-chakra" /> <!-- Heart -->
+              <circle cx="90" cy="82" r="4" fill="#f59e0b" class="joint-chakra" /> <!-- Solar Plexus -->
+              <circle cx="90" cy="96" r="4" fill="#ef4444" class="joint-chakra" /> <!-- Root -->
+
+              <!-- Left Arm (Trailing) -->
+              <g class="kinetic-arm-trail">
+                <line x1="90" y1="65" x2="68" y2="82" stroke="#6ee7b7" stroke-width="4.5" stroke-linecap="round" />
+                <line x1="68" y1="82" x2="52" y2="70" stroke="#a7f3d0" stroke-width="4" stroke-linecap="round" />
+                <circle cx="68" cy="82" r="4" fill="#34d399" class="joint-chakra" />
+                <circle cx="52" cy="70" r="3.5" fill="#fbbf24" />
+              </g>
+
+              <!-- Right Arm (Leading Forward) -->
+              <g class="kinetic-arm-lead">
+                <line x1="90" y1="65" x2="114" y2="78" stroke="#34d399" stroke-width="5" stroke-linecap="round" />
+                <line x1="114" y1="78" x2="134" y2="64" stroke="#6ee7b7" stroke-width="4" stroke-linecap="round" />
+                <circle cx="114" cy="78" r="4.5" fill="#34d399" class="joint-chakra" />
+                <!-- Dynamic Dumbbell / Power Kinetic Spark in hand -->
+                <circle cx="134" cy="64" r="4" fill="#fbbf24" filter="drop-shadow(0 0 6px #fbbf24)" />
+                <line x1="130" y1="60" x2="138" y2="68" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" />
+              </g>
+
+              <!-- Left Leg (Trailing Backwards Stride) -->
+              <g class="kinetic-leg-trail">
+                <line x1="90" y1="100" x2="64" y2="128" stroke="#059669" stroke-width="5.5" stroke-linecap="round" />
+                <line x1="64" y1="128" x2="44" y2="155" stroke="#34d399" stroke-width="5" stroke-linecap="round" />
+                <circle cx="64" cy="128" r="4.5" fill="#10b981" class="joint-chakra" />
+                <circle cx="44" cy="155" r="4" fill="#a7f3d0" />
+              </g>
+
+              <!-- Right Leg (Leading Forward Stride) -->
+              <g class="kinetic-leg-lead">
+                <line x1="90" y1="100" x2="120" y2="124" stroke="#10b981" stroke-width="6" stroke-linecap="round" />
+                <line x1="120" y1="124" x2="136" y2="156" stroke="#34d399" stroke-width="5" stroke-linecap="round" />
+                <circle cx="120" cy="124" r="5" fill="#34d399" class="joint-chakra" />
+                <circle cx="136" cy="156" r="4" fill="#fbbf24" />
+              </g>
+            </g>
+          </svg>
+        </div>
+
+        <div class="splash-metric-chips">
+          <span class="splash-chip">⚡ 168 SPM Cadence</span>
+          <span class="splash-chip">🧘 Synovial Mobility</span>
+          <span class="splash-chip">💪 Core Torque Flow</span>
+        </div>
+      </div>
+
+      <!-- CENTER: MIDDLE OF SCREEN APP BRANDING & VITALITY LAUNCH -->
+      <div class="splash-center-col">
+        <!-- Central Luminous Prana Emblem -->
+        <div class="splash-logo-halo">
+          <div class="splash-orbital-ring"></div>
+          <div class="splash-orbital-ring-2"></div>
+          <div class="splash-logo-core">🌱</div>
+        </div>
+
+        <!-- APP NAME IN MIDDLE OF SCREEN -->
+        <h1 class="splash-app-title">PRANAFIT</h1>
+        <div class="splash-app-subtitle">Holistic Lifestyle &amp; Biometric Health Engine</div>
+
+        <!-- Dynamic Real-Time ECG Biometric Pulse Wave -->
+        <div class="splash-ecg-container">
+          <svg class="splash-ecg-svg" viewBox="0 0 320 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 0 20 L 70 20 L 85 20 L 95 8 L 105 32 L 115 4 L 125 36 L 135 20 L 160 20 L 210 20 L 225 20 L 235 8 L 245 32 L 255 4 L 265 36 L 275 20 L 320 20" 
+                  stroke="#34d399" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"
+                  filter="drop-shadow(0 0 8px #10b981)" />
+          </svg>
+        </div>
+
+        <!-- Live Changing Phase Narrative Ticker -->
+        <div class="splash-phase-status">
+          <span class="splash-status-dot"></span>
+          <span id="splash-status-text">Calibrating Biomechanical Movement Kinematics...</span>
+        </div>
+
+        <!-- Smooth Progress Track (3-5s Timing) -->
+        <div class="splash-progress-track">
+          <div class="splash-progress-fill" id="splash-progress-bar"></div>
+        </div>
+
+        <!-- Skip / Enter Action & Live Timer -->
+        <div class="splash-actions">
+          <button type="button" class="splash-skip-btn" onclick="dismissLaunchAnimation()">
+            <span>Enter PranaFit</span>
+            <span>➔</span>
+          </button>
+          <span class="splash-timer-badge" id="splash-timer-badge">4.0s</span>
+        </div>
+      </div>
+
+      <!-- RIGHT: ADVANCED ANIMATED CULINARY MEDICINE & LIVING FOODS -->
+      <div class="splash-kinetic-panel panel-food">
+        <div class="splash-panel-header">
+          <span class="splash-badge-mini splash-badge-amber">🥗 Culinary Medicine</span>
+          <span style="font-size: 11px; color: #fbbf24; font-weight: 700;">Living Nutrition</span>
+        </div>
+
+        <div class="splash-food-viewport">
+          <svg class="food-alchemy-svg" viewBox="0 0 200 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Rising Herbal Aromatherapeutic Steam Lines -->
+            <g transform="translate(10, 0)">
+              <path class="herbal-steam-path" d="M 100 70 Q 92 50 102 34 T 96 12" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" fill="none" />
+              <path class="herbal-steam-path" d="M 112 66 Q 120 46 110 28 T 116 8" stroke="#34d399" stroke-width="2.2" stroke-linecap="round" fill="none" />
+              <path class="herbal-steam-path" d="M 88 68 Q 80 48 90 32 T 84 14" stroke="#a7f3d0" stroke-width="1.8" stroke-linecap="round" fill="none" />
+            </g>
+
+            <!-- Floating Bio-Active Nutrient Photons (Curcumin, Chlorophyll, Omega-3) -->
+            <circle cx="48" cy="52" r="5" fill="#f59e0b" class="nutrient-photon" />
+            <circle cx="152" cy="46" r="6" fill="#10b981" class="nutrient-photon" />
+            <circle cx="160" cy="98" r="4.5" fill="#ec4899" class="nutrient-photon" />
+            <circle cx="42" cy="115" r="4" fill="#3b82f6" class="nutrient-photon" />
+
+            <!-- Golden Ayurvedic Kadha / Herbal Infusion Bowl -->
+            <g transform="translate(30, 80)">
+              <!-- Ceramic Cup Outer Shadow -->
+              <ellipse cx="70" cy="50" rx="42" ry="16" fill="rgba(0,0,0,0.3)" />
+              <!-- Cup Body -->
+              <path d="M 32 30 Q 34 68 70 68 Q 106 68 108 30 Z" fill="#064e3b" stroke="#34d399" stroke-width="2.5" filter="drop-shadow(0 0 10px rgba(16,185,129,0.4))" />
+              <!-- Steaming Liquid Surface -->
+              <ellipse cx="70" cy="30" rx="38" ry="14" fill="#d97706" stroke="#fbbf24" stroke-width="2" />
+              <ellipse cx="70" cy="30" rx="30" ry="10" fill="#f59e0b" opacity="0.8" />
+              <!-- Golden Curcumin Swirl -->
+              <circle cx="66" cy="30" r="7" fill="#fef08a" opacity="0.9" filter="drop-shadow(0 0 4px #fbbf24)" />
+              <circle cx="78" cy="29" r="4" fill="#a7f3d0" opacity="0.8" />
+            </g>
+
+            <!-- Sliced Superfood Avocado with Bio-Active Aura -->
+            <g transform="translate(20, 20)">
+              <!-- Outer Bio-Lipid Aura -->
+              <ellipse cx="50" cy="65" rx="32" ry="42" fill="none" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4 3" class="avocado-bio-aura" />
+              <!-- Avocado Dark Green Rind -->
+              <ellipse cx="50" cy="65" rx="26" ry="36" fill="#064e3b" stroke="#34d399" stroke-width="2" />
+              <!-- Creamy Pale Green Flesh -->
+              <ellipse cx="50" cy="66" rx="21" ry="30" fill="#a7f3d0" />
+              <ellipse cx="50" cy="67" rx="16" ry="24" fill="#d1fae5" />
+              <!-- Rich Seed in Center -->
+              <circle cx="50" cy="74" r="11" fill="#78350f" stroke="#b45309" stroke-width="2" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.4))" />
+              <circle cx="47" cy="71" r="3.5" fill="#d97706" opacity="0.7" />
+            </g>
+
+            <!-- Golden Turmeric Root & Sprouted Seeds Accent -->
+            <g transform="translate(132, 98)">
+              <!-- Organic Turmeric Rhizome -->
+              <path d="M 10 18 Q 24 6 38 16 Q 44 26 32 36 Q 16 34 10 18 Z" fill="#d97706" stroke="#fbbf24" stroke-width="2" filter="drop-shadow(0 0 6px #f59e0b)" />
+              <circle cx="24" cy="22" r="3" fill="#fef08a" />
+              <!-- Bio-Active Photon Dots -->
+              <circle cx="8" cy="38" r="2.5" fill="#34d399" />
+              <circle cx="42" cy="10" r="3" fill="#fbbf24" />
+            </g>
+          </svg>
+        </div>
+
+        <div class="splash-metric-chips">
+          <span class="splash-chip">✨ 95% Curcuminoids</span>
+          <span class="splash-chip">🥑 Bio-Lipid Omega-3</span>
+          <span class="splash-chip">🌿 Gut Prebiotics</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Navigation Header -->
+  <header class="app-header" id="main-header">
+    <div class="header-container">
+      <div class="brand" id="brand-logo" onclick="switchTab('today')">
+        <div class="brand-icon">🌱</div>
+        <div class="brand-text">
+          <h1>PranaFit</h1>
+          <p>Holistic Lifestyle &amp; Preventive Health</p>
+        </div>
+      </div>
+
+      <!-- Controls: Location, Points, Watch, Auth, Audio, SOS -->
+      <div class="header-controls">
+        <!-- Live Location Badge & Nearby Food Quick-Trigger -->
+        <button class="location-badge" id="header-location-badge" onclick="switchTab('nearby_healthy_food')" title="Detect live location &amp; order healthy food from nearby places">
+          <span>📍</span>
+          <span id="location-badge-text">Detecting Location...</span>
+        </button>
+
+        <!-- Optional Profile Badge -->
+        <button class="profile-badge" id="header-profile-badge" onclick="openProfileModal()" title="Optional Health Profile (Age, Height, Weight)">
+          <span>👤</span>
+          <span id="profile-badge-text">Profile (Optional)</span>
+        </button>
+
+        <!-- Points Wallet -->
+        <div class="points-badge" id="header-points-badge">
+          🌱 420 Pts
+        </div>
+
+        <!-- Bluetooth Smartwatch Status Badge -->
+        <button class="watch-badge" id="header-watch-badge" onclick="openSmartwatchModal()" title="Connect Bluetooth Smartwatch">
+          <span class="watch-live-dot" id="header-watch-dot"></span>
+          <span id="header-watch-text">⌚ Connect Watch</span>
+        </button>
+
+        <!-- Section Customizer & Options Button -->
+        <button class="options-badge" id="header-options-badge" onclick="openSectionOptionsModal()" title="Customize Visible Sections (Show/Hide community squads, today diagnostic, healer, etc.)">
+          <span>🎛️</span>
+          <span id="header-options-badge-text">Options (Customize)</span>
+        </button>
+
+        <!-- User Authentication & Account Badge -->
+        <button class="auth-badge" id="header-auth-badge" onclick="openAuthModal()" title="Sign In, Sign Up, or View Account">
+          <span id="auth-badge-icon">🔑</span>
+          <span id="auth-badge-text">Sign In / Sign Up</span>
+        </button>
+
+        <!-- Voice Coach Toggle -->
+        <button class="btn-icon-toggle active" id="btn-voice-toggle" title="Toggle AI Voice Coach (Web Speech API)">
+          🔊
+        </button>
+
+        <!-- Emergency SOS Button -->
+        <button class="btn-emergency" id="btn-emergency-sos" onclick="openEmergencySOS()">
+          🚨 SOS
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs Bar -->
+    <nav class="nav-bar" id="app-nav-bar">
+      <div class="nav-container">
+        <button class="tab-btn active" data-tab="today" onclick="switchTab('today')">
+          ⚡ Today's Diagnostic
+        </button>
+        <button class="tab-btn" data-tab="problem_healer" onclick="switchTab('problem_healer')">
+          🩺 Symptom & Problem Healer
+        </button>
+        <button class="tab-btn" data-tab="nearby_healthy_food" onclick="switchTab('nearby_healthy_food')">
+          🥗 Nearby Healthy Food Orders
+        </button>
+        <button class="tab-btn" data-tab="location_nutrition" onclick="switchTab('location_nutrition')">
+          🍛 Pan-India Nutrition & Swaps
+        </button>
+        <button class="tab-btn" data-tab="emotion" onclick="switchTab('emotion')">
+          🎭 Emotion Fitness & Cam
+        </button>
+        <button class="tab-btn" data-tab="microgoals" onclick="switchTab('microgoals')">
+          ⏱️ AI Micro-Goals (60s)
+        </button>
+        <button class="tab-btn" data-tab="preventive" onclick="switchTab('preventive')">
+          🛡️ Preventive Alerts
+        </button>
+        <button class="tab-btn" data-tab="wearables" onclick="switchTab('wearables')">
+          ⌚ Wearables & Sleep Synth
+        </button>
+        <button class="tab-btn" data-tab="community" onclick="switchTab('community')">
+          👥 Community Squads
+        </button>
+        <button class="tab-btn" data-tab="rewards" onclick="switchTab('rewards')">
+          🎁 Rewards Store
+        </button>
+        <button class="tab-btn" data-tab="dashboard" onclick="switchTab('dashboard')">
+          📊 Progress
+        </button>
+        <button class="tab-btn tab-btn-customize" id="btn-nav-customize-sections" onclick="openSectionOptionsModal()" title="Choose sections to show/hide">
+          <span>⚙️ Options (Choose Sections)</span>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Active Micro-Goal Countdown Banner (Hidden until started) -->
+  <div id="active-timer-card" class="card" style="display: none; max-width: 1280px; margin: 16px auto 0; background: linear-gradient(135deg, #ecfdf5, #ffffff); border: 2px solid #10b981; border-radius: var(--radius-lg); padding: 18px 24px; box-shadow: var(--shadow-md);">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+      <div>
+        <span class="tag-badge tag-emerald">Active Micro-Movement</span>
+        <h3 id="active-timer-title" style="font-family: var(--font-heading); font-size: 18px; font-weight: 800; color: #065f46;">Wall Angels Posture Reset</h3>
+        <p style="font-size: 13px; color: #047857;">Inhale on the ascent, exhale and draw shoulder blades down and back.</p>
+      </div>
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <span id="active-timer-countdown" style="font-family: var(--font-heading); font-size: 28px; font-weight: 800; color: #059669;">60s remaining</span>
+        <button class="btn-secondary" onclick="cancelActiveTimer()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main View Container -->
+  <main class="main-wrapper" id="main-content">
+
+    <!-- TAB 1: TODAY'S DIAGNOSTIC & WHAT TO DO NEXT -->
+    <section id="tab-today" class="tab-content active">
+      <div class="section-banner">
+        <div>
+          <span class="tag-badge tag-emerald">Real-Time Prescription Engine</span>
+          <h2 class="section-title">Today's Health Diagnostic & Next Actions</h2>
+          <p class="section-subtitle">
+            Answer 5 quick check-ins to synthesize your personalized physical workout, regional meal recommendation, and cellular hydration strategy.
+          </p>
+        </div>
+      </div>
+
+      <!-- LIVE SMARTWATCH TELEMETRY & BIOMETRICS ENGINE -->
+      <div class="smartwatch-dashboard-card" id="today-smartwatch-banner">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 24px;">⌚</span>
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <h3 style="font-family: var(--font-heading); font-size: 16px; font-weight: 800; margin: 0; color: #ffffff;" id="today-watch-name">
+                  Smartwatch (Not Connected)
+                </h3>
+                <span class="tag-badge" id="today-watch-status-badge" style="background: rgba(148, 163, 184, 0.2); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.3); font-size: 10px; padding: 2px 8px;">
+                  ○ Disconnected - Tap to Pair
                 </span>
               </div>
-            </div>
-
-            <!-- Dish Title -->
-            <div style="display: flex; gap: 10px; align-items: flex-start; margin-bottom: 4px;">
-              <span style="font-size: 26px; line-height: 1;">${item.icon}</span>
-              <div>
-                <h4 style="font-family: var(--font-heading); font-size: 16px; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.35;">
-                  ${item.title}
-                </h4>
-              </div>
-            </div>
-
-            <!-- Kitchen Info & Distance -->
-            <div class="kitchen-info-row">
-              <span style="font-weight: 700; color: #334155;">
-                🏠 ${item.kitchenName}
-              </span>
-              <span>
-                📍 <strong>${item.computedDistance} km</strong> • ⏱️ <strong>${item.computedEta} mins</strong>
-              </span>
-            </div>
-
-            <!-- Clinical Health Match Rationale -->
-            <div class="health-why-box">
-              <strong style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #065f46; margin-bottom: 3px;">
-                💡 Why This Matches Your Health & Vitals:
-              </strong>
-              <span>${item.whyItHeals}</span>
-            </div>
-
-            <!-- Macro Nutrients Strip -->
-            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-md); padding: 8px 12px; margin-bottom: 12px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 700; color: #475569;">
-                <span>🔥 ${item.nutrition.calories} kcal</span>
-                <span>💪 ${item.nutrition.protein}g Protein</span>
-                <span>🌾 ${item.nutrition.carbs}g Carbs</span>
-                <span>🥑 ${item.nutrition.fiber}g Fiber</span>
-              </div>
-            </div>
-
-            <!-- Tag Chips -->
-            <div class="macros-pill-bar">
-              ${tagHtml}
-            </div>
-          </div>
-
-          <!-- Price & Order Action Bar -->
-          <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid var(--border); margin-top: 10px;">
-            <div>
-              <span style="font-family: var(--font-heading); font-size: 20px; font-weight: 800; color: #0f172a;">
-                ₹${item.price}
-              </span>
-              <span style="display: block; font-size: 10px; color: #059669; font-weight: 700;">
-                🎁 Earn +25 Pts
-              </span>
-            </div>
-
-            <div style="display: flex; gap: 8px;">
-              <button class="btn-primary" onclick="openHealthyOrderModal('${item.id}')" style="padding: 7px 16px; font-size: 12px; background: #059669; font-weight: 800;">
-                <span>🛒 1-Click Order</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      `;
-    }).join('');
-  }
-
-  // --- FILTERS & SORT HANDLERS ---
-  function filterNearbyFood(type, value) {
-    if (type === 'diet') {
-      nearbyFoodState.filterDiet = value;
-      document.querySelectorAll('#nearby-diet-filter-chips .chip-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.diet === value);
-      });
-    } else if (type === 'goal') {
-      nearbyFoodState.filterGoal = value;
-      document.querySelectorAll('#nearby-goal-filter-chips .chip-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.goal === value);
-      });
-    }
-    renderNearbyHealthyFoodOrders();
-  }
-
-  function sortNearbyFood(value) {
-    nearbyFoodState.sortBy = value;
-    renderNearbyHealthyFoodOrders();
-  }
-
-  function resetNearbyFoodFilters() {
-    nearbyFoodState.filterDiet = 'all';
-    nearbyFoodState.filterGoal = 'all';
-    nearbyFoodState.sortBy = 'health_match';
-
-    document.querySelectorAll('#nearby-diet-filter-chips .chip-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.diet === 'all');
-    });
-    document.querySelectorAll('#nearby-goal-filter-chips .chip-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.goal === 'all');
-    });
-
-    const sortSelect = document.getElementById('select-nearby-sort');
-    if (sortSelect) sortSelect.value = 'health_match';
-
-    renderNearbyHealthyFoodOrders();
-  }
-
-  // --- HEALTHY FOOD ORDER CHECKOUT & TRACKER MODAL ---
-  function openHealthyOrderModal(mealId) {
-    const meal = HEALTHY_MEALS_CATALOG.find(m => m.id === mealId);
-    if (!meal) return;
-
-    nearbyFoodState.activeOrderMeal = meal;
-
-    const modal = document.getElementById('healthy-order-modal');
-    const content = document.getElementById('healthy-order-modal-content');
-    if (!modal || !content) return;
-
-    const loc = nearbyFoodState.detectedLocation;
-
-    content.innerHTML = `
-      <div id="order-step-checkout">
-        <!-- Meal Overview Banner -->
-        <div style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: var(--radius-lg); padding: 16px; margin-bottom: 16px;">
-          <div style="display: flex; gap: 12px; align-items: flex-start;">
-            <span style="font-size: 32px;">${meal.icon}</span>
-            <div style="flex: 1;">
-              <span class="health-match-badge" style="margin-bottom: 4px;">
-                🎯 High Health Match • 100% Certified Healthy
-              </span>
-              <h4 style="font-family: var(--font-heading); font-size: 17px; font-weight: 800; color: #064e3b; margin: 4px 0 2px;">
-                ${meal.title}
-              </h4>
-              <p style="font-size: 12px; color: #047857; margin: 0;">
-                By <strong>${meal.kitchenName}</strong> (${(meal.baseDistanceKm + 0.3).toFixed(1)} km away • ${meal.baseDeliveryMins} mins ETA)
+              <p style="font-size: 12px; color: #94a3b8; margin: 2px 0 0;" id="today-watch-subtext">
+                Connect your Apple Watch, Wear OS, Galaxy, Garmin, Fitbit or BLE GATT watch to stream live telemetry
               </p>
             </div>
           </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn-primary" onclick="requestBluetoothSmartwatch()" style="padding: 6px 14px; font-size: 12px; background: #10b981;">
+              <span>📶 Pair via Bluetooth</span>
+            </button>
+            <button class="btn-secondary" onclick="openSmartwatchModal()" style="padding: 6px 12px; font-size: 12px; background: rgba(255,255,255,0.1); color: #ffffff; border-color: rgba(255,255,255,0.2);">
+              <span>⚙️ Watch Controls</span>
+            </button>
+          </div>
         </div>
 
-        <!-- Delivery Address (Detected via GPS) -->
-        <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 16px;">
-          <span style="font-size: 11px; font-weight: 800; color: #475569; text-transform: uppercase;">📍 Delivery Destination:</span>
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
-            <div>
-              <strong style="color: #0f172a; font-size: 13px;">${loc.title}</strong>
-              <span style="display: block; font-size: 11px; color: #64748b;">Detected via live device sensors (${loc.lat.toFixed(4)}° N, ${loc.lng.toFixed(4)}° E)</span>
+        <!-- Live Vitals Sort & Filter Toolbar -->
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 14px;">
+          <span style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;">
+            Sort &amp; Inspect Live Details:
+          </span>
+          <div class="vitals-sort-pills" id="today-vitals-sort-pills">
+            <button type="button" class="vitals-sort-btn active" data-sort="all" onclick="sortSmartwatchMetrics('all')">All Live Details</button>
+            <button type="button" class="vitals-sort-btn" data-sort="hr" onclick="sortSmartwatchMetrics('hr')">❤️ Heart Rate &amp; Pulse</button>
+            <button type="button" class="vitals-sort-btn" data-sort="walk" onclick="sortSmartwatchMetrics('walk')">👟 Walk Distance &amp; Steps</button>
+            <button type="button" class="vitals-sort-btn" data-sort="hrv" onclick="sortSmartwatchMetrics('hrv')">⚡ HRV &amp; Stress</button>
+            <button type="button" class="vitals-sort-btn" data-sort="calories" onclick="sortSmartwatchMetrics('calories')">🔥 Active Burn</button>
+          </div>
+        </div>
+
+        <!-- Live Telemetry Grid -->
+        <div class="smartwatch-vitals-grid" id="today-smartwatch-grid">
+          <!-- Metric 1: Heart Rate -->
+          <div class="smartwatch-metric-card" id="card-metric-hr" data-metric="hr">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 11px; font-weight: 800; color: #f43f5e; text-transform: uppercase;">❤️ Live Heart Rate</span>
+              <span class="watch-live-dot" style="background: #94a3b8; box-shadow: none;"></span>
             </div>
-            <span style="font-size: 10px; font-weight: 700; background: #ecfdf5; color: #059669; padding: 2px 8px; border-radius: 4px;">
-              ● Live Verified
-            </span>
+            <div class="metric-value-huge" style="color: #ffffff;">
+              <span id="metric-today-hr">0</span>
+              <span class="metric-unit">BPM</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 11px; color: #94a3b8;" id="metric-today-hr-status">
+              <span>No Live Pulse</span>
+              <span id="metric-today-hr-zone" style="background: rgba(255,255,255,0.1); padding: 1px 6px; border-radius: 4px; color: #94a3b8;">Disconnected</span>
+            </div>
+          </div>
+
+          <!-- Metric 2: Walking & Steps -->
+          <div class="smartwatch-metric-card" id="card-metric-walk" data-metric="walk">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 11px; font-weight: 800; color: #10b981; text-transform: uppercase;">👟 Walk Distance &amp; Steps</span>
+              <span style="font-size: 11px; color: #94a3b8;" id="metric-today-walk-km">0.00 km</span>
+            </div>
+            <div class="metric-value-huge" style="color: #ffffff;">
+              <span id="metric-today-steps">0</span>
+              <span class="metric-unit">Steps</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 11px; color: #94a3b8;" id="metric-today-cadence">
+              <span>Cadence: 0 spm</span>
+              <span style="color: #94a3b8;">0% of Goal</span>
+            </div>
+          </div>
+
+          <!-- Metric 3: Active Calories -->
+          <div class="smartwatch-metric-card" id="card-metric-cal" data-metric="calories">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 11px; font-weight: 800; color: #fbbf24; text-transform: uppercase;">🔥 Active Caloric Burn</span>
+              <span style="font-size: 11px; color: #94a3b8;">Target: 600</span>
+            </div>
+            <div class="metric-value-huge" style="color: #ffffff;">
+              <span id="metric-today-cal">0</span>
+              <span class="metric-unit">kcal</span>
+            </div>
+            <div style="font-size: 11px; color: #94a3b8;">
+              Awaiting watch telemetry sync
+            </div>
+          </div>
+
+          <!-- Metric 4: HRV & Autonomic Recovery -->
+          <div class="smartwatch-metric-card" id="card-metric-hrv" data-metric="hrv">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 11px; font-weight: 800; color: #818cf8; text-transform: uppercase;">⚡ Autonomic HRV &amp; Stress</span>
+              <span style="font-size: 11px; color: #94a3b8;" id="metric-today-stress">Stress: 0/100</span>
+            </div>
+            <div class="metric-value-huge" style="color: #ffffff;">
+              <span id="metric-today-hrv">0</span>
+              <span class="metric-unit">ms</span>
+            </div>
+            <div style="font-size: 11px; color: #94a3b8;" id="metric-today-hrv-status">
+              Connect watch to measure autonomic HRV
+            </div>
           </div>
         </div>
 
-        <!-- Strict Clean Kitchen Guarantee Checklist -->
-        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 16px;">
-          <span style="font-size: 11px; font-weight: 800; color: #059669; text-transform: uppercase;">🛡️ Clean Preparation Checklist:</span>
-          <ul style="margin: 6px 0 0; padding-left: 20px; font-size: 12px; color: #334155; line-height: 1.5;">
-            <li>✓ Zero hydrogenated palm oil or trans fats</li>
-            <li>✓ Free of artificial food coloring and synthetic MSG</li>
-            <li>✓ Naturally low in sodium with mineral-rich Himalayan rock salt</li>
-            <li>✓ Packaged in biodegradable, food-grade eco-boxes</li>
-          </ul>
-        </div>
-
-        <!-- Price Breakdown -->
-        <div style="padding: 10px 0; border-top: 1px dashed var(--border); border-bottom: 1px dashed var(--border); margin-bottom: 18px; font-size: 13px;">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 4px; color: #475569;">
-            <span>Healthy Meal Subtotal</span>
-            <span>₹${meal.price}</span>
-          </div>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 4px; color: #475569;">
-            <span>Clean Kitchen Packaging & Dispatch</span>
-            <span style="color: #059669; font-weight: 700;">FREE (PranaFit Special)</span>
-          </div>
-          <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 16px; color: #0f172a; margin-top: 8px;">
-            <span>Total Payable:</span>
-            <span>₹${meal.price}</span>
-          </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <!-- Dynamic Personalization Verdict from Live Watch Telemetry -->
+        <div style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: var(--radius-md); padding: 12px 16px; margin-top: 14px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="font-size: 20px;">💡</span>
           <div>
-            <span style="font-size: 11px; font-weight: 800; color: #059669;">
-              🎁 +25 Green Points awarded on confirmation!
-            </span>
-          </div>
-          <div style="display: flex; gap: 10px; align-items: center;">
-            <button class="modal-close-btn" onclick="closeHealthyOrderModal()">
-              <span>✕ Cancel / Close</span>
-            </button>
-            <button class="btn-primary" onclick="confirmHealthyOrder('${meal.id}')" style="background: #059669; padding: 10px 22px; font-weight: 800;">
-              <span>🛵 Confirm & Dispatch Rider</span>
-            </button>
+            <strong style="color: #34d399; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; display: block;" id="today-adaptation-headline">
+              Personalized Plan Calibration Based on Live Smartwatch Data:
+            </strong>
+            <p style="font-size: 12px; color: #e2e8f0; margin: 4px 0 0; line-height: 1.5;" id="today-adaptation-text">
+              Resting heart rate (74 BPM) and healthy HRV (62 ms) confirm strong recovery. Daily mobility is at 5.72 km (73% of target). Today's workout focuses on posture stabilization, while dinner emphasizes replenishing cellular glycogen.
+            </p>
           </div>
         </div>
       </div>
 
-      <!-- Live Order Tracking State (Initially Hidden) -->
-      <div id="order-step-tracking" style="display: none; text-align: center; padding: 20px 10px;">
-        <span style="font-size: 48px; display: block; margin-bottom: 8px;">🛵</span>
-        <span class="tag-badge tag-emerald" style="font-size: 12px; padding: 4px 12px;">Order Dispatched & Freshly Prepared</span>
-        <h3 style="font-family: var(--font-heading); font-size: 20px; font-weight: 800; color: #0f172a; margin: 10px 0 4px;">
-          ${meal.title}
+      <!-- TODAY'S DIRECT PROBLEM / SYMPTOM INPUT -->
+      <div class="card today-problem-box" id="today-direct-problem-card" style="margin-bottom: 20px; border-left: 4px solid var(--primary);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 20px;">✍️</span>
+            <div>
+              <strong style="font-size: 14px; color: #0f172a; display: block;">What is your primary health concern, symptom or physical discomfort today?</strong>
+              <span style="font-size: 11px; color: var(--text-muted);">Write any issue to generate a 2-option targeted action plan (Exercise & Food)</span>
+            </div>
+          </div>
+          <span class="tag-badge tag-emerald">Adaptive Daily Rx</span>
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;">
+          <input type="text" id="today-user-problem-input" class="input-field" placeholder="e.g. Lower back stiffness from long desk sitting, acid reflux after lunch, heavy head, low stamina, tight traps..." style="flex: 1; min-width: 260px;" onkeydown="if(event.key==='Enter') applyTodayUserProblem()" />
+          <button class="btn-primary" onclick="applyTodayUserProblem()" style="padding: 10px 18px; font-weight: 800; white-space: nowrap;">
+            <span>⚡ Synthesize 2-Option Plan</span>
+          </button>
+        </div>
+        <div class="today-chips-row">
+          <span style="font-size: 11px; font-weight: 700; color: #64748b; align-self: center;">Quick One-Tap:</span>
+          <button type="button" class="chip-btn" onclick="quickSetTodayProblem('Lower back stiffness from prolonged desk sitting')">🪑 Lower Back Strain</button>
+          <button type="button" class="chip-btn" onclick="quickSetTodayProblem('Tech-neck & cervical shoulder tightness')">💻 Tech-Neck Tension</button>
+          <button type="button" class="chip-btn" onclick="quickSetTodayProblem('Severe acid reflux burning sensation & stomach bloating')">🔥 Acidity & Bloat</button>
+          <button type="button" class="chip-btn" onclick="quickSetTodayProblem('Depleted energy, low stamina and adrenal fatigue')">⚡ Low Stamina / Fatigue</button>
+          <button type="button" class="chip-btn" onclick="quickSetTodayProblem('Knee joint ache when walking or taking stairs')">🦵 Knee Joint Ache</button>
+          <button type="button" class="chip-btn" onclick="quickSetTodayProblem('Disrupted sleep recovery and morning brain fog')">🌙 Sleep Deficit</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom: 24px;">
+        <div class="grid-2" style="margin-bottom: 0;">
+          <!-- Energy -->
+          <div>
+            <label class="filter-label">1. Current Energy Level</label>
+            <div class="btn-chip-group">
+              <button class="chip-btn" data-group="energy" data-val="low">🔋 Depleted / Low</button>
+              <button class="chip-btn active" data-group="energy" data-val="moderate">⚡ Steady / Moderate</button>
+              <button class="chip-btn" data-group="energy" data-val="peak">🚀 Peak Stamina</button>
+            </div>
+          </div>
+
+          <!-- Soreness -->
+          <div>
+            <label class="filter-label">2. Physical Soreness / Desk Slouch</label>
+            <div class="btn-chip-group">
+              <button class="chip-btn" data-group="soreness" data-val="none">✨ Zero Soreness</button>
+              <button class="chip-btn active" data-group="soreness" data-val="neck_shoulders">💻 Tech-Neck & Traps</button>
+              <button class="chip-btn" data-group="soreness" data-val="lower_back">🪑 Lower Back Tightness</button>
+              <button class="chip-btn" data-group="soreness" data-val="legs">🦵 Legs & Knees</button>
+            </div>
+          </div>
+
+          <!-- Sleep -->
+          <div>
+            <label class="filter-label">3. Last Night's Sleep</label>
+            <div class="btn-chip-group">
+              <button class="chip-btn" data-group="sleep" data-val="less_5">🥱 Under 5 hrs</button>
+              <button class="chip-btn active" data-group="sleep" data-val="6_7">🛌 6–7 hrs (Fair)</button>
+              <button class="chip-btn" data-group="sleep" data-val="8_plus">🌟 8+ hrs Deep Rest</button>
+            </div>
+          </div>
+
+          <!-- Stress & Available Time -->
+          <div>
+            <label class="filter-label">4. Mental Stress & 5. Time Window</label>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <div class="btn-chip-group">
+                <button class="chip-btn" data-group="stress" data-val="calm">🧘 Calm</button>
+                <button class="chip-btn active" data-group="stress" data-val="work_stress">📈 High Work Stress</button>
+              </div>
+              <div class="btn-chip-group" style="margin-left: 8px;">
+                <button class="chip-btn" data-group="time" data-val="10">⏱️ 10 min</button>
+                <button class="chip-btn active" data-group="time" data-val="20">⏱️ 20 min</button>
+                <button class="chip-btn" data-group="time" data-val="35">⏱️ 35 min</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OPTIONAL HEALTH PROFILE & VITALS CARD (Age, Height, Weight) -->
+      <div class="card" id="today-profile-card" style="margin-bottom: 24px; border: 1px solid var(--accent-border); background: linear-gradient(135deg, #fbfbfe, #ffffff);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 8px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="tag-badge tag-indigo">Health Biometrics</span>
+            <span class="optional-pill">Optional / Non-Compulsory</span>
+          </div>
+          <button class="btn-secondary" id="btn-toggle-profile-card" onclick="toggleProfileCardCollapse()" style="padding: 4px 10px; font-size: 11px;">
+            <span id="profile-collapse-indicator">Collapse Form</span>
+          </button>
+        </div>
+
+        <h3 style="font-family: var(--font-heading); font-size: 18px; font-weight: 800; color: #0f172a; margin-bottom: 4px;">
+          Optional Health Vitals & Profile (Age, Height, Weight)
         </h3>
-        <p style="font-size: 13px; color: #475569; margin: 0 0 16px;">
-          Rider Ramesh is on his way from <strong>${meal.kitchenName}</strong> to <strong>${loc.title}</strong>.
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">
+          <strong>Not compulsory:</strong> You may leave this blank or fill it anytime. Providing your age, height, and weight enables PranaFit to calculate your exact Body Mass Index (BMI), Basal Metabolic Rate (BMR), daily hydration liters, and customized caloric targets.
         </p>
 
-        <div style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: var(--radius-lg); padding: 18px; margin-bottom: 20px;">
-          <span style="font-size: 11px; font-weight: 800; color: #065f46; text-transform: uppercase;">Estimated Arrival</span>
-          <div id="order-eta-countdown" style="font-family: var(--font-heading); font-size: 32px; font-weight: 800; color: #047857; margin: 4px 0;">
-            ${meal.baseDeliveryMins} Mins
+        <!-- Form fields wrapper -->
+        <div id="profile-fields-wrapper">
+          <div class="grid-3" style="margin-bottom: 12px;">
+            <!-- Age -->
+            <div class="form-group">
+              <label class="form-label" for="profile-age">
+                <span>🎂 Age (Years)</span>
+                <span class="optional-pill">Optional</span>
+              </label>
+              <input type="number" id="profile-age" class="input-field" placeholder="e.g. 25" min="10" max="110" oninput="onProfileInputChanged('inline')" />
+              <span class="input-helper">Used for age-adjusted metabolic rate</span>
+            </div>
+
+            <!-- Height -->
+            <div class="form-group">
+              <label class="form-label" for="profile-height">
+                <span>📏 Height (cm)</span>
+                <span id="height-ft-preview" class="optional-pill">-- ft -- in</span>
+              </label>
+              <input type="number" id="profile-height" class="input-field" placeholder="e.g. 170" min="90" max="250" oninput="onProfileInputChanged('inline')" />
+              <span class="input-helper">e.g. 170 cm is approx 5'7"</span>
+            </div>
+
+            <!-- Weight -->
+            <div class="form-group">
+              <label class="form-label" for="profile-weight">
+                <span>⚖️ Weight (kg)</span>
+                <span class="optional-pill">Optional</span>
+              </label>
+              <input type="number" id="profile-weight" class="input-field" placeholder="e.g. 68" min="25" max="300" step="0.5" oninput="onProfileInputChanged('inline')" />
+              <span class="input-helper">Used for BMI & daily water target</span>
+            </div>
           </div>
-          <p style="font-size: 12px; color: #166534; margin: 0;">
-            ✓ Steam insulation sealed • Freshly plated according to clean clinical standards
-          </p>
+
+          <div class="grid-2" style="margin-bottom: 16px;">
+            <!-- Activity Level -->
+            <div class="form-group">
+              <label class="form-label" for="profile-activity">
+                <span>🏃 Daily Activity Level</span>
+                <span class="optional-pill">Optional</span>
+              </label>
+              <select id="profile-activity" class="input-field" onchange="onProfileInputChanged('inline')">
+                <option value="sedentary">Sedentary (Desk job, minimal exercise)</option>
+                <option value="light">Lightly Active (1–3 days light walks/yoga)</option>
+                <option value="moderate" selected>Moderately Active (3–5 workouts/week)</option>
+                <option value="active">Very Active (6–7 days intense training/sports)</option>
+              </select>
+            </div>
+
+            <!-- Health Goal -->
+            <div class="form-group">
+              <label class="form-label" for="profile-goal">
+                <span>🎯 Primary Wellness Target</span>
+                <span class="optional-pill">Optional</span>
+              </label>
+              <select id="profile-goal" class="input-field" onchange="onProfileInputChanged('inline')">
+                <option value="energy" selected>Vitality, Energy & Posture</option>
+                <option value="fat_loss">Healthy Fat Loss & Metabolic Deficit</option>
+                <option value="muscle">Muscle Tone & Lean Strength</option>
+                <option value="hormonal">Endocrine, Thyroid & Hormonal Balance</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid-2" style="margin-bottom: 16px;">
+            <!-- Dietary Preference -->
+            <div class="form-group">
+              <label class="form-label" for="profile-diet">
+                <span>🥗 Dietary Preference</span>
+                <span class="optional-pill">Food Protocol</span>
+              </label>
+              <select id="profile-diet" class="input-field" onchange="onProfileDietChanged('inline')">
+                <option value="veg" selected>🥗 Vegetarian (Vegetables, Grains, Dals, Dairy)</option>
+                <option value="nonveg">🍗 Non-Vegetarian (Lean Chicken, Fish, Eggs)</option>
+                <option value="vegan">🌱 100% Plant-Based Vegan (Dairy-Free)</option>
+                <option value="fasting">🪔 Fasting / Vrat Mode (Intermittent / Sacred)</option>
+              </select>
+            </div>
+
+            <!-- Fasting Protocol (shown when Fasting is selected) -->
+            <div class="form-group" id="profile-fasting-group" style="display: none;">
+              <label class="form-label" for="profile-fasting-type">
+                <span>🪔 Fasting Protocol</span>
+                <span class="optional-pill">Fasting / Vrat</span>
+              </label>
+              <select id="profile-fasting-type" class="input-field" onchange="onProfileFastingTypeChanged('inline')">
+                <option value="intermittent" selected>⏳ 16:8 Intermittent Fasting (12 PM–8 PM feeding)</option>
+                <option value="vrat_ekadashi">🪔 Sacred Vrat / Ekadashi Fast (Phalahari)</option>
+                <option value="navratri_phalahar">🍎 Fruit Fast (Alkaline Phalahar & Coconut Water)</option>
+                <option value="water_detox">💧 Liquid & Herbal Water Detox (Zero Solid Food)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Live Metrics Strip (updates dynamically when values are typed) -->
+          <div id="profile-live-metrics" class="metric-strip" style="display: none; margin-bottom: 16px;">
+            <!-- Injected dynamically via script.js -->
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding-top: 12px; border-top: 1px solid var(--border);">
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button class="btn-primary" onclick="saveProfileFromUI('inline')">
+                <span>💾 Save Health Vitals (+20 Pts)</span>
+              </button>
+              <button class="btn-secondary" onclick="clearProfileData()">
+                <span>Clear Vitals</span>
+              </button>
+            </div>
+            <span id="profile-status-message" style="font-size: 12px; color: var(--text-muted);">
+              Data is stored securely in your browser's local storage.
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TODAY'S 2-OPTION MASTER ACTION PORTAL (EXERCISE & FOOD) -->
+      <div id="today-two-options-portal" class="today-portal-container">
+        <!-- Control Header & Tab Pills -->
+        <div class="today-merge-controller-bar">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 18px;">🎯</span>
+            <div>
+              <strong style="font-size: 13px; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px;">Today's 2-Option Prescriptions:</strong>
+              <span id="today-portal-focus-subtitle" style="font-size: 11px; color: #64748b; display: block;">Calibrated for your energy, vitals &amp; daily symptom</span>
+            </div>
+          </div>
+          
+          <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+            <div style="background: rgba(255,255,255,0.9); border: 1px solid #cbd5e1; border-radius: var(--radius-full); padding: 3px; display: flex; gap: 4px;">
+              <button type="button" class="today-option-pill-btn active" id="btn-today-tab-exercise" onclick="switchTodayOption('exercise')">
+                <span>🧘 Option 1: Exercise &amp; Movement</span>
+              </button>
+              <button type="button" class="today-option-pill-btn food-pill" id="btn-today-tab-food" onclick="switchTodayOption('food')">
+                <span>🥗 Option 2: Food &amp; Nutrition</span>
+              </button>
+            </div>
+            <button type="button" class="btn-secondary" id="btn-today-toggle-merge" onclick="toggleTodayOptionsMerge()" style="padding: 6px 12px; font-size: 11px; font-weight: 800;">
+              <span id="today-merge-toggle-text">🙈 Hide Details (Merge View)</span>
+            </button>
+          </div>
         </div>
 
-        <button class="modal-close-btn" onclick="closeHealthyOrderModal()" style="padding: 10px 28px; font-size: 13px; font-weight: 800;">
-          <span>✕ Done & Close Tracking</span>
+        <!-- Merged Compact View (Shown when user wants merged / hidden view) -->
+        <div id="today-merged-summary-view" class="today-merge-summary-grid" style="display: none;">
+          <div class="today-merge-card" style="border-left: 4px solid #10b981;">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <strong style="font-size: 14px; color: #065f46;">🧘 Option 1: Exercise &amp; Movement</strong>
+                <span class="tag-badge tag-emerald">Targeted Daily Flow</span>
+              </div>
+              <p id="today-merged-exercise-text" style="font-size: 12px; color: #334155; line-height: 1.5; margin: 0 0 10px;">
+                Tailored posture realignment, gentle spinal decompression, and animated yoga movements.
+              </p>
+            </div>
+            <button type="button" class="btn-primary" onclick="expandTodayOption('exercise')" style="padding: 6px 12px; font-size: 11px; width: 100%; justify-content: center;">
+              <span>👁️ View Full Exercise Plan &amp; Animations →</span>
+            </button>
+          </div>
+
+          <div class="today-merge-card" style="border-left: 4px solid #0284c7;">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <strong style="font-size: 14px; color: #075985;">🥗 Option 2: Food &amp; Nutrition (What to Eat &amp; Avoid)</strong>
+                <span class="tag-badge tag-blue">Targeted Meals</span>
+              </div>
+              <p id="today-merged-food-text" style="font-size: 12px; color: #334155; line-height: 1.5; margin: 0 0 10px;">
+                Cellular replenishment meals, therapeutic superfoods, foods to strictly avoid &amp; hydration targets.
+              </p>
+            </div>
+            <button type="button" class="btn-secondary" onclick="expandTodayOption('food')" style="padding: 6px 12px; font-size: 11px; width: 100%; justify-content: center; border-color: #38bdf8; color: #0284c7;">
+              <span>👁️ View Full Food &amp; Avoid Plan →</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Detailed Option Panes (Shown when not merged) -->
+        <div id="today-detailed-panes-wrapper">
+          <!-- PANE 1: EXERCISE -->
+          <div id="today-pane-exercise" class="today-option-pane">
+            <div id="today-prescription-output" class="prescription-box" style="margin-bottom: 16px;"></div>
+            <div id="what-to-do-next-output"></div>
+            <div id="daily-yoga-plan-container"></div>
+          </div>
+
+          <!-- PANE 2: FOOD & WHAT TO EAT / AVOID -->
+          <div id="today-pane-food" class="today-option-pane" style="display: none;">
+            <div id="today-food-prescription-output" style="margin-bottom: 16px;"></div>
+            <div id="daily-food-plan-container"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SHORTCUT BANNER TO SPECIFIC PROBLEM HEALER -->
+      <div class="problem-healer-shortcut-card" onclick="switchTab('problem_healer')" style="margin-top: 24px; cursor: pointer;">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+          <div style="display: flex; align-items: center; gap: 14px;">
+            <div class="shortcut-icon-bubble" style="font-size: 32px; background: #ffe4e6; width: 54px; height: 54px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fda4af;">🩺</div>
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <span class="tag-badge tag-rose">AI Symptom & Disease Analyzer</span>
+                <span class="tag-badge tag-emerald">🎁 +30 Green Points</span>
+              </div>
+              <h3 style="font-family: var(--font-heading); font-size: 17px; font-weight: 800; color: #0f172a; margin: 4px 0 2px;">
+                Have a Specific Health Issue? (Back Pain, Acidity, PCOS, Neck Strain, Insomnia...)
+              </h3>
+              <p style="font-size: 13px; color: #475569; margin: 0;">
+                Describe your symptoms to get a root-cause diagnosis, targeted foods to eat & avoid, animated therapeutic exercises, and clinical healing measures.
+              </p>
+            </div>
+          </div>
+          <button class="btn-primary" style="padding: 10px 18px; font-size: 13px; white-space: nowrap; pointer-events: none;">
+            <span>Open Problem Healer & Rx →</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB: SYMPTOM & PROBLEM HEALER -->
+    <section id="tab-problem_healer" class="tab-content">
+      <div class="section-banner">
+        <div>
+          <span class="tag-badge tag-rose">Clinical & Ayurvedic Healing Synthesis</span>
+          <h2 class="section-title">Symptom & Problem Healer: Targeted Rx & Recovery Blueprint</h2>
+          <p class="section-subtitle">
+            Describe any acute or chronic physical issue. PranaFit analyzes the anatomical and doshic root cause, prescribing precisely what to eat, what to eliminate, animated therapeutic exercises, and actionable healing measures.
+          </p>
+        </div>
+      </div>
+
+      <!-- Problem Input & Preset Selection Card -->
+      <div class="card problem-intake-card" style="margin-bottom: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px;">
+              <span class="tag-badge tag-rose">Clinical Problem Intake</span>
+              <span class="tag-badge tag-indigo">Multi-Factor Diagnostic</span>
+            </div>
+            <h3 style="font-family: var(--font-heading); font-size: 20px; font-weight: 800; color: #0f172a; margin: 0;">
+              Describe Your Health Issue, Symptoms & Discomfort
+            </h3>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-secondary" id="btn-problem-voice" onclick="toggleProblemVoiceDictation()" style="padding: 6px 12px; font-size: 12px;" title="Dictate with voice">
+              🎤 Voice Dictate
+            </button>
+            <button class="btn-secondary" onclick="clearProblemInput()" style="padding: 6px 12px; font-size: 12px;">
+              🧹 Clear
+            </button>
+          </div>
+        </div>
+
+        <!-- Problem Input Textarea -->
+        <div style="margin-bottom: 16px;">
+          <textarea id="problem-input-text" class="problem-textarea" rows="3" placeholder="Describe your exact issue, symptoms, location and triggers (e.g. 'Sharp lower back pain after sitting at desk, radiating into right glute with morning stiffness' or 'Severe acid reflux burning throat after dinner with bloating' or 'PCOS with irregular periods, acne, and stubborn weight gain' or 'Knee joint clicking and aching when taking stairs')..."></textarea>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-size: 12px; color: #64748b;">
+            <span>💡 Mention pain location, triggers, duration, digestion, or stress for maximum precision.</span>
+            <span id="problem-char-count">0 / 500</span>
+          </div>
+        </div>
+
+        <!-- MEDICAL REPORT & FILE UPLOAD ZONE (PDF, PHOTOS, LAB TESTS) -->
+        <div class="report-upload-container" id="problem-file-upload-zone" onclick="triggerReportFileBrowser()" ondragover="handleReportDragOver(event)" ondragleave="handleReportDragLeave(event)" ondrop="handleReportDrop(event)">
+          <input type="file" id="report-file-input" accept=".pdf,image/*,.png,.jpg,.jpeg,.webp" onchange="handleReportFileUpload(event)" style="display: none;" />
+          
+          <div class="report-upload-icon-bubble">
+            <span>📄</span>
+          </div>
+          <h4 style="font-family: var(--font-heading); font-size: 16px; font-weight: 800; color: #0f172a; margin: 0 0 4px;">
+            Attach or Drop Medical Report, Pathology PDF or Photo
+          </h4>
+          <p style="font-size: 12px; color: #64748b; margin: 0 0 12px; max-width: 540px; margin-inline: auto;">
+            Upload Blood Tests (Lipid, HbA1c, Thyroid, Vitamin D), Doctor Prescription, MRI / X-Ray, or photo. Our engine performs real-time clinical analysis and displays recommendations directly below.
+          </p>
+          
+          <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;" onclick="event.stopPropagation()">
+            <button type="button" class="btn-primary" onclick="triggerReportFileBrowser()" style="padding: 7px 16px; font-size: 12px; font-weight: 800;">
+              <span>📁 Browse PDF / File</span>
+            </button>
+            <button type="button" class="btn-secondary" onclick="triggerReportCameraCapture()" style="padding: 7px 16px; font-size: 12px;">
+              <span>📷 Capture / Photo</span>
+            </button>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <button type="button" class="btn-secondary" onclick="loadSampleReport('lipid')" style="padding: 5px 10px; font-size: 11px; border-color: #cbd5e1;" title="Simulate a lipid profile report">
+                <span>🩸 Sample Lipid</span>
+              </button>
+              <button type="button" class="btn-secondary" onclick="loadSampleReport('diabetes')" style="padding: 5px 10px; font-size: 11px; border-color: #cbd5e1;" title="Simulate a diabetic HbA1c report">
+                <span>📊 Sample HbA1c</span>
+              </button>
+              <button type="button" class="btn-secondary" onclick="loadSampleReport('mri_lumbar')" style="padding: 5px 10px; font-size: 11px; border-color: #cbd5e1;" title="Simulate lumbar spine MRI">
+                <span>🪑 Sample MRI</span>
+              </button>
+              <button type="button" class="btn-secondary" onclick="loadSampleReport('thyroid')" style="padding: 5px 10px; font-size: 11px; border-color: #cbd5e1;" title="Simulate thyroid report">
+                <span>🦋 Sample Thyroid</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Uploaded File Preview Badge & Status -->
+          <div id="report-file-preview" style="display: none;" onclick="event.stopPropagation()">
+            <!-- Rendered dynamically by script.js -->
+          </div>
+
+          <!-- DIRECT RECOMMENDATIONS DISPLAYED IMMEDIATELY BELOW THE REPORT -->
+          <div id="report-direct-recommendations" style="display: none; margin-top: 16px; text-align: left;" onclick="event.stopPropagation()">
+            <!-- Full clinical recommendations rendered directly below uploaded file -->
+          </div>
+        </div>
+
+        <!-- Patient Dietary Healing Mode (For tailoring therapeutic nutrition) -->
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-lg); padding: 12px 16px; margin-bottom: 18px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
+            <span style="font-size: 11px; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">
+              🥗 Patient Dietary Preference (Tailors what to eat & avoid):
+            </span>
+            <span id="healer-diet-badge" style="font-size: 11px; font-weight: 700; color: #047857; background: #ecfdf5; padding: 2px 8px; border-radius: 999px;">
+              Active: Vegetarian
+            </span>
+          </div>
+          <div class="diet-tabs-strip" id="healer-diet-chips">
+            <button type="button" class="diet-tab-btn active" data-diet="veg" onclick="setHealerDiet('veg')">🥗 Vegetarian</button>
+            <button type="button" class="diet-tab-btn" data-diet="nonveg" onclick="setHealerDiet('nonveg')">🍗 Non-Vegetarian</button>
+            <button type="button" class="diet-tab-btn" data-diet="vegan" onclick="setHealerDiet('vegan')">🌱 100% Plant-Based Vegan</button>
+            <button type="button" class="diet-tab-btn" data-diet="fasting" onclick="setHealerDiet('fasting')">🪔 Fasting / Vrat Mode</button>
+          </div>
+
+          <!-- Fasting Protocol Sub-strip for Healer (visible when fasting is selected) -->
+          <div id="healer-fasting-subtypes" class="fasting-subtypes-strip" style="display: none; margin-top: 8px;">
+            <span style="font-size: 11px; font-weight: 700; color: #92400e;">🪔 Fasting Protocol:</span>
+            <button type="button" class="fasting-subtype-btn active" data-fasting="intermittent" onclick="setHealerFastingType('intermittent')">⏳ 16:8 Intermittent Fasting</button>
+            <button type="button" class="fasting-subtype-btn" data-fasting="vrat_ekadashi" onclick="setHealerFastingType('vrat_ekadashi')">🪔 Sacred Vrat / Ekadashi</button>
+            <button type="button" class="fasting-subtype-btn" data-fasting="navratri_phalahar" onclick="setHealerFastingType('navratri_phalahar')">🍎 Fruit Fast (Phalahar)</button>
+            <button type="button" class="fasting-subtype-btn" data-fasting="water_detox" onclick="setHealerFastingType('water_detox')">💧 Liquid & Water Detox</button>
+          </div>
+        </div>
+
+        <!-- Analyze Action Button -->
+        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+          <button class="btn-primary" id="btn-analyze-problem" onclick="triggerProblemAnalysis()" style="padding: 12px 24px; font-size: 14px; font-weight: 800;">
+            <span>🔬 Analyze &amp; Generate Dynamic Web Healing Blueprint</span>
+          </button>
+          <span style="font-size: 12px; color: #059669; font-weight: 700;">🎁 Awards +100 Green Points &amp; updates all sections in real-time</span>
+        </div>
+      </div>
+
+      <!-- Problem Healing Protocol Output Container -->
+      <div id="problem-healing-output">
+        <!-- Rendered dynamically via renderProblemHealingProtocol() in script.js -->
+      </div>
+    </section>
+
+    <!-- TAB 2: NEARBY HEALTHY FOOD ORDERS & GEOLOCATION DINING -->
+    <section id="tab-nearby_healthy_food" class="tab-content">
+      <div class="healthy-food-banner">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+              <span class="tag-badge" style="background: rgba(255,255,255,0.2); color: #ffffff; border: 1px solid rgba(255,255,255,0.3);">
+                📍 Live Geolocation Health Dining
+              </span>
+              <span class="tag-badge" style="background: #10b981; color: #ffffff;">
+                🛡️ Healthy Food Order Recommendations Only
+              </span>
+            </div>
+            <h2 style="font-family: var(--font-heading); font-size: 26px; font-weight: 800; color: #ffffff; margin: 4px 0 6px;">
+              Nearby Healthy Food Orders & Clean Kitchens
+            </h2>
+            <p style="font-size: 13px; color: #d1fae5; line-height: 1.5; margin: 0; max-width: 820px;">
+              Auto-detects your live coordinates to locate verified healthy kitchens, organic cafes & clean meal prep hubs near you. 
+              <strong>Zero junk, zero deep-fried, zero added refined sugars.</strong> Every meal is scored and recommended specifically for your active health condition and smartwatch vitals!
+            </p>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn-primary" onclick="detectUserLocation(true)" style="background: #ffffff; color: #065f46; font-weight: 800; border: none; padding: 10px 18px;">
+              <span>📍 Detect My Live Location</span>
+            </button>
+            <button class="btn-primary" onclick="triggerDynamicInternetFoodAnalysis()" id="btn-internet-food-analyze" style="background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; font-weight: 800; border: none; padding: 10px 18px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);">
+              <span>🌐 Real-Time Internet Food Analysis</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Live Detected Location Strip -->
+        <div class="location-detector-strip" id="nearby-location-bar">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 24px;">📍</span>
+            <div>
+              <strong style="color: #ffffff; font-size: 14px;" id="nearby-detected-location-title">
+                Indiranagar, Bengaluru (12.9716° N, 77.5946° E)
+              </strong>
+              <span style="display: block; font-size: 11px; color: #a7f3d0;" id="nearby-detected-coords-sub">
+                ● Live High-Precision GPS Active • Locating within 5 km radius
+              </span>
+            </div>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <label for="select-nearby-city" style="font-size: 11px; font-weight: 700; color: #d1fae5;">Or Choose City / Area:</label>
+            <select id="select-nearby-city" class="input-field" onchange="onManualLocationSelect(this.value)" style="padding: 5px 12px; font-size: 12px; background: rgba(255,255,255,0.9); color: #0f172a; border-radius: var(--radius-md); font-weight: 700; width: auto;">
+              <option value="bengaluru_indiranagar" selected>📍 Bengaluru - Indiranagar / Koramangala</option>
+              <option value="bengaluru_hsr">📍 Bengaluru - HSR Layout / Whitefield</option>
+              <option value="mumbai_bandra">📍 Mumbai - Bandra West / Khar</option>
+              <option value="mumbai_andheri">📍 Mumbai - Andheri / Powai / BKC</option>
+              <option value="delhi_cp">📍 Delhi NCR - Connaught Place / South Ext</option>
+              <option value="delhi_gurgaon">📍 Delhi NCR - Gurgaon CyberCity / Golf Course</option>
+              <option value="hyderabad_gachibowli">📍 Hyderabad - Gachibowli / Hitec City</option>
+              <option value="hyderabad_jubilee">📍 Hyderabad - Jubilee Hills / Banjara Hills</option>
+              <option value="chennai_adyar">📍 Chennai - Adyar / Besant Nagar</option>
+              <option value="chennai_tnagar">📍 Chennai - T. Nagar / Alwarpet</option>
+              <option value="pune_koregaon">📍 Pune - Koregaon Park / Kalyani Nagar</option>
+              <option value="pune_baner">📍 Pune - Baner / Aundh / Hinjewadi</option>
+              <option value="kolkata_saltlake">📍 Kolkata - Salt Lake / Park Street</option>
+              <option value="ahmedabad_bodakdev">📍 Ahmedabad - Bodakdev / SG Highway</option>
+              <option value="jaipur_cscheme">📍 Jaipur - C-Scheme / Malviya Nagar</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Health Context Calibration Banner -->
+      <div class="card" style="margin-bottom: 20px; background: #ffffff; border-left: 5px solid #059669;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px;">
+              <span class="tag-badge tag-emerald">🩺 Calibrated to Your Active Health</span>
+              <span class="tag-badge tag-indigo" id="nearby-active-condition-badge">Lower Back Pain & Inflammation</span>
+              <span class="tag-badge tag-amber" id="nearby-diet-badge">🥗 Vegetarian</span>
+              <span class="tag-badge tag-blue" id="nearby-watch-badge">⌚ Watch: 74 BPM • 5.7 km Walked</span>
+            </div>
+            <h3 style="font-family: var(--font-heading); font-size: 16px; font-weight: 800; color: #0f172a; margin: 4px 0 2px;">
+              Prescription Food Target: <span id="nearby-prescription-summary" style="color: #059669; font-weight: 700;">Anti-inflammatory, low-glycemic, high-potassium nutrition</span>
+            </h3>
+            <p style="font-size: 12px; color: #475569; margin: 0;" id="nearby-prescription-detail">
+              We cross-referenced your health diagnostics and live smartwatch step exertion to strictly filter nearby meals that accelerate tissue repair, soothe digestive mucosa, and avoid pro-inflammatory seed oils.
+            </p>
+          </div>
+
+          <div style="text-align: right;">
+            <span style="font-size: 11px; font-weight: 800; color: #059669; background: #ecfdf5; padding: 4px 10px; border-radius: 999px;">
+              🎁 +25 Green Points per Healthy Order
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Strict Health Filter & Sorting Bar -->
+      <div class="card" style="margin-bottom: 24px; padding: 14px 18px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <!-- Dietary Filter -->
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <span style="font-size: 11px; font-weight: 800; color: #475569; text-transform: uppercase;">Diet:</span>
+            <div class="btn-chip-group" id="nearby-diet-filter-chips">
+              <button class="chip-btn active" data-diet="all" onclick="filterNearbyFood('diet', 'all')">All Diets</button>
+              <button class="chip-btn" data-diet="veg" onclick="filterNearbyFood('diet', 'veg')">🥗 Pure Veg / Sattvic</button>
+              <button class="chip-btn" data-diet="nonveg" onclick="filterNearbyFood('diet', 'nonveg')">🍗 Lean Protein</button>
+              <button class="chip-btn" data-diet="vegan" onclick="filterNearbyFood('diet', 'vegan')">🌱 100% Vegan</button>
+              <button class="chip-btn" data-diet="fasting" onclick="filterNearbyFood('diet', 'fasting')">🪔 Fasting Safe</button>
+            </div>
+          </div>
+
+          <!-- Health Goal Filter -->
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <span style="font-size: 11px; font-weight: 800; color: #475569; text-transform: uppercase;">Health Focus:</span>
+            <div class="btn-chip-group" id="nearby-goal-filter-chips">
+              <button class="chip-btn active" data-goal="all" onclick="filterNearbyFood('goal', 'all')">All Health Goals</button>
+              <button class="chip-btn" data-goal="anti_inflammatory" onclick="filterNearbyFood('goal', 'anti_inflammatory')">🔥 Anti-Inflammatory</button>
+              <button class="chip-btn" data-goal="low_gi" onclick="filterNearbyFood('goal', 'low_gi')">🩸 Low-GI / Blood Sugar</button>
+              <button class="chip-btn" data-goal="cardiac" onclick="filterNearbyFood('goal', 'cardiac')">🫀 Low-Sodium / Cardiac</button>
+              <button class="chip-btn" data-goal="gut_friendly" onclick="filterNearbyFood('goal', 'gut_friendly')">🦠 Gut & Acidity Relief</button>
+              <button class="chip-btn" data-goal="under_400" onclick="filterNearbyFood('goal', 'under_400')">⚡ Under 400 Kcal</button>
+            </div>
+          </div>
+
+          <!-- Sort Selector -->
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <label for="select-nearby-sort" style="font-size: 11px; font-weight: 700; color: #64748b;">Sort:</label>
+            <select id="select-nearby-sort" class="input-field" onchange="sortNearbyFood(this.value)" style="padding: 4px 10px; font-size: 11px; width: auto;">
+              <option value="health_match" selected>🎯 Highest Health Match %</option>
+              <option value="distance">📍 Nearest Distance (km)</option>
+              <option value="delivery_time">⏱️ Fastest Delivery Time</option>
+              <option value="protein">💪 Highest Protein</option>
+              <option value="calories_low">⚡ Lowest Calories</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Real-Time Internet Grounded Food Recommendations (Dynamic Live Feed) -->
+      <div id="live-internet-food-section" style="margin-bottom: 24px;">
+        <!-- Dynamically rendered by triggerDynamicInternetFoodAnalysis() -->
+      </div>
+
+      <!-- Healthy Food Order Recommendations Grid -->
+      <div class="nearby-food-grid" id="nearby-food-recommendations-grid">
+        <!-- Rendered dynamically via renderNearbyHealthyFoodOrders() in script.js -->
+      </div>
+
+      <!-- Strict Clean Food Quality Guarantee Banner -->
+      <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 1px solid #cbd5e1; border-radius: var(--radius-lg); padding: 18px 24px; margin-top: 32px; display: flex; align-items: center; gap: 16px;">
+        <span style="font-size: 32px;">🛡️</span>
+        <div>
+          <strong style="color: #0f172a; font-size: 14px; display: block;">
+            The PranaFit Clean Dining Standard & Health Guarantee
+          </strong>
+          <p style="font-size: 12px; color: #475569; margin: 4px 0 0; line-height: 1.5;">
+            Unlike standard commercial food delivery aggregators that promote high-calorie fried junk and sweet gravies, PranaFit's geolocation engine <strong>only</strong> recommends meals meeting clinical nutritional parameters: zero hydrogenated fats, zero synthetic food dyes, minimal sodium, and anti-inflammatory whole grains.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: PAN-INDIA REGIONAL NUTRITION & LOCATION SWAPS -->
+    <section id="tab-location_nutrition" class="tab-content">
+      <div class="section-banner">
+        <div>
+          <span class="tag-badge tag-blue">Pan-India Cultural Dietetics</span>
+          <h2 class="section-title">Location-Based Cultural Nutrition & Street Food Swaps</h2>
+          <p class="section-subtitle">
+            Covering all regions of India! Auto-detect your location or choose your regional diet to see clinically re-engineered street food swaps, native superfoods, and seasonal hydration.
+          </p>
+        </div>
+      </div>
+
+      <!-- Regional Switcher Bar -->
+      <div class="region-tabs" id="region-selector-bar">
+        <button class="region-btn active" data-region="north" onclick="setRegion('north')">🏔️ North India (Delhi, Punjab, UP)</button>
+        <button class="region-btn" data-region="west" onclick="setRegion('west')">🌊 West India (Mumbai, Guj, Raj)</button>
+        <button class="region-btn" data-region="south" onclick="setRegion('south')">🌴 South India (Bengaluru, Chennai, Hyd, Kerala)</button>
+        <button class="region-btn" data-region="east" onclick="setRegion('east')">🌾 East & North-East (Bengal, Odisha, Bihar)</button>
+        <button class="region-btn" data-region="central" onclick="setRegion('central')">🏛️ Central India (Indore, Bhopal, Malwa)</button>
+      </div>
+
+      <!-- Content dynamically injected via script.js -->
+      <div id="location-nutrition-content">
+        <!-- Rendered via renderLocationNutrition() -->
+      </div>
+    </section>
+
+    <!-- TAB 4: EMOTION-BASED KINETIC FITNESS & CAMERA SCANNER -->
+    <section id="tab-emotion" class="tab-content">
+      <div class="section-banner">
+        <div>
+          <span class="tag-badge tag-indigo">Bio-Feedback Kinetic AI</span>
+          <h2 class="section-title">Emotion-Based Kinetic Fitness & Facial Scanner</h2>
+          <p class="section-subtitle">
+            Scan subtle micro-tensions in your face and postural state to prescribe instant mood-shifting movements (stress relief, lethargy kickstarter, or focused flow).
+          </p>
+        </div>
+      </div>
+
+      <div class="card" style="text-align: center; max-width: 600px; margin: 0 auto 24px;">
+        <div class="camera-box" id="camera-container">
+          <video id="camera-video" playsinline muted autoplay></video>
+          <div class="camera-overlay" id="camera-overlay">
+            <div style="font-size: 38px; margin-bottom: 8px;">📷</div>
+            <strong style="font-size: 15px;">Ready for Facial Biometric Stress Scan</strong>
+            <p style="font-size: 11px; margin-top: 4px; color: #cbd5e1;">Uses native HTML5 camera feed locally in your browser. No data leaves your machine.</p>
+          </div>
+        </div>
+
+        <button class="btn-primary" id="btn-start-camera" onclick="startCameraScan()">
+          <span>🔍 Start Live Facial Tension Diagnostic</span>
+        </button>
+
+        <div id="mood-scan-result">
+          <!-- Dynamic results injected here -->
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: AI MICRO-GOALS ENGINE -->
+    <section id="tab-microgoals" class="tab-content">
+      <div class="section-banner">
+        <div>
+          <span class="tag-badge tag-emerald">Bite-Sized Habit Stacking</span>
+          <h2 class="section-title">AI Micro-Goals & 60s Countdown Resets</h2>
+          <p class="section-subtitle">
+            Micro-breaks that fit between meetings, classes, or study blocks. Complete 60 to 120-second guided mobility prompts to earn instant Green Points.
+          </p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <span class="tag-badge tag-emerald">60 Seconds</span>
+          <h3 style="font-family: var(--font-heading); font-size: 17px; font-weight: 800; color: #0f172a; margin: 4px 0;">
+            Desk Tech-Neck Wall Angels
+          </h3>
+          <p style="font-size: 12px; color: #475569; margin-bottom: 12px;">
+            Press your elbows and wrists against a wall and slide overhead. Immediately decompresses tight upper traps and opens chest wall.
+          </p>
+          <button class="btn-primary" onclick="startMicroGoal('wall_angels', 60, 'Wall Angels Posture Reset')">
+            <span>▶️ Start 60s Guided Timer (+15 Pts)</span>
+          </button>
+        </div>
+
+        <div class="card">
+          <span class="tag-badge tag-blue">60 Seconds</span>
+          <h3 style="font-family: var(--font-heading); font-size: 17px; font-weight: 800; color: #0f172a; margin: 4px 0;">
+            Calf Muscle Pump Desk Elevators
+          </h3>
+          <p style="font-size: 12px; color: #475569; margin-bottom: 12px;">
+            Stand and perform rapid calf raises. Activates the "secondary heart" of soleus muscles, pumping pooled venous blood back to the brain.
+          </p>
+          <button class="btn-primary" onclick="startMicroGoal('calf_pump', 60, 'Soleus Muscle Blood Return')">
+            <span>▶️ Start 60s Guided Timer (+15 Pts)</span>
+          </button>
+        </div>
+
+        <div class="card">
+          <span class="tag-badge tag-indigo">90 Seconds</span>
+          <h3 style="font-family: var(--font-heading); font-size: 17px; font-weight: 800; color: #0f172a; margin: 4px 0;">
+            4-7-8 Parasympathetic Cortisol Flush
+          </h3>
+          <p style="font-size: 12px; color: #475569; margin-bottom: 12px;">
+            Inhale 4s through nose, hold 7s, exhale 8s with whoosh sound. Rapidly slows racing heart rate and halts fight-or-flight panic loops.
+          </p>
+          <button class="btn-primary" onclick="startMicroGoal('breath_478', 90, '4-7-8 Cortisol Reset Breathing')">
+            <span>▶️ Start 90s Guided Timer (+15 Pts)</span>
+          </button>
+        </div>
+
+        <div class="card">
+          <span class="tag-badge tag-amber">120 Seconds</span>
+          <h3 style="font-family: var(--font-heading); font-size: 17px; font-weight: 800; color: #0f172a; margin: 4px 0;">
+            Glute Bridge & Hip Flexor Opener
+          </h3>
+          <p style="font-size: 12px; color: #475569; margin-bottom: 12px;">
+            Lie supine and drive through heels to elevate hips. Awakens dormant gluteus maximus muscles numbed from chairs.
+          </p>
+          <button class="btn-primary" onclick="startMicroGoal('glute_bridge', 120, 'Glute Activation & Hip Opener')">
+            <span>▶️ Start 120s Guided Timer (+15 Pts)</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 6: PREVENTIVE HEALTH RISK ALERTS -->
+    <section id="tab-preventive" class="tab-content">
+      <div class="section-banner">
+        <div>
+          <span class="tag-badge tag-rose">Clinical Early Detection</span>
+          <h2 class="section-title">Preventive Health Risk Alerts & Anomaly Checklists</h2>
+          <p class="section-subtitle">
+            Continuous algorithm monitoring your daily sedentary duration, post-meal glucose fatigue indicators, and resting heart rate variability.
+          </p>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div class="card" style="border-left: 4px solid #f43f5e;">
+          <span class="tag-badge tag-rose">Metabolic Alert</span>
+          <h3 style="font-size: 16px; font-weight: 800; color: #9f1239; margin-top: 4px;">Sedentary Insulin Resistance Risk</h3>
+          <p style="font-size: 12px; color: #475569; margin: 8px 0;">
+            Over 5.2 continuous hours logged seated today. Prolonged inactivity drops lipoprotein lipase enzyme activity by 90%.
+          </p>
+          <button class="btn-secondary" onclick="startMicroGoal('calf_pump', 60, 'Soleus Muscle Blood Return')">
+            <span>Take 60s Action</span>
+          </button>
+        </div>
+
+        <div class="card" style="border-left: 4px solid #d97706;">
+          <span class="tag-badge tag-amber">Posture Strain</span>
+          <h3 style="font-size: 16px; font-weight: 800; color: #92400e; margin-top: 4px;">Cervical Spine Forward Tilt</h3>
+          <p style="font-size: 12px; color: #475569; margin: 8px 0;">
+            Frequent downward head tilt creates up to 27 kg of sheer gravitational pressure on your C4-C7 cervical vertebrae.
+          </p>
+          <button class="btn-secondary" onclick="startMicroGoal('wall_angels', 60, 'Wall Angels Posture Reset')">
+            <span>Decompress Neck</span>
+          </button>
+        </div>
+
+        <div class="card" style="border-left: 4px solid #059669;">
+          <span class="tag-badge tag-emerald">Cardiovascular</span>
+          <h3 style="font-size: 16px; font-weight: 800; color: #065f46; margin-top: 4px;">Resting Heart Rate: 72 BPM</h3>
+          <p style="font-size: 12px; color: #475569; margin: 8px 0;">
+            Vitals are currently within ideal clinical range (60–80 BPM). Heart Rate Variability (HRV) indicates healthy recovery.
+          </p>
+          <button class="btn-secondary" onclick="simulateVitalsSpike()">
+            <span>Simulate Anomaly (>140 BPM)</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 7: WEARABLES & SLEEP SYNTHESIZER -->
+    <section id="tab-wearables" class="tab-content">
+      <div class="section-banner">
+        <div>
+          <span class="tag-badge tag-indigo">Smartwatch Telemetry & Sleep Lab</span>
+          <h2 class="section-title">Wearables Synchronization & Pure Audio Sleep Synth</h2>
+          <p class="section-subtitle">
+            Connect live telemetry from your Bluetooth smartwatch (Apple Watch, Wear OS, Garmin, Fitbit, Samsung Galaxy) or run high-fidelity physiological simulator to dynamically adapt workouts, nutrition, and sleep soundscapes.
+          </p>
+        </div>
+      </div>
+
+      <!-- Smartwatch Bluetooth Connection & Live Telemetry Hub -->
+      <div class="card" style="margin-bottom: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--border);">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+              <span class="tag-badge tag-muted" id="wearables-conn-badge" style="background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1;">○ Disconnected (0 Telemetry)</span>
+              <span style="font-size: 11px; color: var(--text-muted);" id="wearables-battery-text">🔋 Battery: -- • Signal: Disconnected</span>
+            </div>
+            <h3 style="font-family: var(--font-heading); font-size: 19px; font-weight: 800; color: #0f172a; margin: 0;" id="wearables-device-title">
+              No Smartwatch Connected
+            </h3>
+            <p style="font-size: 12px; color: var(--text-muted); margin: 3px 0 0;">
+              Connect your smartwatch via Bluetooth or select your watch brand to collect real-time sensor vitals
+            </p>
+          </div>
+
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="btn-primary" onclick="requestBluetoothSmartwatch()" style="padding: 9px 18px; font-size: 13px; font-weight: 700;">
+              <span>📶 Connect via Bluetooth</span>
+            </button>
+            <button class="btn-secondary" onclick="openSmartwatchModal()" style="padding: 9px 14px; font-size: 13px;">
+              <span>⌚ Select Watch Brand / Simulator</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Metric Sorting Controls Bar -->
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; background: #f8fafc; padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--border);">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 12px; font-weight: 700; color: #475569;">Sort &amp; Filter Live Telemetry:</span>
+          </div>
+          <div class="vitals-sort-pills" id="wearables-vitals-sort-pills">
+            <button type="button" class="vitals-sort-btn active" data-sort="all" onclick="sortSmartwatchMetrics('all')">All Metrics</button>
+            <button type="button" class="vitals-sort-btn" data-sort="hr" onclick="sortSmartwatchMetrics('hr')">❤️ Heart Rate &amp; Pulse</button>
+            <button type="button" class="vitals-sort-btn" data-sort="walk" onclick="sortSmartwatchMetrics('walk')">👟 Walk &amp; Cadence</button>
+            <button type="button" class="vitals-sort-btn" data-sort="hrv" onclick="sortSmartwatchMetrics('hrv')">⚡ HRV &amp; Recovery</button>
+            <button type="button" class="vitals-sort-btn" data-sort="calories" onclick="sortSmartwatchMetrics('calories')">🔥 Active Calories</button>
+          </div>
+        </div>
+
+        <!-- 6-Metric High-Precision Telemetry Grid -->
+        <div class="grid-3" id="wearables-vitals-grid">
+          <!-- 1. Heart Rate -->
+          <div class="smartwatch-metric-card" id="wearables-card-hr" data-metric="hr" style="background: #ffffff; border: 1.5px solid #fecdd3;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 11px; font-weight: 800; color: #e11d48; text-transform: uppercase;">❤️ Live Heart Rate</span>
+              <span class="watch-live-dot" style="background: #94a3b8; box-shadow: none;"></span>
+            </div>
+            <div class="metric-value-huge" style="color: #0f172a;">
+              <span id="vital-hr">0</span>
+              <span class="metric-unit">BPM</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 11px; color: #64748b;" id="vital-hr-sub">
+              <span>No Live Pulse</span>
+              <span style="font-weight: 700; background: #f1f5f9; padding: 1px 6px; border-radius: 4px; color: #64748b;">Not Connected</span>
+            </div>
+          </div>
+
+          <!-- 2. Step Count & Walking Distance -->
+          <div class="smartwatch-metric-card" id="wearables-card-walk" data-metric="walk" style="background: #ffffff; border: 1.5px solid #a7f3d0;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 11px; font-weight: 800; color: #059669; text-transform: uppercase;">👟 Steps &amp; Walk Distance</span>
+              <span style="font-size: 11px; font-weight: 700; color: #64748b;" id="vital-walk-km">0.00 km</span>
+            </div>
+            <div class="metric-value-huge" style="color: #0f172a;">
+              <span id="vital-steps">0</span>
+              <span class="metric-unit">Steps</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 11px; color: #64748b;" id="vital-walk-sub">
+              <span>Cadence: 0 spm • Pace: --</span>
+              <span style="color: #64748b; font-weight: 700;">0% of Goal</span>
+            </div>
+          </div>
+
+          <!-- 3. Active Calories -->
+          <div class="smartwatch-metric-card" id="wearables-card-cal" data-metric="calories" style="background: #ffffff; border: 1.5px solid #fde68a;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 11px; font-weight: 800; color: #d97706; text-transform: uppercase;">🔥 Active Calories Burn</span>
+              <span style="font-size: 11px; color: #64748b;">Goal: 600 kcal</span>
+            </div>
+            <div class="metric-value-huge" style="color: #0f172a;">
+              <span id="vital-cal">0</span>
+              <span class="metric-unit">kcal</span>
+            </div>
+            <div style="font-size: 11px; color: #64748b;">
+              Awaiting watch telemetry sync
+            </div>
+          </div>
+
+          <!-- 4. HRV Autonomic Recovery -->
+          <div class="smartwatch-metric-card" id="wearables-card-hrv" data-metric="hrv" style="background: #ffffff; border: 1.5px solid #c7d2fe;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 11px; font-weight: 800; color: #4f46e5; text-transform: uppercase;">⚡ Autonomic HRV</span>
+              <span style="font-size: 11px; color: #64748b;">SDNN / RMSSD</span>
+            </div>
+            <div class="metric-value-huge" style="color: #0f172a;">
+              <span id="vital-hrv">0</span>
+              <span class="metric-unit">ms</span>
+            </div>
+            <div style="font-size: 11px; color: #64748b;">
+              Connect watch to measure HRV
+            </div>
+          </div>
+
+          <!-- 5. Blood Oxygen SpO2 -->
+          <div class="smartwatch-metric-card" id="wearables-card-spo2" data-metric="hr" style="background: #ffffff; border: 1.5px solid #bae6fd;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 11px; font-weight: 800; color: #0284c7; text-transform: uppercase;">🫁 Blood Oxygen (SpO2)</span>
+              <span style="font-size: 11px; color: #64748b;">Optical PPG Sensor</span>
+            </div>
+            <div class="metric-value-huge" style="color: #0f172a;">
+              <span id="vital-spo2">0</span>
+              <span class="metric-unit">%</span>
+            </div>
+            <div style="font-size: 11px; color: #64748b;">
+              Pulse Oximeter Disconnected
+            </div>
+          </div>
+
+          <!-- 6. Real-Time Stress Index -->
+          <div class="smartwatch-metric-card" id="wearables-card-stress" data-metric="hrv" style="background: #ffffff; border: 1.5px solid #e9d5ff;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 11px; font-weight: 800; color: #7c3aed; text-transform: uppercase;">🧠 Real-Time Stress Index</span>
+              <span style="font-size: 11px; color: #64748b;">1–100 Scale</span>
+            </div>
+            <div class="metric-value-huge" style="color: #0f172a;">
+              <span id="vital-stress">0</span>
+              <span class="metric-unit">/100</span>
+            </div>
+            <div style="font-size: 11px; color: #64748b;">
+              Awaiting telemetry
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Simulator Actions -->
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border);">
+          <button class="btn-secondary" onclick="simulateWalkBurst()" style="font-size: 12px; padding: 6px 14px;">
+            <span>👟 Simulate +500 Steps Walk Burst</span>
+          </button>
+          <button class="btn-secondary" onclick="simulateVitalsSpike()" style="font-size: 12px; padding: 6px 14px;">
+            <span>⚠️ Test Anomaly Spike (>140 BPM)</span>
+          </button>
+          <button class="btn-secondary" onclick="syncSmartwatch()" style="font-size: 12px; padding: 6px 14px;">
+            <span>🔄 Force Telemetry Sync</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Pure Web Audio Synthesizer -->
+      <div class="card" style="background: linear-gradient(135deg, #1e1b4b, #0f172a); color: white;">
+        <span class="tag-badge" style="background: rgba(255,255,255,0.1); color: #c7d2fe; border: 1px solid rgba(255,255,255,0.2);">Pure Web Audio API Synthesizer</span>
+        <h3 style="font-family: var(--font-heading); font-size: 20px; font-weight: 800; margin-top: 6px;">
+          Sleep Lab & Theta Waves Soundscape Player
+        </h3>
+        <p style="font-size: 13px; color: #cbd5e1; margin-bottom: 20px;">
+          100% mathematically synthesized sine waves and pink noise right inside your browser. No external MP3 audio files or internet stream required!
+        </p>
+
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+          <button id="synth-theta-btn" class="chip-btn" style="background: rgba(255,255,255,0.15); color: white; border-color: rgba(255,255,255,0.25);" onclick="toggleSleepSynth('theta')">
+            ▶️ 432 Hz Theta Binaural Drone
+          </button>
+          <button id="synth-rain-btn" class="chip-btn" style="background: rgba(255,255,255,0.15); color: white; border-color: rgba(255,255,255,0.25);" onclick="toggleSleepSynth('rain')">
+            ▶️ Pink Noise Sleep Rain
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 8: COMMUNITY SQUADS -->
+    <section id="tab-community" class="tab-content">
+      <div class="section-banner">
+        <div>
+          <span class="tag-badge tag-emerald">Social Accountability</span>
+          <h2 class="section-title">Community Fitness Squads & Relays</h2>
+          <p class="section-subtitle">
+            Join collective step squads across campus, workplace, and local neighborhoods. Cheer teammates to earn shared Green Points!
+          </p>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div class="card">
+          <span class="tag-badge tag-emerald">Campus Relay</span>
+          <h3 style="font-size: 17px; font-weight: 800; color: #0f172a; margin-top: 4px;">Tech Campus 10k Relay</h3>
+          <p style="font-size: 12px; color: #475569; margin: 8px 0;">34 active members • 24,800 steps remaining for today's collective relay tier.</p>
+          <div style="background: #f1f5f9; border-radius: 999px; height: 8px; overflow: hidden; margin-bottom: 12px;">
+            <div style="background: #059669; height: 100%; width: 76%;"></div>
+          </div>
+          <button class="btn-secondary" onclick="cheerSquad('Tech Campus Relay')">
+            <span>👏 Send Live Cheer (+10 Pts)</span>
+          </button>
+        </div>
+
+        <div class="card">
+          <span class="tag-badge tag-blue">City Walkers</span>
+          <h3 style="font-size: 17px; font-weight: 800; color: #0f172a; margin-top: 4px;">Early Bird Sunrise Striders</h3>
+          <p style="font-size: 12px; color: #475569; margin: 8px 0;">88 members • Morning park walks and breathing circles completed.</p>
+          <div style="background: #f1f5f9; border-radius: 999px; height: 8px; overflow: hidden; margin-bottom: 12px;">
+            <div style="background: #2563eb; height: 100%; width: 92%;"></div>
+          </div>
+          <button class="btn-secondary" onclick="cheerSquad('Early Bird Striders')">
+            <span>👏 Send Live Cheer (+10 Pts)</span>
+          </button>
+        </div>
+
+        <div class="card">
+          <span class="tag-badge tag-indigo">Mindfulness</span>
+          <h3 style="font-size: 17px; font-weight: 800; color: #0f172a; margin-top: 4px;">Pranayama & Spine Circle</h3>
+          <p style="font-size: 12px; color: #475569; margin: 8px 0;">52 members • Daily 9:00 PM evening breathwork reset squad.</p>
+          <div style="background: #f1f5f9; border-radius: 999px; height: 8px; overflow: hidden; margin-bottom: 12px;">
+            <div style="background: #6366f1; height: 100%; width: 64%;"></div>
+          </div>
+          <button class="btn-secondary" onclick="cheerSquad('Pranayama Circle')">
+            <span>👏 Send Live Cheer (+10 Pts)</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 9: GREEN POINTS & REWARDS STORE -->
+    <section id="tab-rewards" class="tab-content">
+      <div class="section-banner">
+        <div>
+          <span class="tag-badge tag-emerald">Gamified Wellness</span>
+          <h2 class="section-title">Green Points Store & Eco-Vouchers</h2>
+          <p class="section-subtitle">
+            Earn points by completing daily micro-goals, logging regional meals, and maintaining active streaks. Redeem points for real health discounts!
+          </p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom: 24px; background: linear-gradient(135deg, #ecfdf5, #ffffff); border: 1px solid #a7f3d0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <span style="font-size: 12px; font-weight: 800; color: #047857; text-transform: uppercase;">Current Wallet Balance</span>
+            <div style="font-family: var(--font-heading); font-size: 32px; font-weight: 800; color: #065f46;">
+              🌱 <span id="store-points-balance">420</span> Green Points
+            </div>
+            <p style="font-size: 12px; color: #047857;">🔥 14-Day Consistency Streak Active</p>
+          </div>
+          <button class="btn-primary" onclick="addGreenPoints(50); synth.playSuccessChime(); showToast('Bonus claim! +50 Points');">
+            <span>+ Claim Daily 50 Pts Check-In</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Medical Report Special Voucher Slot -->
+      <div id="rewards-report-voucher-slot" style="margin-bottom: 24px;"></div>
+
+      <div class="grid-3">
+        <div class="card">
+          <strong style="font-size: 16px; color: #0f172a; display: block; margin-bottom: 4px;">Free Organic Wheatgrass Smoothie</strong>
+          <span style="font-size: 12px; font-weight: 800; color: #059669; display: block; margin-bottom: 8px;">Cost: 150 Points</span>
+          <p style="font-size: 12px; color: #475569; margin-bottom: 12px;">Redeemable at partner organic nutrition bars and campus fitness cafes.</p>
+          <button class="btn-secondary" onclick="redeemReward('Organic Wheatgrass Smoothie', 150)">
+            <span>Redeem Voucher</span>
+          </button>
+        </div>
+
+        <div class="card">
+          <strong style="font-size: 16px; color: #0f172a; display: block; margin-bottom: 4px;">20% Off Copper Water Flask</strong>
+          <span style="font-size: 12px; font-weight: 800; color: #059669; display: block; margin-bottom: 8px;">Cost: 250 Points</span>
+          <p style="font-size: 12px; color: #475569; margin-bottom: 12px;">Ayurvedic natural antimicrobial copper bottle voucher code.</p>
+          <button class="btn-secondary" onclick="redeemReward('Copper Water Bottle 20% Off', 250)">
+            <span>Redeem Voucher</span>
+          </button>
+        </div>
+
+        <div class="card">
+          <strong style="font-size: 16px; color: #0f172a; display: block; margin-bottom: 4px;">1-on-1 Certified Physiotherapy Audit</strong>
+          <span style="font-size: 12px; font-weight: 800; color: #059669; display: block; margin-bottom: 8px;">Cost: 400 Points</span>
+          <p style="font-size: 12px; color: #475569; margin-bottom: 12px;">Virtual 15-minute telehealth consultation to analyze desk posture ergonomics.</p>
+          <button class="btn-secondary" onclick="redeemReward('Physiotherapy Consultation', 400)">
+            <span>Redeem Voucher</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 10: PROGRESS & MILESTONES -->
+    <section id="tab-dashboard" class="tab-content">
+      <div class="section-banner">
+        <div>
+          <span class="tag-badge tag-emerald">Biometric Telemetry</span>
+          <h2 class="section-title">Long-Term Progress & Health Milestones</h2>
+          <p class="section-subtitle">
+            Historical consistency trends, daily movement minutes, and metabolic markers.
+          </p>
+        </div>
+      </div>
+
+      <!-- Real-Time Medical Report & Biomarker Tracking Card -->
+      <div id="dashboard-medical-report-tracker"></div>
+
+      <div class="grid-3">
+        <div class="card">
+          <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #059669;">🔥 Active Streak</span>
+          <div style="font-family: var(--font-heading); font-size: 28px; font-weight: 800; color: #0f172a; margin-top: 4px;">14 Days</div>
+          <p style="font-size: 12px; color: #475569; margin-top: 4px;">Top 5% among consistent campus community members.</p>
+        </div>
+
+        <div class="card">
+          <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #2563eb;">⚡ Total Movement Minutes</span>
+          <div style="font-family: var(--font-heading); font-size: 28px; font-weight: 800; color: #0f172a; margin-top: 4px;">320 mins</div>
+          <p style="font-size: 12px; color: #475569; margin-top: 4px;">Exceeded weekly WHO cardiovascular activity baseline of 150 mins.</p>
+        </div>
+
+        <div class="card">
+          <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #7c3aed;">🥗 Cultural Diets Logged</span>
+          <div style="font-family: var(--font-heading); font-size: 28px; font-weight: 800; color: #0f172a; margin-top: 4px;">26 Meals</div>
+          <p style="font-size: 12px; color: #475569; margin-top: 4px;">Replaced ~4,200 calories of deep-fried street food with fermented millets and sprouts.</p>
+        </div>
+      </div>
+
+      <!-- User Physical Health Biometrics Card in Dashboard -->
+      <div class="card" id="dashboard-biometrics-card" style="margin-top: 24px; border: 1px solid var(--border);">
+        <!-- Rendered dynamically via renderDashboardProfile() in script.js -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- SECTION CUSTOMIZER & OPTIONS MODAL -->
+  <div id="section-options-modal" class="modal-backdrop">
+    <div class="modal-dialog" style="max-width: 720px; width: 100%;">
+      <!-- Header -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--border);">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 26px;">🎛️</span>
+          <div>
+            <h3 style="font-family: var(--font-heading); font-size: 20px; font-weight: 800; color: #0f172a; margin: 0;">
+              Customize Sections & Views
+            </h3>
+            <p style="font-size: 12px; color: var(--text-muted); margin: 2px 0 0;">
+              Choose only your required sections — hide the rest to keep PranaFit clean and focused!
+            </p>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="closeSectionOptionsModal()" title="Close Options">✕ Close</button>
+      </div>
+
+      <!-- Quick Preset Filter Buttons -->
+      <div class="options-preset-bar">
+        <span style="font-size: 11px; font-weight: 800; color: #475569; text-transform: uppercase;">Quick Presets:</span>
+        <button type="button" class="options-preset-btn" onclick="applyPresetSections('all')">🌟 All Sections (11)</button>
+        <button type="button" class="options-preset-btn" onclick="applyPresetSections('essentials')">🎯 Essentials (Today + Healer + Food)</button>
+        <button type="button" class="options-preset-btn" onclick="applyPresetSections('fitness')">⌚ Wearables & Movement</button>
+        <button type="button" class="options-preset-btn" onclick="applyPresetSections('community')">👥 Community & Habits</button>
+      </div>
+
+      <!-- Dynamic Section Toggles Grid -->
+      <div class="section-options-grid" id="section-options-grid">
+        <!-- Rendered dynamically by renderSectionOptionsGrid() in script.js -->
+      </div>
+
+      <!-- Action Footer -->
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding-top: 14px; border-top: 1px solid var(--border);">
+        <span style="font-size: 12px; font-weight: 800; color: #059669;" id="section-active-counter-text">
+          ● Showing 11 of 11 sections
+        </span>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="modal-close-btn" onclick="closeSectionOptionsModal()">
+            <span>✕ Close Window</span>
+          </button>
+          <button type="button" class="btn-primary" onclick="closeSectionOptionsModal()" style="padding: 8px 20px; font-weight: 800;">
+            <span>✓ Apply & Done</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTIONAL HEALTH PROFILE MODAL -->
+  <div id="profile-modal" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 24px;">👤</span>
+          <div>
+            <h3 style="font-family: var(--font-heading); font-size: 19px; font-weight: 800; color: #0f172a;">Health Profile & Vitals</h3>
+            <p style="font-size: 12px; color: var(--text-muted);">Optional / Non-compulsory body metrics</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="closeProfileModal()" title="Close Profile">✕ Close</button>
+      </div>
+
+      <p style="font-size: 12px; color: #475569; margin-bottom: 16px; background: #f8fafc; border: 1px solid var(--border); padding: 10px 12px; border-radius: var(--radius-md);">
+        <strong>ℹ️ Safe & Optional:</strong> None of this is mandatory. If entered, PranaFit uses your age, height, and weight locally to calculate your Body Mass Index (BMI), Basal Metabolic Rate (BMR), and daily hydration liters.
+      </p>
+
+      <div class="grid-3" style="margin-bottom: 12px;">
+        <!-- Age -->
+        <div class="form-group">
+          <label class="form-label" for="modal-age">
+            <span>🎂 Age (Years)</span>
+            <span class="optional-pill">Optional</span>
+          </label>
+          <input type="number" id="modal-age" class="input-field" placeholder="e.g. 25" min="10" max="110" oninput="onProfileInputChanged('modal')" />
+        </div>
+
+        <!-- Height -->
+        <div class="form-group">
+          <label class="form-label" for="modal-height">
+            <span>📏 Height (cm)</span>
+            <span id="modal-height-ft-preview" class="optional-pill">-- ft -- in</span>
+          </label>
+          <input type="number" id="modal-height" class="input-field" placeholder="e.g. 170" min="90" max="250" oninput="onProfileInputChanged('modal')" />
+        </div>
+
+        <!-- Weight -->
+        <div class="form-group">
+          <label class="form-label" for="modal-weight">
+            <span>⚖️ Weight (kg)</span>
+            <span class="optional-pill">Optional</span>
+          </label>
+          <input type="number" id="modal-weight" class="input-field" placeholder="e.g. 68" min="25" max="300" step="0.5" oninput="onProfileInputChanged('modal')" />
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom: 16px;">
+        <div class="form-group">
+          <label class="form-label" for="modal-activity">
+            <span>🏃 Daily Activity Level</span>
+          </label>
+          <select id="modal-activity" class="input-field" onchange="onProfileInputChanged('modal')">
+            <option value="sedentary">Sedentary (Desk job, minimal exercise)</option>
+            <option value="light">Lightly Active (1–3 days light walks/yoga)</option>
+            <option value="moderate" selected>Moderately Active (3–5 workouts/week)</option>
+            <option value="active">Very Active (6–7 days intense training/sports)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="modal-goal">
+            <span>🎯 Primary Target</span>
+          </label>
+          <select id="modal-goal" class="input-field" onchange="onProfileInputChanged('modal')">
+            <option value="energy" selected>Vitality, Energy & Posture</option>
+            <option value="fat_loss">Healthy Fat Loss & Deficit</option>
+            <option value="muscle">Muscle Tone & Lean Strength</option>
+            <option value="hormonal">Endocrine, Thyroid & Balance</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom: 16px;">
+        <div class="form-group">
+          <label class="form-label" for="modal-diet">
+            <span>🥗 Dietary Preference</span>
+          </label>
+          <select id="modal-diet" class="input-field" onchange="onProfileDietChanged('modal')">
+            <option value="veg" selected>🥗 Vegetarian (Vegetables, Grains, Dals, Dairy)</option>
+            <option value="nonveg">🍗 Non-Vegetarian (Lean Chicken, Fish, Eggs)</option>
+            <option value="vegan">🌱 100% Plant-Based Vegan (Dairy-Free)</option>
+            <option value="fasting">🪔 Fasting / Vrat Mode (Intermittent / Sacred)</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="modal-fasting-group" style="display: none;">
+          <label class="form-label" for="modal-fasting-type">
+            <span>🪔 Fasting Protocol</span>
+          </label>
+          <select id="modal-fasting-type" class="input-field" onchange="onProfileFastingTypeChanged('modal')">
+            <option value="intermittent" selected>⏳ 16:8 Intermittent Fasting (12 PM–8 PM feeding)</option>
+            <option value="vrat_ekadashi">🪔 Sacred Vrat / Ekadashi Fast (Phalahari)</option>
+            <option value="navratri_phalahar">🍎 Fruit Fast (Alkaline Phalahar & Coconut Water)</option>
+            <option value="water_detox">💧 Liquid & Herbal Water Detox (Zero Solid Food)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Live metrics strip in modal -->
+      <div id="modal-live-metrics" class="metric-strip" style="display: none; margin-bottom: 16px;">
+        <!-- Dynamically rendered -->
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <button class="btn-secondary" onclick="clearProfileData()">
+          <span>Clear Vitals</span>
+        </button>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-secondary" onclick="closeProfileModal()">
+            <span>Close</span>
+          </button>
+          <button class="btn-primary" onclick="saveProfileFromUI('modal')">
+            <span>💾 Save Profile (+20 Pts)</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUTHENTICATION (SIGN IN / SIGN UP / REMEMBER ME) MODAL -->
+  <div id="auth-modal" class="modal-backdrop">
+    <div class="modal-dialog" style="max-width: 480px;">
+      <!-- Modal Header -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span id="auth-modal-header-icon" style="font-size: 26px;">🔐</span>
+          <div>
+            <h3 id="auth-modal-title" style="font-family: var(--font-heading); font-size: 20px; font-weight: 800; color: #0f172a;">
+              PranaFit Account
+            </h3>
+            <p id="auth-modal-subtitle" style="font-size: 12px; color: var(--text-muted);">
+              Sign in or create your profile to sync your health journey
+            </p>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="closeAuthModal()" title="Close Account Window">✕ Close</button>
+      </div>
+
+      <!-- Tabs Navigation (Visible when not logged in, or switching) -->
+      <div id="auth-nav-tabs" class="auth-tabs-nav">
+        <button class="auth-tab-btn active" id="tab-btn-signin" onclick="switchAuthTab('signin')">
+          🔑 Sign In
+        </button>
+        <button class="auth-tab-btn" id="tab-btn-signup" onclick="switchAuthTab('signup')">
+          ✨ Sign Up (New Account)
         </button>
       </div>
-    `;
 
-    modal.classList.add('active', 'open');
-  }
+      <!-- PANE 1: SIGN IN -->
+      <div id="auth-signin-pane">
+        <form onsubmit="handleAuthSignIn(event)">
+          <div class="form-group">
+            <label class="form-label" for="signin-email">
+              <span>✉️ Email or Username</span>
+            </label>
+            <input type="text" id="signin-email" class="input-field" placeholder="e.g. aarav@pranafit.in" required autocomplete="username" />
+          </div>
 
-  function closeHealthyOrderModal() {
-    const modal = document.getElementById('healthy-order-modal');
-    if (modal) modal.classList.remove('active', 'open');
-  }
+          <div class="form-group">
+            <label class="form-label" for="signin-password">
+              <span>🔒 Password</span>
+            </label>
+            <div class="auth-password-wrapper">
+              <input type="password" id="signin-password" class="input-field" placeholder="Enter your password" required autocomplete="current-password" />
+              <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('signin-password', this)" title="Show / Hide password">
+                👁️
+              </button>
+            </div>
+          </div>
 
-  function confirmHealthyOrder(mealId) {
-    const checkoutStep = document.getElementById('order-step-checkout');
-    const trackingStep = document.getElementById('order-step-tracking');
+          <!-- REMEMBER ME CHECKBOX -->
+          <label class="auth-remember-card" for="signin-remember">
+            <input type="checkbox" id="signin-remember" checked />
+            <div class="auth-remember-text">
+              <span class="auth-remember-title">Remember me on this device (Auto-Login)</span>
+              <span class="auth-remember-desc">
+                When checked, you stay signed in and will <strong>not need to log in again</strong> when you return. If unchecked, your session ends when you close the browser.
+              </span>
+            </div>
+          </label>
 
-    if (checkoutStep && trackingStep) {
-      checkoutStep.style.display = 'none';
-      trackingStep.style.display = 'block';
-    }
+          <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 12px; font-size: 14px; margin-bottom: 12px;">
+            <span>Sign In to PranaFit</span>
+          </button>
+        </form>
 
-    // Award +25 Green Points
-    if (window.state) {
-      window.state.greenPoints = (window.state.greenPoints || 420) + 25;
-      try {
-        localStorage.setItem('prana_points', window.state.greenPoints.toString());
-      } catch (e) {}
+        <!-- Quick 1-Click Demo Login for instant testing -->
+        <div style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: var(--radius-md); padding: 12px; text-align: center; margin-bottom: 14px;">
+          <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; display: block; margin-bottom: 6px;">
+            ⚡ Quick Test / Demo Login
+          </span>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">
+            Want to test immediately without typing credentials?
+          </p>
+          <button type="button" class="btn-secondary" onclick="quickFillDemoLogin()" style="width: 100%; justify-content: center; font-size: 12px;">
+            <span>👤 One-Click Sign In as Aarav Sharma (Demo)</span>
+          </button>
+        </div>
 
-      if (window.updatePointsUI) {
-        window.updatePointsUI();
-      }
-    }
+        <div style="text-align: center; font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+          Don't have an account yet? 
+          <a href="javascript:void(0)" onclick="switchAuthTab('signup')" style="color: var(--primary); font-weight: 700; text-decoration: none;">
+            Create an account (+50 Pts)
+          </a>
+        </div>
 
-    if (window.showToast) {
-      window.showToast('🎉 Healthy Meal Ordered! +25 Green Points added to your wellness balance.');
-    }
-  }
+        <button type="button" class="btn-secondary" onclick="closeAuthModal()" style="width: 100%; justify-content: center; font-weight: 700; color: #475569;">
+          <span>✕ Close Window / Continue Exploring</span>
+        </button>
+      </div>
 
-  // --- INITIALIZATION ---
-  function initNearbyHealthyFood() {
-    // Run initial location detection
-    detectUserLocation(false);
-  }
+      <!-- PANE 2: SIGN UP -->
+      <div id="auth-signup-pane" style="display: none;">
+        <form onsubmit="handleAuthSignUp(event)">
+          <div class="form-group">
+            <label class="form-label" for="signup-name">
+              <span>👤 Full Name</span>
+            </label>
+            <input type="text" id="signup-name" class="input-field" placeholder="e.g. Priya Sharma" required autocomplete="name" />
+          </div>
 
-  // Expose to window
-  window.detectUserLocation = detectUserLocation;
-  window.onManualLocationSelect = onManualLocationSelect;
-  window.renderNearbyHealthyFoodOrders = renderNearbyHealthyFoodOrders;
-  window.filterNearbyFood = filterNearbyFood;
-  window.sortNearbyFood = sortNearbyFood;
-  window.resetNearbyFoodFilters = resetNearbyFoodFilters;
-  window.openHealthyOrderModal = openHealthyOrderModal;
-  window.closeHealthyOrderModal = closeHealthyOrderModal;
-  window.confirmHealthyOrder = confirmHealthyOrder;
-  window.initNearbyHealthyFood = initNearbyHealthyFood;
+          <div class="form-group">
+            <label class="form-label" for="signup-email">
+              <span>✉️ Email Address</span>
+            </label>
+            <input type="email" id="signup-email" class="input-field" placeholder="e.g. priya@gmail.com" required autocomplete="email" />
+          </div>
 
-  // Auto-init on DOMContentLoaded
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initNearbyHealthyFood);
-  } else {
-    setTimeout(initNearbyHealthyFood, 100);
-  }
+          <div class="form-group">
+            <label class="form-label" for="signup-password">
+              <span>🔒 Create Password</span>
+            </label>
+            <div class="auth-password-wrapper">
+              <input type="password" id="signup-password" class="input-field" placeholder="At least 4 characters" minlength="4" required autocomplete="new-password" />
+              <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('signup-password', this)" title="Show / Hide password">
+                👁️
+              </button>
+            </div>
+          </div>
 
-})(window);
+          <!-- Optional Quick Health Vitals Hook -->
+          <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px 12px; margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <span style="font-size: 11px; font-weight: 700; color: #334155;">🌱 Optional Initial Vitals (Can fill later)</span>
+              <span class="optional-pill">Optional</span>
+            </div>
+            <div class="grid-3" style="margin-bottom: 0;">
+              <div>
+                <input type="number" id="signup-age" class="input-field" placeholder="Age (yrs)" min="10" max="100" style="padding: 6px 8px; font-size: 12px;" />
+              </div>
+              <div>
+                <input type="number" id="signup-height" class="input-field" placeholder="Height (cm)" min="90" max="250" style="padding: 6px 8px; font-size: 12px;" />
+              </div>
+              <div>
+                <input type="number" id="signup-weight" class="input-field" placeholder="Weight (kg)" min="30" max="250" style="padding: 6px 8px; font-size: 12px;" />
+              </div>
+            </div>
+          </div>
+
+          <!-- REMEMBER ME CHECKBOX FOR SIGN UP -->
+          <label class="auth-remember-card" for="signup-remember">
+            <input type="checkbox" id="signup-remember" checked />
+            <div class="auth-remember-text">
+              <span class="auth-remember-title">Remember me on this device</span>
+              <span class="auth-remember-desc">
+                Stay signed in automatically across visits so you will <strong>never need to log in again</strong>.
+              </span>
+            </div>
+          </label>
+
+          <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 12px; font-size: 14px; margin-bottom: 12px;">
+            <span>✨ Create Account & Start (+50 Green Points)</span>
+          </button>
+        </form>
+
+        <div style="text-align: center; font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+          Already have an account? 
+          <a href="javascript:void(0)" onclick="switchAuthTab('signin')" style="color: var(--primary); font-weight: 700; text-decoration: none;">
+            Sign In here
+          </a>
+        </div>
+
+        <button type="button" class="btn-secondary" onclick="closeAuthModal()" style="width: 100%; justify-content: center; font-weight: 700; color: #475569;">
+          <span>✕ Close Window / Continue Exploring</span>
+        </button>
+      </div>
+
+      <!-- PANE 3: LOGGED IN USER PROFILE / ACCOUNT DETAILS -->
+      <div id="auth-profile-pane" style="display: none;">
+        <div class="auth-user-profile-header">
+          <div class="auth-user-avatar" id="auth-user-avatar-text">
+            AS
+          </div>
+          <div style="flex: 1;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <h4 id="auth-profile-name" style="font-family: var(--font-heading); font-size: 18px; font-weight: 800; color: #0f172a;">
+                Aarav Sharma
+              </h4>
+              <span class="tag-badge tag-emerald" style="font-size: 10px;">Active User</span>
+            </div>
+            <p id="auth-profile-email" style="font-size: 12px; color: var(--text-muted); margin-top: 1px;">
+              aarav@pranafit.in
+            </p>
+          </div>
+        </div>
+
+        <!-- REMEMBER STATUS TOGGLE FOR ACTIVE USER -->
+        <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <div>
+              <span style="font-size: 11px; font-weight: 800; color: #166534; text-transform: uppercase;">Device Login Persistence</span>
+              <div id="auth-device-remember-status" style="font-size: 13px; font-weight: 700; color: #0f172a; margin-top: 2px;">
+                🟢 Auto-Login Active (Remembered)
+              </div>
+              <p id="auth-device-remember-sub" style="font-size: 11px; color: #475569; margin-top: 2px;">
+                You will not be asked to log in again on this device.
+              </p>
+            </div>
+            <button class="btn-secondary" id="btn-toggle-remember-active" onclick="toggleActiveUserRememberStatus()" style="padding: 5px 10px; font-size: 11px;">
+              Change Setting
+            </button>
+          </div>
+        </div>
+
+        <!-- User Stats Snapshot -->
+        <div class="grid-3" style="margin-bottom: 18px;">
+          <div style="background: #f8fafc; border: 1px solid var(--border); padding: 10px; border-radius: var(--radius-md); text-align: center;">
+            <span style="font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Points</span>
+            <div id="auth-profile-points" style="font-family: var(--font-heading); font-size: 18px; font-weight: 800; color: #059669; margin-top: 2px;">
+              420
+            </div>
+          </div>
+          <div style="background: #f8fafc; border: 1px solid var(--border); padding: 10px; border-radius: var(--radius-md); text-align: center;">
+            <span style="font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Streak</span>
+            <div id="auth-profile-streak" style="font-family: var(--font-heading); font-size: 18px; font-weight: 800; color: #d97706; margin-top: 2px;">
+              5 Days
+            </div>
+          </div>
+          <div style="background: #f8fafc; border: 1px solid var(--border); padding: 10px; border-radius: var(--radius-md); text-align: center;">
+            <span style="font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Vitals Status</span>
+            <div id="auth-profile-vitals-status" style="font-family: var(--font-heading); font-size: 14px; font-weight: 800; color: #2563eb; margin-top: 4px;">
+              Calibrated
+            </div>
+          </div>
+        </div>
+
+        <!-- Action buttons -->
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding-top: 14px; border-top: 1px solid var(--border);">
+          <button class="btn-secondary" onclick="closeAuthModal(); openProfileModal();">
+            <span>⚙️ Edit Health Vitals</span>
+          </button>
+          <div style="display: flex; gap: 8px;">
+            <button class="modal-close-btn" onclick="closeAuthModal()">
+              <span>✕ Close</span>
+            </button>
+            <button class="btn-secondary" onclick="switchAuthTab('signin')" title="Switch to another account">
+              <span>Switch User</span>
+            </button>
+            <button class="btn-secondary" onclick="handleAuthLogout()" style="color: #e11d48; border-color: #fecdd3; background: #fff1f2;">
+              <span>🚪 Sign Out</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POSE ANIMATION & PRACTICE COACH MODAL -->
+  <div id="pose-animation-modal" class="modal-backdrop">
+    <div class="modal-dialog pose-modal-dialog">
+      <div class="pose-modal-header">
+        <div>
+          <span id="pose-modal-category" class="tag-badge tag-emerald">Therapeutic Asana Animation</span>
+          <h3 id="pose-modal-name" style="font-family: var(--font-heading); font-size: 22px; font-weight: 800; color: #0f172a; margin: 4px 0 2px;">
+            Cat-Cow Spinal Waves
+          </h3>
+          <p id="pose-modal-sanskrit" style="font-size: 13px; color: #64748b; font-style: italic; margin: 0;">
+            Marjaryasana - Bitilasana
+          </p>
+        </div>
+        <button class="btn-icon" onclick="closePoseAnimationModal()" title="Close viewer">✕</button>
+      </div>
+
+      <div class="pose-modal-body">
+        <!-- Visual Animation Stage -->
+        <div class="pose-animation-stage">
+          <div id="pose-animation-svg-container" class="pose-svg-wrapper">
+            <!-- Rendered SVG with dynamic keyframes -->
+          </div>
+          
+          <!-- Breath Wave Pacer Orb -->
+          <div class="breath-pacer-box">
+            <div class="breath-pacer-ring" id="breath-pacer-ring">
+              <span id="breath-pacer-text">Inhale (4s)</span>
+            </div>
+            <span style="font-size: 11px; color: #64748b; font-weight: 700; text-transform: uppercase;">Diaphragmatic Breath Wave</span>
+          </div>
+        </div>
+
+        <!-- Pose Narrative & Details -->
+        <div class="pose-details-panel">
+          <div class="pose-meta-bar">
+            <span id="pose-modal-duration" class="tag-badge tag-indigo">⏱️ 2.5 Mins</span>
+            <span id="pose-modal-target" class="tag-badge tag-amber">🎯 Thoracic Spine</span>
+            <span id="pose-modal-benefit-badge" class="tag-badge tag-emerald">💡 Synovial Restoration</span>
+          </div>
+
+          <div class="pose-section-block">
+            <h4 style="font-size: 12px; font-weight: 800; text-transform: uppercase; color: #0f172a; margin-bottom: 6px;">
+              📋 Kinetic Alignment & Movement Cues
+            </h4>
+            <p id="pose-modal-cue" style="font-size: 13px; color: #334155; line-height: 1.5; margin: 0; background: #f8fafc; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+              Inhale, drop belly down, pull collarbones wide...
+            </p>
+          </div>
+
+          <div class="pose-section-block">
+            <h4 style="font-size: 12px; font-weight: 800; text-transform: uppercase; color: #0f172a; margin-bottom: 6px;">
+              ✨ Anatomical & Healing Benefits
+            </h4>
+            <p id="pose-modal-benefit" style="font-size: 13px; color: #047857; line-height: 1.5; margin: 0; background: #ecfdf5; padding: 10px; border-radius: var(--radius-sm); border: 1px solid #a7f3d0;">
+              Restores synovial fluid between vertebrae and relieves chronic desk hunch.
+            </p>
+          </div>
+
+          <div class="pose-section-block">
+            <h4 style="font-size: 12px; font-weight: 800; text-transform: uppercase; color: #991b1b; margin-bottom: 6px;">
+              ⚠️ Contraindications & Caution
+            </h4>
+            <p id="pose-modal-caution" style="font-size: 12px; color: #991b1b; line-height: 1.4; margin: 0; background: #fef2f2; padding: 8px 10px; border-radius: var(--radius-sm); border: 1px solid #fecdd3;">
+              Avoid aggressive hyperextension if experiencing acute cervical disc herniation.
+            </p>
+          </div>
+
+          <!-- Audio & Interactive Controls -->
+          <div class="pose-modal-actions">
+            <button class="btn-secondary" onclick="speakCurrentModalPose()" style="padding: 8px 14px; font-size: 12px;">
+              <span>🔊 Audio Voice Coach</span>
+            </button>
+            <button class="btn-primary" onclick="markCurrentModalPoseDone()" style="padding: 8px 16px; font-size: 12px;">
+              <span id="pose-modal-done-btn-text">✓ Mark Pose Done (+5 Pts)</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer Navigation -->
+      <div class="pose-modal-footer">
+        <button class="btn-secondary" onclick="navigateModalPose(-1)" id="btn-modal-prev-pose">
+          <span>← Previous Pose</span>
+        </button>
+        <span id="pose-modal-counter" style="font-size: 12px; font-weight: 700; color: #64748b;">
+          Pose 1 of 6
+        </span>
+        <button class="btn-secondary" onclick="navigateModalPose(1)" id="btn-modal-next-pose">
+          <span>Next Pose →</span>
+        </button>
+        <button class="modal-close-btn" onclick="closePoseAnimationModal()" style="margin-left: 10px;">
+          <span>✕ Close</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SMARTWATCH BLUETOOTH & LIVE TELEMETRY MODAL -->
+  <div id="smartwatch-modal" class="modal-backdrop">
+    <div class="modal-dialog" style="max-width: 680px; width: 100%;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border);">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 26px;">⌚</span>
+          <div>
+            <h3 style="font-family: var(--font-heading); font-size: 20px; font-weight: 800; color: #0f172a; margin: 0;">
+              Bluetooth Smartwatch & Live Telemetry
+            </h3>
+            <p style="font-size: 12px; color: var(--text-muted); margin: 2px 0 0;" id="modal-watch-substatus">
+              Live sync with Apple Watch, Wear OS, Garmin, Fitbit, Amazfit & Samsung Galaxy
+            </p>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="closeSmartwatchModal()" title="Close Watch Controls">✕ Close</button>
+      </div>
+
+      <!-- Live Connection Banner -->
+      <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: var(--radius-lg); padding: 16px; color: #ffffff; margin-bottom: 18px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="watch-live-dot" id="modal-watch-dot" style="background: #94a3b8; box-shadow: none;"></span>
+              <strong style="font-size: 15px; color: #ffffff;" id="modal-watch-device-name">No Watch Connected</strong>
+              <span class="tag-badge" id="modal-watch-telemetry-badge" style="background: rgba(148, 163, 184, 0.2); color: #cbd5e1; font-size: 10px; border: 1px solid rgba(148, 163, 184, 0.3);">○ Telemetry Idle (0)</span>
+            </div>
+            <span style="font-size: 11px; color: #94a3b8; display: block; margin-top: 2px;" id="modal-watch-details-line">
+              Waiting for connection... Connect a watch to collect live real-time sensor data.
+            </span>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn-primary" onclick="instantUniversalWatchLink(state.smartwatchDeviceName || 'Apple Watch Ultra')" style="padding: 8px 16px; font-size: 12px; background: linear-gradient(135deg, #10b981, #059669); font-weight: 800; border: none; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+              <span>⚡ Connect &amp; Stream Live Telemetry</span>
+            </button>
+            <button class="btn-secondary" onclick="requestBluetoothSmartwatch()" style="padding: 8px 14px; font-size: 12px; background: rgba(255,255,255,0.1); color: #ffffff; border-color: rgba(255,255,255,0.2);">
+              <span>📶 Pair BLE Hardware</span>
+            </button>
+            <button class="btn-secondary" onclick="toggleSmartwatchDisconnect()" id="btn-modal-watch-disconnect" style="padding: 8px 12px; font-size: 12px; background: rgba(239, 68, 68, 0.15); color: #fca5a5; border-color: rgba(239, 68, 68, 0.3);">
+              <span>Reset to 0 / Disconnect</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Select Smartwatch Brand / Universal Compatibility Hub -->
+      <div style="margin-bottom: 18px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <label style="font-size: 12px; font-weight: 800; color: #334155; text-transform: uppercase; letter-spacing: 0.5px;">
+            🌐 Universal Smartwatch Compatibility (Click to Link &amp; Collect Real-Time Data):
+          </label>
+          <span style="font-size: 11px; color: #059669; font-weight: 700;">100% Brand Compatible</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px;" id="watch-brand-selector">
+          <button type="button" class="chip-btn" data-brand="Apple Watch Ultra" onclick="selectSmartwatchBrand('Apple Watch Ultra')">🍎 Apple Watch (All)</button>
+          <button type="button" class="chip-btn" data-brand="Samsung Galaxy Watch 7" onclick="selectSmartwatchBrand('Samsung Galaxy Watch 7')">⌚ Galaxy Watch / WearOS</button>
+          <button type="button" class="chip-btn" data-brand="Google Pixel Watch 3" onclick="selectSmartwatchBrand('Google Pixel Watch 3')">🔘 Google Pixel Watch</button>
+          <button type="button" class="chip-btn" data-brand="Garmin Forerunner 965" onclick="selectSmartwatchBrand('Garmin Forerunner 965')">🏃 Garmin Connect</button>
+          <button type="button" class="chip-btn" data-brand="Fitbit Sense 2" onclick="selectSmartwatchBrand('Fitbit Sense 2')">💚 Fitbit Sense / Charge</button>
+          <button type="button" class="chip-btn" data-brand="Noise ColorFit Pro 5" onclick="selectSmartwatchBrand('Noise ColorFit Pro 5')">⚡ Noise ColorFit</button>
+          <button type="button" class="chip-btn" data-brand="boAt Wave Elevate" onclick="selectSmartwatchBrand('boAt Wave Elevate')">⚓ boAt Crest</button>
+          <button type="button" class="chip-btn" data-brand="Amazfit Balance" onclick="selectSmartwatchBrand('Amazfit Balance')">🟠 Amazfit / Zepp OS</button>
+          <button type="button" class="chip-btn" data-brand="OnePlus Watch 2" onclick="selectSmartwatchBrand('OnePlus Watch 2')">🔴 OnePlus Watch</button>
+          <button type="button" class="chip-btn" data-brand="Xiaomi Smart Band 9" onclick="selectSmartwatchBrand('Xiaomi Smart Band 9')">🔶 Xiaomi / Mi Band</button>
+          <button type="button" class="chip-btn" data-brand="Huawei Watch GT 4" onclick="selectSmartwatchBrand('Huawei Watch GT 4')">🔵 Huawei Health</button>
+          <button type="button" class="chip-btn" data-brand="Polar Vantage V3" onclick="selectSmartwatchBrand('Polar Vantage V3')">❄️ Polar Flow / H10</button>
+          <button type="button" class="chip-btn" data-brand="Whoop 4.0 Strap" onclick="selectSmartwatchBrand('Whoop 4.0 Strap')">🖤 Whoop 4.0</button>
+          <button type="button" class="chip-btn" data-brand="Suunto Race" onclick="selectSmartwatchBrand('Suunto Race')">🧭 Suunto Multisport</button>
+          <button type="button" class="chip-btn" data-brand="Fire-Boltt &amp; Titan Talk" onclick="selectSmartwatchBrand('Fire-Boltt & Titan Talk')">⚡ Fire-Boltt / Titan</button>
+          <button type="button" class="chip-btn" data-brand="Generic BLE GATT Watch" onclick="selectSmartwatchBrand('Generic BLE GATT Watch')">📡 Any BLE Bluetooth</button>
+        </div>
+      </div>
+
+      <!-- DAILY CONTINUOUS TELEMETRY & ADVICE BOX -->
+      <div id="modal-daily-advice-box" style="background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border: 1.5px solid #86efac; border-radius: var(--radius-lg); padding: 14px; margin-bottom: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <span style="font-size: 11px; font-weight: 800; color: #065f46; text-transform: uppercase;">
+            📅 Daily Connected Advice &amp; Telemetry Synthesis
+          </span>
+          <span id="modal-streak-pill" style="font-size: 11px; font-weight: 800; color: #047857; background: #ffffff; padding: 2px 8px; border-radius: 999px; border: 1px solid #a7f3d0;">
+            🔥 14-Day Streak Active
+          </span>
+        </div>
+        <div id="modal-daily-advice-text" style="font-size: 12px; color: #1e293b; line-height: 1.5;">
+          Connect your smartwatch to stream real-time heart rate, walking telemetry, and autonomic recovery data.
+        </div>
+      </div>
+
+      <!-- Live Vitals Sort Strip in Modal -->
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; background: #f8fafc; padding: 8px 12px; border-radius: var(--radius-md);">
+        <span style="font-size: 11px; font-weight: 700; color: #475569;">Sort &amp; Filter Details:</span>
+        <div class="vitals-sort-pills" id="modal-vitals-sort-pills">
+          <button type="button" class="vitals-sort-btn active" data-sort="all" onclick="sortSmartwatchMetrics('all')">All Metrics</button>
+          <button type="button" class="vitals-sort-btn" data-sort="hr" onclick="sortSmartwatchMetrics('hr')">❤️ Heart Rate</button>
+          <button type="button" class="vitals-sort-btn" data-sort="walk" onclick="sortSmartwatchMetrics('walk')">👟 Walk Distance</button>
+          <button type="button" class="vitals-sort-btn" data-sort="hrv" onclick="sortSmartwatchMetrics('hrv')">⚡ HRV &amp; Stress</button>
+        </div>
+      </div>
+
+      <!-- Live Metrics Display in Modal -->
+      <div class="grid-2" style="gap: 12px; margin-bottom: 16px;">
+        <div style="background: #fff1f2; border: 1px solid #fecdd3; border-radius: var(--radius-md); padding: 12px;">
+          <span style="font-size: 11px; font-weight: 800; color: #e11d48; text-transform: uppercase;">❤️ Live Heart Rate</span>
+          <div style="font-family: var(--font-heading); font-size: 24px; font-weight: 800; color: #9f1239; margin-top: 2px;">
+            <span id="modal-val-hr">0</span> <span style="font-size: 13px; font-weight: 600;">BPM</span>
+          </div>
+          <span style="font-size: 11px; color: #be123c;">Awaiting telemetry pulse</span>
+        </div>
+
+        <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: var(--radius-md); padding: 12px;">
+          <span style="font-size: 11px; font-weight: 800; color: #059669; text-transform: uppercase;">👟 Walk Distance &amp; Steps</span>
+          <div style="font-family: var(--font-heading); font-size: 24px; font-weight: 800; color: #065f46; margin-top: 2px;">
+            <span id="modal-val-steps">0</span> <span style="font-size: 13px; font-weight: 600;">Steps</span>
+          </div>
+          <span style="font-size: 11px; color: #047857;" id="modal-val-walk-km">0.00 km • Cadence: 0 spm</span>
+        </div>
+
+        <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: var(--radius-md); padding: 12px;">
+          <span style="font-size: 11px; font-weight: 800; color: #d97706; text-transform: uppercase;">🔥 Active Calories</span>
+          <div style="font-family: var(--font-heading); font-size: 24px; font-weight: 800; color: #92400e; margin-top: 2px;">
+            <span id="modal-val-cal">0</span> <span style="font-size: 13px; font-weight: 600;">kcal</span>
+          </div>
+          <span style="font-size: 11px; color: #b45309;">Goal: 600 kcal</span>
+        </div>
+
+        <div style="background: #eef2ff; border: 1px solid #c7d2fe; border-radius: var(--radius-md); padding: 12px;">
+          <span style="font-size: 11px; font-weight: 800; color: #4f46e5; text-transform: uppercase;">⚡ Autonomic HRV &amp; Stress</span>
+          <div style="font-family: var(--font-heading); font-size: 24px; font-weight: 800; color: #3730a3; margin-top: 2px;">
+            <span id="modal-val-hrv">0</span> <span style="font-size: 13px; font-weight: 600;">ms</span>
+          </div>
+          <span style="font-size: 11px; color: #4338ca;" id="modal-val-stress">Stress: 0/100 (Awaiting Sync)</span>
+        </div>
+      </div>
+
+      <!-- Action Footer -->
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding-top: 14px; border-top: 1px solid var(--border);">
+        <div>
+          <button class="btn-secondary" onclick="simulateWalkBurst()" style="font-size: 12px; padding: 8px 14px;">
+            <span>👟 +500 Steps Walk Burst</span>
+          </button>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="modal-close-btn" onclick="closeSmartwatchModal()" style="font-size: 13px; font-weight: 800; padding: 8px 16px;">
+            <span>✕ Close Watch Controls</span>
+          </button>
+          <button class="btn-primary" onclick="closeSmartwatchModal()" style="font-size: 12px; padding: 8px 18px; font-weight: 800;">
+            <span>✓ Done & Sync App</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEALTHY FOOD ORDER CHECKOUT & TRACKER MODAL -->
+  <div id="healthy-order-modal" class="modal-backdrop">
+    <div class="modal-dialog" style="max-width: 580px; width: 100%;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--border);">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 24px;">🥗</span>
+          <div>
+            <h3 style="font-family: var(--font-heading); font-size: 18px; font-weight: 800; color: #0f172a; margin: 0;">
+              Healthy Meal Order & Clean Kitchen Dispatch
+            </h3>
+            <span style="font-size: 11px; color: #059669; font-weight: 700;">
+              ✓ 100% Certified Healthy Preparation
+            </span>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="closeHealthyOrderModal()" title="Close meal order">✕ Close</button>
+      </div>
+
+      <div id="healthy-order-modal-content">
+        <!-- Rendered dynamically via openHealthyOrderModal() -->
+      </div>
+    </div>
+  </div>
+
+  <!-- EMERGENCY SOS MODAL -->
+  <div id="sos-modal" class="modal-backdrop">
+    <div class="modal-dialog emergency-dialog">
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+        <span style="font-size: 28px;">🚨</span>
+        <div>
+          <h3 style="font-family: var(--font-heading); font-size: 20px; font-weight: 800; color: #9f1239;">Emergency Health Assistant</h3>
+          <p id="sos-status-text" style="font-size: 12px; color: #881337;">Vitals anomaly or emergency SOS triggered</p>
+        </div>
+      </div>
+
+      <div style="text-align: center; background: #fff1f2; border: 1px solid #fecdd3; border-radius: var(--radius-md); padding: 18px; margin-bottom: 16px;">
+        <span style="font-size: 12px; font-weight: 700; color: #9f1239; text-transform: uppercase;">Auto-Dispatching Emergency Contacts In</span>
+        <div id="sos-countdown-num" style="font-family: var(--font-heading); font-size: 48px; font-weight: 800; color: #be123c;">10</div>
+        <p style="font-size: 12px; color: #881337;">Transmitting live GPS coordinates & last telemetry to ICE contacts</p>
+      </div>
+
+      <div class="grid-2" style="margin-bottom: 16px;">
+        <div style="background: #f8fafc; border: 1px solid var(--border); padding: 10px; border-radius: var(--radius-sm); font-size: 12px;">
+          <strong>📞 Primary ICE Contact:</strong>
+          <div>Dr. Ananya Sharma (Mother)</div>
+          <a href="tel:+919876543210" style="color: #2563eb; font-weight: 700; text-decoration: none;">+91 98765 43210</a>
+        </div>
+        <div style="background: #f8fafc; border: 1px solid var(--border); padding: 10px; border-radius: var(--radius-sm); font-size: 12px;">
+          <strong>🚑 National Ambulance:</strong>
+          <div>Govt Emergency Hotline</div>
+          <a href="tel:108" style="color: #dc2626; font-weight: 800; text-decoration: none;">Dial 108 / 112</a>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button class="btn-secondary" onclick="closeEmergencySOS()">
+          <span>False Alarm (Cancel Alert)</span>
+        </button>
+        <button class="btn-emergency" onclick="window.location.href='tel:108'">
+          <span>Call 108 Now</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Floating Toast Notice -->
+  <div id="toast-notice" class="toast-notice">
+    Notification text
+  </div>
+
+  <!-- Standalone Scripts -->
+  <script src="./problem_healer_data.js"></script>
+  <script src="./human_body_animator.js"></script>
+  <script src="./nearby_healthy_food.js"></script>
+  <script src="./script.js"></script>
+</body>
+</html>
