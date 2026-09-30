@@ -14,6 +14,207 @@
 </head>
 <body>
 
+  <!-- ==========================================================================
+       STARTING ANIMATION (3-5s FULL-SCREEN KINETIC FOOD & EXERCISE EXPERIENCE)
+       Visible on app open from any system (mobile, tablet, desktop)
+       ========================================================================== -->
+  <div id="app-launch-splash" role="dialog" aria-modal="true" aria-label="PranaFit Startup Experience">
+    <div class="splash-ambient-aurora"></div>
+
+    <div class="splash-container">
+      <!-- LEFT: ADVANCED ANIMATED EXERCISE & KINETIC BIOMECHANICS -->
+      <div class="splash-kinetic-panel panel-exercise">
+        <div class="splash-panel-header">
+          <span class="splash-badge-mini splash-badge-emerald">🏃 Kinetic Exercise</span>
+          <span style="font-size: 11px; color: #34d399; font-weight: 700;">Live Motion 60fps</span>
+        </div>
+        
+        <div class="splash-exercise-viewport">
+          <svg class="exercise-runner-svg" viewBox="0 0 200 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Concentric Power Shockwaves -->
+            <circle cx="100" cy="90" r="28" stroke="#10b981" stroke-opacity="0.6" class="kinetic-power-ring" />
+            <circle cx="100" cy="90" r="46" stroke="#34d399" stroke-opacity="0.4" class="kinetic-power-ring" />
+            <circle cx="100" cy="90" r="64" stroke="#6ee7b7" stroke-opacity="0.25" class="kinetic-power-ring" />
+
+            <!-- Biomechanical Ground Velocity Line -->
+            <path d="M 20 162 L 180 162" stroke="rgba(255,255,255,0.2)" stroke-width="2" stroke-dasharray="8 6" />
+            <path d="M 40 162 L 140 162" stroke="#34d399" stroke-width="3" stroke-linecap="round" filter="drop-shadow(0 0 6px #10b981)" />
+
+            <!-- Human Kinetic Silhouette Group -->
+            <g transform="translate(10, -5)">
+              <!-- Torso & Spinal Axis with Chakra Energy Centers -->
+              <line x1="90" y1="52" x2="90" y2="100" stroke="#34d399" stroke-width="6" stroke-linecap="round" filter="drop-shadow(0 0 6px #10b981)" />
+
+              <!-- Head & Crown Chakra -->
+              <circle cx="90" cy="38" r="14" fill="#047857" stroke="#34d399" stroke-width="2.5" filter="drop-shadow(0 0 8px #10b981)" />
+              <circle cx="90" cy="38" r="5" fill="#a7f3d0" />
+              <!-- Crown Halo Aura -->
+              <ellipse cx="90" cy="30" rx="12" ry="4" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="3 2" />
+
+              <!-- Spinal Energy Nodes (Chakras) -->
+              <circle cx="90" cy="54" r="4" fill="#a855f7" class="joint-chakra" /> <!-- Throat / Brow -->
+              <circle cx="90" cy="68" r="5" fill="#10b981" class="joint-chakra" /> <!-- Heart -->
+              <circle cx="90" cy="82" r="4" fill="#f59e0b" class="joint-chakra" /> <!-- Solar Plexus -->
+              <circle cx="90" cy="96" r="4" fill="#ef4444" class="joint-chakra" /> <!-- Root -->
+
+              <!-- Left Arm (Trailing) -->
+              <g class="kinetic-arm-trail">
+                <line x1="90" y1="65" x2="68" y2="82" stroke="#6ee7b7" stroke-width="4.5" stroke-linecap="round" />
+                <line x1="68" y1="82" x2="52" y2="70" stroke="#a7f3d0" stroke-width="4" stroke-linecap="round" />
+                <circle cx="68" cy="82" r="4" fill="#34d399" class="joint-chakra" />
+                <circle cx="52" cy="70" r="3.5" fill="#fbbf24" />
+              </g>
+
+              <!-- Right Arm (Leading Forward) -->
+              <g class="kinetic-arm-lead">
+                <line x1="90" y1="65" x2="114" y2="78" stroke="#34d399" stroke-width="5" stroke-linecap="round" />
+                <line x1="114" y1="78" x2="134" y2="64" stroke="#6ee7b7" stroke-width="4" stroke-linecap="round" />
+                <circle cx="114" cy="78" r="4.5" fill="#34d399" class="joint-chakra" />
+                <!-- Dynamic Dumbbell / Power Kinetic Spark in hand -->
+                <circle cx="134" cy="64" r="4" fill="#fbbf24" filter="drop-shadow(0 0 6px #fbbf24)" />
+                <line x1="130" y1="60" x2="138" y2="68" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" />
+              </g>
+
+              <!-- Left Leg (Trailing Backwards Stride) -->
+              <g class="kinetic-leg-trail">
+                <line x1="90" y1="100" x2="64" y2="128" stroke="#059669" stroke-width="5.5" stroke-linecap="round" />
+                <line x1="64" y1="128" x2="44" y2="155" stroke="#34d399" stroke-width="5" stroke-linecap="round" />
+                <circle cx="64" cy="128" r="4.5" fill="#10b981" class="joint-chakra" />
+                <circle cx="44" cy="155" r="4" fill="#a7f3d0" />
+              </g>
+
+              <!-- Right Leg (Leading Forward Stride) -->
+              <g class="kinetic-leg-lead">
+                <line x1="90" y1="100" x2="120" y2="124" stroke="#10b981" stroke-width="6" stroke-linecap="round" />
+                <line x1="120" y1="124" x2="136" y2="156" stroke="#34d399" stroke-width="5" stroke-linecap="round" />
+                <circle cx="120" cy="124" r="5" fill="#34d399" class="joint-chakra" />
+                <circle cx="136" cy="156" r="4" fill="#fbbf24" />
+              </g>
+            </g>
+          </svg>
+        </div>
+
+        <div class="splash-metric-chips">
+          <span class="splash-chip">⚡ 168 SPM Cadence</span>
+          <span class="splash-chip">🧘 Synovial Mobility</span>
+          <span class="splash-chip">💪 Core Torque Flow</span>
+        </div>
+      </div>
+
+      <!-- CENTER: MIDDLE OF SCREEN APP BRANDING & VITALITY LAUNCH -->
+      <div class="splash-center-col">
+        <!-- Central Luminous Prana Emblem -->
+        <div class="splash-logo-halo">
+          <div class="splash-orbital-ring"></div>
+          <div class="splash-orbital-ring-2"></div>
+          <div class="splash-logo-core">🌱</div>
+        </div>
+
+        <!-- APP NAME IN MIDDLE OF SCREEN -->
+        <h1 class="splash-app-title">PRANAFIT</h1>
+        <div class="splash-app-subtitle">Holistic Lifestyle &amp; Biometric Health Engine</div>
+
+        <!-- Dynamic Real-Time ECG Biometric Pulse Wave -->
+        <div class="splash-ecg-container">
+          <svg class="splash-ecg-svg" viewBox="0 0 320 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 0 20 L 70 20 L 85 20 L 95 8 L 105 32 L 115 4 L 125 36 L 135 20 L 160 20 L 210 20 L 225 20 L 235 8 L 245 32 L 255 4 L 265 36 L 275 20 L 320 20" 
+                  stroke="#34d399" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"
+                  filter="drop-shadow(0 0 8px #10b981)" />
+          </svg>
+        </div>
+
+        <!-- Live Changing Phase Narrative Ticker -->
+        <div class="splash-phase-status">
+          <span class="splash-status-dot"></span>
+          <span id="splash-status-text">Calibrating Biomechanical Movement Kinematics...</span>
+        </div>
+
+        <!-- Smooth Progress Track (3-5s Timing) -->
+        <div class="splash-progress-track">
+          <div class="splash-progress-fill" id="splash-progress-bar"></div>
+        </div>
+
+        <!-- Skip / Enter Action & Live Timer -->
+        <div class="splash-actions">
+          <button type="button" class="splash-skip-btn" onclick="dismissLaunchAnimation()">
+            <span>Enter PranaFit</span>
+            <span>➔</span>
+          </button>
+          <span class="splash-timer-badge" id="splash-timer-badge">4.0s</span>
+        </div>
+      </div>
+
+      <!-- RIGHT: ADVANCED ANIMATED CULINARY MEDICINE & LIVING FOODS -->
+      <div class="splash-kinetic-panel panel-food">
+        <div class="splash-panel-header">
+          <span class="splash-badge-mini splash-badge-amber">🥗 Culinary Medicine</span>
+          <span style="font-size: 11px; color: #fbbf24; font-weight: 700;">Living Nutrition</span>
+        </div>
+
+        <div class="splash-food-viewport">
+          <svg class="food-alchemy-svg" viewBox="0 0 200 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Rising Herbal Aromatherapeutic Steam Lines -->
+            <g transform="translate(10, 0)">
+              <path class="herbal-steam-path" d="M 100 70 Q 92 50 102 34 T 96 12" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" fill="none" />
+              <path class="herbal-steam-path" d="M 112 66 Q 120 46 110 28 T 116 8" stroke="#34d399" stroke-width="2.2" stroke-linecap="round" fill="none" />
+              <path class="herbal-steam-path" d="M 88 68 Q 80 48 90 32 T 84 14" stroke="#a7f3d0" stroke-width="1.8" stroke-linecap="round" fill="none" />
+            </g>
+
+            <!-- Floating Bio-Active Nutrient Photons (Curcumin, Chlorophyll, Omega-3) -->
+            <circle cx="48" cy="52" r="5" fill="#f59e0b" class="nutrient-photon" />
+            <circle cx="152" cy="46" r="6" fill="#10b981" class="nutrient-photon" />
+            <circle cx="160" cy="98" r="4.5" fill="#ec4899" class="nutrient-photon" />
+            <circle cx="42" cy="115" r="4" fill="#3b82f6" class="nutrient-photon" />
+
+            <!-- Golden Ayurvedic Kadha / Herbal Infusion Bowl -->
+            <g transform="translate(30, 80)">
+              <!-- Ceramic Cup Outer Shadow -->
+              <ellipse cx="70" cy="50" rx="42" ry="16" fill="rgba(0,0,0,0.3)" />
+              <!-- Cup Body -->
+              <path d="M 32 30 Q 34 68 70 68 Q 106 68 108 30 Z" fill="#064e3b" stroke="#34d399" stroke-width="2.5" filter="drop-shadow(0 0 10px rgba(16,185,129,0.4))" />
+              <!-- Steaming Liquid Surface -->
+              <ellipse cx="70" cy="30" rx="38" ry="14" fill="#d97706" stroke="#fbbf24" stroke-width="2" />
+              <ellipse cx="70" cy="30" rx="30" ry="10" fill="#f59e0b" opacity="0.8" />
+              <!-- Golden Curcumin Swirl -->
+              <circle cx="66" cy="30" r="7" fill="#fef08a" opacity="0.9" filter="drop-shadow(0 0 4px #fbbf24)" />
+              <circle cx="78" cy="29" r="4" fill="#a7f3d0" opacity="0.8" />
+            </g>
+
+            <!-- Sliced Superfood Avocado with Bio-Active Aura -->
+            <g transform="translate(20, 20)">
+              <!-- Outer Bio-Lipid Aura -->
+              <ellipse cx="50" cy="65" rx="32" ry="42" fill="none" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4 3" class="avocado-bio-aura" />
+              <!-- Avocado Dark Green Rind -->
+              <ellipse cx="50" cy="65" rx="26" ry="36" fill="#064e3b" stroke="#34d399" stroke-width="2" />
+              <!-- Creamy Pale Green Flesh -->
+              <ellipse cx="50" cy="66" rx="21" ry="30" fill="#a7f3d0" />
+              <ellipse cx="50" cy="67" rx="16" ry="24" fill="#d1fae5" />
+              <!-- Rich Seed in Center -->
+              <circle cx="50" cy="74" r="11" fill="#78350f" stroke="#b45309" stroke-width="2" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.4))" />
+              <circle cx="47" cy="71" r="3.5" fill="#d97706" opacity="0.7" />
+            </g>
+
+            <!-- Golden Turmeric Root & Sprouted Seeds Accent -->
+            <g transform="translate(132, 98)">
+              <!-- Organic Turmeric Rhizome -->
+              <path d="M 10 18 Q 24 6 38 16 Q 44 26 32 36 Q 16 34 10 18 Z" fill="#d97706" stroke="#fbbf24" stroke-width="2" filter="drop-shadow(0 0 6px #f59e0b)" />
+              <circle cx="24" cy="22" r="3" fill="#fef08a" />
+              <!-- Bio-Active Photon Dots -->
+              <circle cx="8" cy="38" r="2.5" fill="#34d399" />
+              <circle cx="42" cy="10" r="3" fill="#fbbf24" />
+            </g>
+          </svg>
+        </div>
+
+        <div class="splash-metric-chips">
+          <span class="splash-chip">✨ 95% Curcuminoids</span>
+          <span class="splash-chip">🥑 Bio-Lipid Omega-3</span>
+          <span class="splash-chip">🌿 Gut Prebiotics</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Top Navigation Header -->
   <header class="app-header" id="main-header">
     <div class="header-container">
@@ -21,14 +222,14 @@
         <div class="brand-icon">🌱</div>
         <div class="brand-text">
           <h1>PranaFit</h1>
-          <p>Holistic Lifestyle & Preventive Health</p>
+          <p>Holistic Lifestyle &amp; Preventive Health</p>
         </div>
       </div>
 
       <!-- Controls: Location, Points, Watch, Auth, Audio, SOS -->
       <div class="header-controls">
         <!-- Live Location Badge & Nearby Food Quick-Trigger -->
-        <button class="location-badge" id="header-location-badge" onclick="switchTab('nearby_healthy_food')" title="Detect live location & order healthy food from nearby places">
+        <button class="location-badge" id="header-location-badge" onclick="switchTab('nearby_healthy_food')" title="Detect live location &amp; order healthy food from nearby places">
           <span>📍</span>
           <span id="location-badge-text">Detecting Location...</span>
         </button>
@@ -155,14 +356,14 @@
             <div>
               <div style="display: flex; align-items: center; gap: 8px;">
                 <h3 style="font-family: var(--font-heading); font-size: 16px; font-weight: 800; margin: 0; color: #ffffff;" id="today-watch-name">
-                  Smartwatch Telemetry
+                  Smartwatch (Not Connected)
                 </h3>
-                <span class="tag-badge" id="today-watch-status-badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.3); font-size: 10px; padding: 2px 8px;">
-                  ● Ready / Tap to Pair
+                <span class="tag-badge" id="today-watch-status-badge" style="background: rgba(148, 163, 184, 0.2); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.3); font-size: 10px; padding: 2px 8px;">
+                  ○ Disconnected - Tap to Pair
                 </span>
               </div>
               <p style="font-size: 12px; color: #94a3b8; margin: 2px 0 0;" id="today-watch-subtext">
-                Pairs live via Web Bluetooth API or Smartwatch Stream (Heart Rate, Steps, Walking Distance, HRV)
+                Connect your Apple Watch, Wear OS, Galaxy, Garmin, Fitbit or BLE GATT watch to stream live telemetry
               </p>
             </div>
           </div>
@@ -179,13 +380,13 @@
         <!-- Live Vitals Sort & Filter Toolbar -->
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 14px;">
           <span style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;">
-            Sort & Inspect Live Details:
+            Sort &amp; Inspect Live Details:
           </span>
           <div class="vitals-sort-pills" id="today-vitals-sort-pills">
             <button type="button" class="vitals-sort-btn active" data-sort="all" onclick="sortSmartwatchMetrics('all')">All Live Details</button>
-            <button type="button" class="vitals-sort-btn" data-sort="hr" onclick="sortSmartwatchMetrics('hr')">❤️ Heart Rate & Pulse</button>
-            <button type="button" class="vitals-sort-btn" data-sort="walk" onclick="sortSmartwatchMetrics('walk')">👟 Walk Distance & Steps</button>
-            <button type="button" class="vitals-sort-btn" data-sort="hrv" onclick="sortSmartwatchMetrics('hrv')">⚡ HRV & Stress</button>
+            <button type="button" class="vitals-sort-btn" data-sort="hr" onclick="sortSmartwatchMetrics('hr')">❤️ Heart Rate &amp; Pulse</button>
+            <button type="button" class="vitals-sort-btn" data-sort="walk" onclick="sortSmartwatchMetrics('walk')">👟 Walk Distance &amp; Steps</button>
+            <button type="button" class="vitals-sort-btn" data-sort="hrv" onclick="sortSmartwatchMetrics('hrv')">⚡ HRV &amp; Stress</button>
             <button type="button" class="vitals-sort-btn" data-sort="calories" onclick="sortSmartwatchMetrics('calories')">🔥 Active Burn</button>
           </div>
         </div>
@@ -196,31 +397,31 @@
           <div class="smartwatch-metric-card" id="card-metric-hr" data-metric="hr">
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <span style="font-size: 11px; font-weight: 800; color: #f43f5e; text-transform: uppercase;">❤️ Live Heart Rate</span>
-              <span class="watch-live-dot" style="background: #f43f5e; box-shadow: 0 0 6px #f43f5e;"></span>
+              <span class="watch-live-dot" style="background: #94a3b8; box-shadow: none;"></span>
             </div>
             <div class="metric-value-huge" style="color: #ffffff;">
-              <span id="metric-today-hr">74</span>
+              <span id="metric-today-hr">0</span>
               <span class="metric-unit">BPM</span>
             </div>
-            <div style="display: flex; justify-content: space-between; font-size: 11px; color: #34d399;" id="metric-today-hr-status">
-              <span>Resting Rhythm</span>
-              <span id="metric-today-hr-zone">Zone 1</span>
+            <div style="display: flex; justify-content: space-between; font-size: 11px; color: #94a3b8;" id="metric-today-hr-status">
+              <span>No Live Pulse</span>
+              <span id="metric-today-hr-zone" style="background: rgba(255,255,255,0.1); padding: 1px 6px; border-radius: 4px; color: #94a3b8;">Disconnected</span>
             </div>
           </div>
 
           <!-- Metric 2: Walking & Steps -->
           <div class="smartwatch-metric-card" id="card-metric-walk" data-metric="walk">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-              <span style="font-size: 11px; font-weight: 800; color: #10b981; text-transform: uppercase;">👟 Walk Distance & Steps</span>
-              <span style="font-size: 11px; color: #6ee7b7;" id="metric-today-walk-km">5.72 km</span>
+              <span style="font-size: 11px; font-weight: 800; color: #10b981; text-transform: uppercase;">👟 Walk Distance &amp; Steps</span>
+              <span style="font-size: 11px; color: #94a3b8;" id="metric-today-walk-km">0.00 km</span>
             </div>
             <div class="metric-value-huge" style="color: #ffffff;">
-              <span id="metric-today-steps">7,340</span>
+              <span id="metric-today-steps">0</span>
               <span class="metric-unit">Steps</span>
             </div>
             <div style="display: flex; justify-content: space-between; font-size: 11px; color: #94a3b8;" id="metric-today-cadence">
-              <span>Cadence: 104 spm</span>
-              <span style="color: #34d399;">73% of Goal</span>
+              <span>Cadence: 0 spm</span>
+              <span style="color: #94a3b8;">0% of Goal</span>
             </div>
           </div>
 
@@ -228,29 +429,29 @@
           <div class="smartwatch-metric-card" id="card-metric-cal" data-metric="calories">
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <span style="font-size: 11px; font-weight: 800; color: #fbbf24; text-transform: uppercase;">🔥 Active Caloric Burn</span>
-              <span style="font-size: 11px; color: #fde68a;">Target: 600</span>
+              <span style="font-size: 11px; color: #94a3b8;">Target: 600</span>
             </div>
             <div class="metric-value-huge" style="color: #ffffff;">
-              <span id="metric-today-cal">460</span>
+              <span id="metric-today-cal">0</span>
               <span class="metric-unit">kcal</span>
             </div>
             <div style="font-size: 11px; color: #94a3b8;">
-              Metabolic expenditure tracked
+              Awaiting watch telemetry sync
             </div>
           </div>
 
           <!-- Metric 4: HRV & Autonomic Recovery -->
           <div class="smartwatch-metric-card" id="card-metric-hrv" data-metric="hrv">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-              <span style="font-size: 11px; font-weight: 800; color: #818cf8; text-transform: uppercase;">⚡ Autonomic HRV & Stress</span>
-              <span style="font-size: 11px; color: #a5b4fc;" id="metric-today-stress">Stress: 38/100</span>
+              <span style="font-size: 11px; font-weight: 800; color: #818cf8; text-transform: uppercase;">⚡ Autonomic HRV &amp; Stress</span>
+              <span style="font-size: 11px; color: #94a3b8;" id="metric-today-stress">Stress: 0/100</span>
             </div>
             <div class="metric-value-huge" style="color: #ffffff;">
-              <span id="metric-today-hrv">62</span>
+              <span id="metric-today-hrv">0</span>
               <span class="metric-unit">ms</span>
             </div>
-            <div style="font-size: 11px; color: #34d399;" id="metric-today-hrv-status">
-              High Parasympathetic Recovery
+            <div style="font-size: 11px; color: #94a3b8;" id="metric-today-hrv-status">
+              Connect watch to measure autonomic HRV
             </div>
           </div>
         </div>
@@ -638,8 +839,8 @@
           <h4 style="font-family: var(--font-heading); font-size: 16px; font-weight: 800; color: #0f172a; margin: 0 0 4px;">
             Attach or Drop Medical Report, Pathology PDF or Photo
           </h4>
-          <p style="font-size: 12px; color: #64748b; margin: 0 0 12px; max-width: 520px; margin-inline: auto;">
-            Upload Blood Tests (Lipid, HbA1c, Thyroid, Vitamin D), Doctor Prescription, MRI / X-Ray, or scan a physical report photo. Our engine parses findings with clinical precision.
+          <p style="font-size: 12px; color: #64748b; margin: 0 0 12px; max-width: 540px; margin-inline: auto;">
+            Upload Blood Tests (Lipid, HbA1c, Thyroid, Vitamin D), Doctor Prescription, MRI / X-Ray, or photo. Our engine performs real-time clinical analysis and displays recommendations directly below.
           </p>
           
           <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;" onclick="event.stopPropagation()">
@@ -668,6 +869,11 @@
           <!-- Uploaded File Preview Badge & Status -->
           <div id="report-file-preview" style="display: none;" onclick="event.stopPropagation()">
             <!-- Rendered dynamically by script.js -->
+          </div>
+
+          <!-- DIRECT RECOMMENDATIONS DISPLAYED IMMEDIATELY BELOW THE REPORT -->
+          <div id="report-direct-recommendations" style="display: none; margin-top: 16px; text-align: left;" onclick="event.stopPropagation()">
+            <!-- Full clinical recommendations rendered directly below uploaded file -->
           </div>
         </div>
 
@@ -698,43 +904,10 @@
           </div>
         </div>
 
-        <!-- Quick 1-Click Common Health Issues Presets (Expanded 20 Clinical Conditions) -->
-        <div style="margin-bottom: 18px;">
-          <span style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 8px;">
-            ⚡ Or Select a Condition Preset for Instant Clinical Blueprint:
-          </span>
-          <div class="problem-preset-chips" id="problem-preset-chips">
-            <button class="chip-btn problem-preset-btn active" data-problem="back_pain" onclick="selectProblemPreset('back_pain')">🪑 Lower Back Pain & Desk Slouch</button>
-            <button class="chip-btn problem-preset-btn" data-problem="neck_strain" onclick="selectProblemPreset('neck_strain')">💻 Tech-Neck & Cervical Stiffness</button>
-            <button class="chip-btn problem-preset-btn" data-problem="acid_reflux" onclick="selectProblemPreset('acid_reflux')">🔥 Acid Reflux, GERD & Bloating</button>
-            <button class="chip-btn problem-preset-btn" data-problem="pcos_hormone" onclick="selectProblemPreset('pcos_hormone')">🩸 PCOS & Hormonal Imbalance</button>
-            <button class="chip-btn problem-preset-btn" data-problem="insomnia" onclick="selectProblemPreset('insomnia')">🌙 Insomnia & Racing Mind</button>
-            <button class="chip-btn problem-preset-btn" data-problem="knee_joint" onclick="selectProblemPreset('knee_joint')">🦵 Knee Joint Pain & Crepitus</button>
-            <button class="chip-btn problem-preset-btn" data-problem="migraine" onclick="selectProblemPreset('migraine')">⚡ Migraine & Tension Headaches</button>
-            <button class="chip-btn problem-preset-btn" data-problem="sciatica_nerve" onclick="selectProblemPreset('sciatica_nerve')">⚡ Sciatica & Radiating Nerve Pain</button>
-            <button class="chip-btn problem-preset-btn" data-problem="cervical_spondylosis" onclick="selectProblemPreset('cervical_spondylosis')">🦴 Cervical Spondylosis & Arm Tingling</button>
-            <button class="chip-btn problem-preset-btn" data-problem="sluggish_metabolism" onclick="selectProblemPreset('sluggish_metabolism')">🐢 Sluggish Digestion & Weight Plateau</button>
-            <button class="chip-btn problem-preset-btn" data-problem="fatty_liver" onclick="selectProblemPreset('fatty_liver')">🛡️ Fatty Liver & Hepatic Congestion</button>
-            <button class="chip-btn problem-preset-btn" data-problem="ibs_bloating" onclick="selectProblemPreset('ibs_bloating')">🌪️ IBS, Gas & Visceral Spasms</button>
-            <button class="chip-btn problem-preset-btn" data-problem="constipation" onclick="selectProblemPreset('constipation')">🚽 Chronic Constipation & Sluggish Colon</button>
-            <button class="chip-btn problem-preset-btn" data-problem="high_cholesterol_lipid" onclick="selectProblemPreset('high_cholesterol_lipid')">🩸 High Cholesterol &amp; Lipid Profile</button>
-            <button class="chip-btn problem-preset-btn" data-problem="diabetes_hba1c" onclick="selectProblemPreset('diabetes_hba1c')">📊 High HbA1c &amp; Diabetic Control</button>
-            <button class="chip-btn problem-preset-btn" data-problem="vitamin_d_deficiency" onclick="selectProblemPreset('vitamin_d_deficiency')">☀️ Vitamin D3 Deficiency &amp; Bone Aches</button>
-            <button class="chip-btn problem-preset-btn" data-problem="thyroid_tsh" onclick="selectProblemPreset('thyroid_tsh')">🦋 Hypothyroid &amp; High TSH</button>
-            <button class="chip-btn problem-preset-btn" data-problem="high_bp_stress" onclick="selectProblemPreset('high_bp_stress')">🫀 High Blood Pressure &amp; Stress</button>
-            <button class="chip-btn problem-preset-btn" data-problem="anxiety_stress" onclick="selectProblemPreset('anxiety_stress')">🌊 Anxiety, Palpitations &amp; Vata Burnout</button>
-            <button class="chip-btn problem-preset-btn" data-problem="plantar_heel" onclick="selectProblemPreset('plantar_heel')">🏃 Plantar Fasciitis &amp; Morning Heel Pain</button>
-            <button class="chip-btn problem-preset-btn" data-problem="frozen_shoulder" onclick="selectProblemPreset('frozen_shoulder')">🧗 Frozen Shoulder &amp; Rotator Stiffness</button>
-            <button class="chip-btn problem-preset-btn" data-problem="uric_acid_gout" onclick="selectProblemPreset('uric_acid_gout')">🦶 Uric Acid &amp; Gout Joint Pain</button>
-            <button class="chip-btn problem-preset-btn" data-problem="eczema_skin_rash" onclick="selectProblemPreset('eczema_skin_rash')">🌿 Eczema &amp; Pitta Skin Heat Rashes</button>
-            <button class="chip-btn problem-preset-btn" data-problem="low_immunity" onclick="selectProblemPreset('low_immunity')">🛡️ Recurrent Colds &amp; Low Immunity</button>
-          </div>
-        </div>
-
         <!-- Analyze Action Button -->
         <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
           <button class="btn-primary" id="btn-analyze-problem" onclick="triggerProblemAnalysis()" style="padding: 12px 24px; font-size: 14px; font-weight: 800;">
-            <span>🔬 Analyze Report &amp; Generate 2-Option Healing Protocol</span>
+            <span>🔬 Analyze &amp; Generate Dynamic Web Healing Blueprint</span>
           </button>
           <span style="font-size: 12px; color: #059669; font-weight: 700;">🎁 Awards +100 Green Points &amp; updates all sections in real-time</span>
         </div>
@@ -770,6 +943,9 @@
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <button class="btn-primary" onclick="detectUserLocation(true)" style="background: #ffffff; color: #065f46; font-weight: 800; border: none; padding: 10px 18px;">
               <span>📍 Detect My Live Location</span>
+            </button>
+            <button class="btn-primary" onclick="triggerDynamicInternetFoodAnalysis()" id="btn-internet-food-analyze" style="background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; font-weight: 800; border: none; padding: 10px 18px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);">
+              <span>🌐 Real-Time Internet Food Analysis</span>
             </button>
           </div>
         </div>
@@ -877,6 +1053,11 @@
             </select>
           </div>
         </div>
+      </div>
+
+      <!-- Real-Time Internet Grounded Food Recommendations (Dynamic Live Feed) -->
+      <div id="live-internet-food-section" style="margin-bottom: 24px;">
+        <!-- Dynamically rendered by triggerDynamicInternetFoodAnalysis() -->
       </div>
 
       <!-- Healthy Food Order Recommendations Grid -->
@@ -1089,14 +1270,14 @@
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--border);">
           <div>
             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-              <span class="tag-badge tag-emerald" id="wearables-conn-badge">● Bluetooth Ready</span>
-              <span style="font-size: 11px; color: var(--text-muted);" id="wearables-battery-text">🔋 Battery: 88% • Signal: Good (-58 dBm)</span>
+              <span class="tag-badge tag-muted" id="wearables-conn-badge" style="background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1;">○ Disconnected (0 Telemetry)</span>
+              <span style="font-size: 11px; color: var(--text-muted);" id="wearables-battery-text">🔋 Battery: -- • Signal: Disconnected</span>
             </div>
             <h3 style="font-family: var(--font-heading); font-size: 19px; font-weight: 800; color: #0f172a; margin: 0;" id="wearables-device-title">
-              Apple Watch Ultra (Synced Live)
+              No Smartwatch Connected
             </h3>
             <p style="font-size: 12px; color: var(--text-muted); margin: 3px 0 0;">
-              Live stream receiving GATT Heart Rate (0x2A37), Pedometer Walk Telemetry & Autonomic HRV
+              Connect your smartwatch via Bluetooth or select your watch brand to collect real-time sensor vitals
             </p>
           </div>
 
@@ -1113,13 +1294,13 @@
         <!-- Metric Sorting Controls Bar -->
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; background: #f8fafc; padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--border);">
           <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 12px; font-weight: 700; color: #475569;">Sort & Filter Live Telemetry:</span>
+            <span style="font-size: 12px; font-weight: 700; color: #475569;">Sort &amp; Filter Live Telemetry:</span>
           </div>
           <div class="vitals-sort-pills" id="wearables-vitals-sort-pills">
             <button type="button" class="vitals-sort-btn active" data-sort="all" onclick="sortSmartwatchMetrics('all')">All Metrics</button>
-            <button type="button" class="vitals-sort-btn" data-sort="hr" onclick="sortSmartwatchMetrics('hr')">❤️ Heart Rate & Pulse</button>
-            <button type="button" class="vitals-sort-btn" data-sort="walk" onclick="sortSmartwatchMetrics('walk')">👟 Walk & Cadence</button>
-            <button type="button" class="vitals-sort-btn" data-sort="hrv" onclick="sortSmartwatchMetrics('hrv')">⚡ HRV & Recovery</button>
+            <button type="button" class="vitals-sort-btn" data-sort="hr" onclick="sortSmartwatchMetrics('hr')">❤️ Heart Rate &amp; Pulse</button>
+            <button type="button" class="vitals-sort-btn" data-sort="walk" onclick="sortSmartwatchMetrics('walk')">👟 Walk &amp; Cadence</button>
+            <button type="button" class="vitals-sort-btn" data-sort="hrv" onclick="sortSmartwatchMetrics('hrv')">⚡ HRV &amp; Recovery</button>
             <button type="button" class="vitals-sort-btn" data-sort="calories" onclick="sortSmartwatchMetrics('calories')">🔥 Active Calories</button>
           </div>
         </div>
@@ -1130,31 +1311,31 @@
           <div class="smartwatch-metric-card" id="wearables-card-hr" data-metric="hr" style="background: #ffffff; border: 1.5px solid #fecdd3;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <span style="font-size: 11px; font-weight: 800; color: #e11d48; text-transform: uppercase;">❤️ Live Heart Rate</span>
-              <span class="watch-live-dot" style="background: #e11d48; box-shadow: 0 0 6px #e11d48;"></span>
+              <span class="watch-live-dot" style="background: #94a3b8; box-shadow: none;"></span>
             </div>
             <div class="metric-value-huge" style="color: #0f172a;">
-              <span id="vital-hr">74</span>
+              <span id="vital-hr">0</span>
               <span class="metric-unit">BPM</span>
             </div>
-            <div style="display: flex; justify-content: space-between; font-size: 11px; color: #059669;" id="vital-hr-sub">
-              <span>Normal Sinus Rhythm</span>
-              <span style="font-weight: 700; background: #ecfdf5; padding: 1px 6px; border-radius: 4px;">Zone 1 (Resting)</span>
+            <div style="display: flex; justify-content: space-between; font-size: 11px; color: #64748b;" id="vital-hr-sub">
+              <span>No Live Pulse</span>
+              <span style="font-weight: 700; background: #f1f5f9; padding: 1px 6px; border-radius: 4px; color: #64748b;">Not Connected</span>
             </div>
           </div>
 
           <!-- 2. Step Count & Walking Distance -->
           <div class="smartwatch-metric-card" id="wearables-card-walk" data-metric="walk" style="background: #ffffff; border: 1.5px solid #a7f3d0;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-              <span style="font-size: 11px; font-weight: 800; color: #059669; text-transform: uppercase;">👟 Steps & Walk Distance</span>
-              <span style="font-size: 11px; font-weight: 700; color: #047857;" id="vital-walk-km">5.72 km</span>
+              <span style="font-size: 11px; font-weight: 800; color: #059669; text-transform: uppercase;">👟 Steps &amp; Walk Distance</span>
+              <span style="font-size: 11px; font-weight: 700; color: #64748b;" id="vital-walk-km">0.00 km</span>
             </div>
             <div class="metric-value-huge" style="color: #0f172a;">
-              <span id="vital-steps">7,340</span>
+              <span id="vital-steps">0</span>
               <span class="metric-unit">Steps</span>
             </div>
             <div style="display: flex; justify-content: space-between; font-size: 11px; color: #64748b;" id="vital-walk-sub">
-              <span>Cadence: 104 spm • Pace: 5'42"</span>
-              <span style="color: #059669; font-weight: 700;">73% of Goal</span>
+              <span>Cadence: 0 spm • Pace: --</span>
+              <span style="color: #64748b; font-weight: 700;">0% of Goal</span>
             </div>
           </div>
 
@@ -1162,14 +1343,14 @@
           <div class="smartwatch-metric-card" id="wearables-card-cal" data-metric="calories" style="background: #ffffff; border: 1.5px solid #fde68a;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <span style="font-size: 11px; font-weight: 800; color: #d97706; text-transform: uppercase;">🔥 Active Calories Burn</span>
-              <span style="font-size: 11px; color: #b45309;">Goal: 600 kcal</span>
+              <span style="font-size: 11px; color: #64748b;">Goal: 600 kcal</span>
             </div>
             <div class="metric-value-huge" style="color: #0f172a;">
-              <span id="vital-cal">460</span>
+              <span id="vital-cal">0</span>
               <span class="metric-unit">kcal</span>
             </div>
-            <div style="font-size: 11px; color: #d97706;">
-              Moderate Metabolic Burn
+            <div style="font-size: 11px; color: #64748b;">
+              Awaiting watch telemetry sync
             </div>
           </div>
 
@@ -1177,14 +1358,14 @@
           <div class="smartwatch-metric-card" id="wearables-card-hrv" data-metric="hrv" style="background: #ffffff; border: 1.5px solid #c7d2fe;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <span style="font-size: 11px; font-weight: 800; color: #4f46e5; text-transform: uppercase;">⚡ Autonomic HRV</span>
-              <span style="font-size: 11px; color: #4338ca;">SDNN / RMSSD</span>
+              <span style="font-size: 11px; color: #64748b;">SDNN / RMSSD</span>
             </div>
             <div class="metric-value-huge" style="color: #0f172a;">
-              <span id="vital-hrv">62</span>
+              <span id="vital-hrv">0</span>
               <span class="metric-unit">ms</span>
             </div>
-            <div style="font-size: 11px; color: #4f46e5;">
-              High Parasympathetic Recovery
+            <div style="font-size: 11px; color: #64748b;">
+              Connect watch to measure HRV
             </div>
           </div>
 
@@ -1192,14 +1373,14 @@
           <div class="smartwatch-metric-card" id="wearables-card-spo2" data-metric="hr" style="background: #ffffff; border: 1.5px solid #bae6fd;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <span style="font-size: 11px; font-weight: 800; color: #0284c7; text-transform: uppercase;">🫁 Blood Oxygen (SpO2)</span>
-              <span style="font-size: 11px; color: #0369a1;">Optical Photoplethysmography</span>
+              <span style="font-size: 11px; color: #64748b;">Optical PPG Sensor</span>
             </div>
             <div class="metric-value-huge" style="color: #0f172a;">
-              <span id="vital-spo2">98</span>
+              <span id="vital-spo2">0</span>
               <span class="metric-unit">%</span>
             </div>
-            <div style="font-size: 11px; color: #0284c7;">
-              Optimal Arterial Oxygenation
+            <div style="font-size: 11px; color: #64748b;">
+              Pulse Oximeter Disconnected
             </div>
           </div>
 
@@ -1207,14 +1388,14 @@
           <div class="smartwatch-metric-card" id="wearables-card-stress" data-metric="hrv" style="background: #ffffff; border: 1.5px solid #e9d5ff;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <span style="font-size: 11px; font-weight: 800; color: #7c3aed; text-transform: uppercase;">🧠 Real-Time Stress Index</span>
-              <span style="font-size: 11px; color: #6d28d9;">1–100 Scale</span>
+              <span style="font-size: 11px; color: #64748b;">1–100 Scale</span>
             </div>
             <div class="metric-value-huge" style="color: #0f172a;">
-              <span id="vital-stress">38</span>
+              <span id="vital-stress">0</span>
               <span class="metric-unit">/100</span>
             </div>
-            <div style="font-size: 11px; color: #7c3aed;">
-              Calm Sympathetic Baseline
+            <div style="font-size: 11px; color: #64748b;">
+              Awaiting telemetry
             </div>
           </div>
         </div>
@@ -1946,47 +2127,79 @@
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
           <div>
             <div style="display: flex; align-items: center; gap: 8px;">
-              <span class="watch-live-dot" id="modal-watch-dot" style="background: #10b981;"></span>
-              <strong style="font-size: 15px; color: #ffffff;" id="modal-watch-device-name">Apple Watch Ultra (Connected)</strong>
+              <span class="watch-live-dot" id="modal-watch-dot" style="background: #94a3b8; box-shadow: none;"></span>
+              <strong style="font-size: 15px; color: #ffffff;" id="modal-watch-device-name">No Watch Connected</strong>
+              <span class="tag-badge" id="modal-watch-telemetry-badge" style="background: rgba(148, 163, 184, 0.2); color: #cbd5e1; font-size: 10px; border: 1px solid rgba(148, 163, 184, 0.3);">○ Telemetry Idle (0)</span>
             </div>
             <span style="font-size: 11px; color: #94a3b8; display: block; margin-top: 2px;" id="modal-watch-details-line">
-              🔋 Battery: 88% • Signal: -58 dBm • Stream: 1.5s Interval
+              Waiting for connection... Connect a watch to collect live real-time sensor data.
             </span>
           </div>
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <button class="btn-primary" onclick="requestBluetoothSmartwatch()" style="padding: 8px 16px; font-size: 12px; background: #10b981; font-weight: 800;">
-              <span>📶 Pair Bluetooth Smartwatch</span>
+            <button class="btn-primary" onclick="instantUniversalWatchLink(state.smartwatchDeviceName || 'Apple Watch Ultra')" style="padding: 8px 16px; font-size: 12px; background: linear-gradient(135deg, #10b981, #059669); font-weight: 800; border: none; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+              <span>⚡ Connect &amp; Stream Live Telemetry</span>
             </button>
-            <button class="btn-secondary" onclick="toggleSmartwatchDisconnect()" id="btn-modal-watch-disconnect" style="padding: 8px 14px; font-size: 12px; background: rgba(255,255,255,0.1); color: #ffffff; border-color: rgba(255,255,255,0.2);">
-              <span>Disconnect</span>
+            <button class="btn-secondary" onclick="requestBluetoothSmartwatch()" style="padding: 8px 14px; font-size: 12px; background: rgba(255,255,255,0.1); color: #ffffff; border-color: rgba(255,255,255,0.2);">
+              <span>📶 Pair BLE Hardware</span>
+            </button>
+            <button class="btn-secondary" onclick="toggleSmartwatchDisconnect()" id="btn-modal-watch-disconnect" style="padding: 8px 12px; font-size: 12px; background: rgba(239, 68, 68, 0.15); color: #fca5a5; border-color: rgba(239, 68, 68, 0.3);">
+              <span>Reset to 0 / Disconnect</span>
             </button>
           </div>
         </div>
       </div>
 
-      <!-- Select Smartwatch Brand / Simulator Presets -->
+      <!-- Select Smartwatch Brand / Universal Compatibility Hub -->
       <div style="margin-bottom: 18px;">
-        <label style="font-size: 12px; font-weight: 700; color: #475569; display: block; margin-bottom: 8px;">
-          Choose Smartwatch Model / Platform:
-        </label>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px;" id="watch-brand-selector">
-          <button type="button" class="chip-btn active" data-brand="Apple Watch Ultra" onclick="selectSmartwatchBrand('Apple Watch Ultra')">🍎 Apple Watch</button>
-          <button type="button" class="chip-btn" data-brand="Samsung Galaxy Watch 6" onclick="selectSmartwatchBrand('Samsung Galaxy Watch 6')">⌚ Galaxy Watch</button>
-          <button type="button" class="chip-btn" data-brand="Google Pixel Watch 2" onclick="selectSmartwatchBrand('Google Pixel Watch 2')">🔘 Pixel Watch</button>
-          <button type="button" class="chip-btn" data-brand="Garmin Forerunner 965" onclick="selectSmartwatchBrand('Garmin Forerunner 965')">🏃 Garmin</button>
-          <button type="button" class="chip-btn" data-brand="Fitbit Sense 2" onclick="selectSmartwatchBrand('Fitbit Sense 2')">💚 Fitbit</button>
-          <button type="button" class="chip-btn" data-brand="Amazfit / Noise Pro" onclick="selectSmartwatchBrand('Amazfit / Noise Pro')">⚡ Amazfit/Noise</button>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <label style="font-size: 12px; font-weight: 800; color: #334155; text-transform: uppercase; letter-spacing: 0.5px;">
+            🌐 Universal Smartwatch Compatibility (Click to Link &amp; Collect Real-Time Data):
+          </label>
+          <span style="font-size: 11px; color: #059669; font-weight: 700;">100% Brand Compatible</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px;" id="watch-brand-selector">
+          <button type="button" class="chip-btn" data-brand="Apple Watch Ultra" onclick="selectSmartwatchBrand('Apple Watch Ultra')">🍎 Apple Watch (All)</button>
+          <button type="button" class="chip-btn" data-brand="Samsung Galaxy Watch 7" onclick="selectSmartwatchBrand('Samsung Galaxy Watch 7')">⌚ Galaxy Watch / WearOS</button>
+          <button type="button" class="chip-btn" data-brand="Google Pixel Watch 3" onclick="selectSmartwatchBrand('Google Pixel Watch 3')">🔘 Google Pixel Watch</button>
+          <button type="button" class="chip-btn" data-brand="Garmin Forerunner 965" onclick="selectSmartwatchBrand('Garmin Forerunner 965')">🏃 Garmin Connect</button>
+          <button type="button" class="chip-btn" data-brand="Fitbit Sense 2" onclick="selectSmartwatchBrand('Fitbit Sense 2')">💚 Fitbit Sense / Charge</button>
+          <button type="button" class="chip-btn" data-brand="Noise ColorFit Pro 5" onclick="selectSmartwatchBrand('Noise ColorFit Pro 5')">⚡ Noise ColorFit</button>
+          <button type="button" class="chip-btn" data-brand="boAt Wave Elevate" onclick="selectSmartwatchBrand('boAt Wave Elevate')">⚓ boAt Crest</button>
+          <button type="button" class="chip-btn" data-brand="Amazfit Balance" onclick="selectSmartwatchBrand('Amazfit Balance')">🟠 Amazfit / Zepp OS</button>
+          <button type="button" class="chip-btn" data-brand="OnePlus Watch 2" onclick="selectSmartwatchBrand('OnePlus Watch 2')">🔴 OnePlus Watch</button>
+          <button type="button" class="chip-btn" data-brand="Xiaomi Smart Band 9" onclick="selectSmartwatchBrand('Xiaomi Smart Band 9')">🔶 Xiaomi / Mi Band</button>
+          <button type="button" class="chip-btn" data-brand="Huawei Watch GT 4" onclick="selectSmartwatchBrand('Huawei Watch GT 4')">🔵 Huawei Health</button>
+          <button type="button" class="chip-btn" data-brand="Polar Vantage V3" onclick="selectSmartwatchBrand('Polar Vantage V3')">❄️ Polar Flow / H10</button>
+          <button type="button" class="chip-btn" data-brand="Whoop 4.0 Strap" onclick="selectSmartwatchBrand('Whoop 4.0 Strap')">🖤 Whoop 4.0</button>
+          <button type="button" class="chip-btn" data-brand="Suunto Race" onclick="selectSmartwatchBrand('Suunto Race')">🧭 Suunto Multisport</button>
+          <button type="button" class="chip-btn" data-brand="Fire-Boltt &amp; Titan Talk" onclick="selectSmartwatchBrand('Fire-Boltt & Titan Talk')">⚡ Fire-Boltt / Titan</button>
+          <button type="button" class="chip-btn" data-brand="Generic BLE GATT Watch" onclick="selectSmartwatchBrand('Generic BLE GATT Watch')">📡 Any BLE Bluetooth</button>
+        </div>
+      </div>
+
+      <!-- DAILY CONTINUOUS TELEMETRY & ADVICE BOX -->
+      <div id="modal-daily-advice-box" style="background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border: 1.5px solid #86efac; border-radius: var(--radius-lg); padding: 14px; margin-bottom: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <span style="font-size: 11px; font-weight: 800; color: #065f46; text-transform: uppercase;">
+            📅 Daily Connected Advice &amp; Telemetry Synthesis
+          </span>
+          <span id="modal-streak-pill" style="font-size: 11px; font-weight: 800; color: #047857; background: #ffffff; padding: 2px 8px; border-radius: 999px; border: 1px solid #a7f3d0;">
+            🔥 14-Day Streak Active
+          </span>
+        </div>
+        <div id="modal-daily-advice-text" style="font-size: 12px; color: #1e293b; line-height: 1.5;">
+          Connect your smartwatch to stream real-time heart rate, walking telemetry, and autonomic recovery data.
         </div>
       </div>
 
       <!-- Live Vitals Sort Strip in Modal -->
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; background: #f8fafc; padding: 8px 12px; border-radius: var(--radius-md);">
-        <span style="font-size: 11px; font-weight: 700; color: #475569;">Sort & Filter Details:</span>
+        <span style="font-size: 11px; font-weight: 700; color: #475569;">Sort &amp; Filter Details:</span>
         <div class="vitals-sort-pills" id="modal-vitals-sort-pills">
           <button type="button" class="vitals-sort-btn active" data-sort="all" onclick="sortSmartwatchMetrics('all')">All Metrics</button>
           <button type="button" class="vitals-sort-btn" data-sort="hr" onclick="sortSmartwatchMetrics('hr')">❤️ Heart Rate</button>
           <button type="button" class="vitals-sort-btn" data-sort="walk" onclick="sortSmartwatchMetrics('walk')">👟 Walk Distance</button>
-          <button type="button" class="vitals-sort-btn" data-sort="hrv" onclick="sortSmartwatchMetrics('hrv')">⚡ HRV & Stress</button>
+          <button type="button" class="vitals-sort-btn" data-sort="hrv" onclick="sortSmartwatchMetrics('hrv')">⚡ HRV &amp; Stress</button>
         </div>
       </div>
 
@@ -1995,33 +2208,33 @@
         <div style="background: #fff1f2; border: 1px solid #fecdd3; border-radius: var(--radius-md); padding: 12px;">
           <span style="font-size: 11px; font-weight: 800; color: #e11d48; text-transform: uppercase;">❤️ Live Heart Rate</span>
           <div style="font-family: var(--font-heading); font-size: 24px; font-weight: 800; color: #9f1239; margin-top: 2px;">
-            <span id="modal-val-hr">74</span> <span style="font-size: 13px; font-weight: 600;">BPM</span>
+            <span id="modal-val-hr">0</span> <span style="font-size: 13px; font-weight: 600;">BPM</span>
           </div>
-          <span style="font-size: 11px; color: #be123c;">Zone 1 (Resting) • Sinus Rhythm</span>
+          <span style="font-size: 11px; color: #be123c;">Awaiting telemetry pulse</span>
         </div>
 
         <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: var(--radius-md); padding: 12px;">
-          <span style="font-size: 11px; font-weight: 800; color: #059669; text-transform: uppercase;">👟 Walk Distance & Steps</span>
+          <span style="font-size: 11px; font-weight: 800; color: #059669; text-transform: uppercase;">👟 Walk Distance &amp; Steps</span>
           <div style="font-family: var(--font-heading); font-size: 24px; font-weight: 800; color: #065f46; margin-top: 2px;">
-            <span id="modal-val-steps">7,340</span> <span style="font-size: 13px; font-weight: 600;">Steps</span>
+            <span id="modal-val-steps">0</span> <span style="font-size: 13px; font-weight: 600;">Steps</span>
           </div>
-          <span style="font-size: 11px; color: #047857;" id="modal-val-walk-km">5.72 km • Cadence: 104 spm</span>
+          <span style="font-size: 11px; color: #047857;" id="modal-val-walk-km">0.00 km • Cadence: 0 spm</span>
         </div>
 
         <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: var(--radius-md); padding: 12px;">
           <span style="font-size: 11px; font-weight: 800; color: #d97706; text-transform: uppercase;">🔥 Active Calories</span>
           <div style="font-family: var(--font-heading); font-size: 24px; font-weight: 800; color: #92400e; margin-top: 2px;">
-            <span id="modal-val-cal">460</span> <span style="font-size: 13px; font-weight: 600;">kcal</span>
+            <span id="modal-val-cal">0</span> <span style="font-size: 13px; font-weight: 600;">kcal</span>
           </div>
-          <span style="font-size: 11px; color: #b45309;">Moderate Burn (Goal: 600)</span>
+          <span style="font-size: 11px; color: #b45309;">Goal: 600 kcal</span>
         </div>
 
         <div style="background: #eef2ff; border: 1px solid #c7d2fe; border-radius: var(--radius-md); padding: 12px;">
-          <span style="font-size: 11px; font-weight: 800; color: #4f46e5; text-transform: uppercase;">⚡ Autonomic HRV & Stress</span>
+          <span style="font-size: 11px; font-weight: 800; color: #4f46e5; text-transform: uppercase;">⚡ Autonomic HRV &amp; Stress</span>
           <div style="font-family: var(--font-heading); font-size: 24px; font-weight: 800; color: #3730a3; margin-top: 2px;">
-            <span id="modal-val-hrv">62</span> <span style="font-size: 13px; font-weight: 600;">ms</span>
+            <span id="modal-val-hrv">0</span> <span style="font-size: 13px; font-weight: 600;">ms</span>
           </div>
-          <span style="font-size: 11px; color: #4338ca;" id="modal-val-stress">Stress: 38/100 (Calm)</span>
+          <span style="font-size: 11px; color: #4338ca;" id="modal-val-stress">Stress: 0/100 (Awaiting Sync)</span>
         </div>
       </div>
 
